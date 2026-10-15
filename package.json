@@ -1,0 +1,43 @@
+{
+  "name": "profile-sekolah",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "node server/dev.mjs",
+    "dev:api": "node --watch server/index.mjs dev",
+    "dev:web": "vite --host 127.0.0.1",
+    "start": "node server/index.mjs",
+    "admin:create": "node server/admin-cli.mjs create",
+    "admin:reset-password": "node server/admin-cli.mjs reset-password",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "framer-motion": "^11.11.11",
+    "helmet": "^8.3.0",
+    "lenis": "^1.1.14",
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.3.0",
+    "react-router-dom": "^7.18.4",
+    "tailwind-merge": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~5.6.2",
+    "vite": "^5.4.10"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "programs": [
+    {
+      "id": "program-smk-akl",
+      "level": "smk",
+      "title": "Akuntansi dan Keuangan Lembaga (AKL)",
+      "description": "Mempelajari pencatatan, pengelolaan, dan pelaporan keuangan pada perusahaan maupun lembaga.",
+      "highlights": [
+        "Pencatatan keuangan",
+        "Pengelolaan keuangan",
+        "Pelaporan keuangan",
+        "Administrasi keuangan"
+      ],
+      "icon": "business"
+    },
+    {
+      "id": "program-smk-pplg",
+      "level": "smk",
+      "title": "Pengembangan Perangkat Lunak dan Gim (PPLG)",
+      "description": "Mempelajari pembuatan, pengembangan, dan pengelolaan aplikasi, website, serta gim.",
+      "highlights": [
+        "Pemrograman",
+        "Desain website",
+        "Basis data",
+        "Aplikasi mobile",
+        "Logika pemrograman"
+      ],
+      "icon": "technology"
+    },
+    {
+      "id": "program-smk-tjkt",
+      "level": "smk",
+      "title": "Teknik Jaringan Komputer dan Telekomunikasi (TJKT)",
+      "description": "Mempelajari perancangan, pembangunan, pengelolaan, dan perbaikan jaringan komputer serta sistem telekomunikasi.",
+      "highlights": [
+        "Instalasi jaringan",
+        "Konfigurasi router",
+        "Server",
+        "Fiber optic",
+        "Perawatan perangkat jaringan"
+      ],
+      "icon": "technology"
+    },
+    {
+      "id": "program-smk-acp",
+      "level": "smk",
+      "title": "Axioo Class Program (ACP)",
+      "description": "Kelas industri yang membekali siswa dengan keterampilan hardware, software, jaringan, dan teknologi informasi.",
+      "highlights": [
+        "Hardware",
+        "Software",
+        "Jaringan",
+        "Teknologi informasi",
+        "Magang industri"
+      ],
+      "icon": "technology"
+    }
+  ],
+  "announcements": [],
+  "programsVerified": true
+}
