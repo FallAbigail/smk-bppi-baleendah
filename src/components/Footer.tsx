@@ -34,6 +34,8 @@ const navGroups = [
       { label: 'Beranda', href: '/' },
       { label: 'Tentang Sekolah', href: '/tentang' },
       { label: 'Program Keahlian', href: '/program' },
+      { label: 'Pendaftaran PPDB', href: '/ppdb' },
+      { label: 'Ekskul', href: '/ekskul' },
       { label: 'Galeri Kegiatan', href: '/galeri' },
       { label: 'Hubungi Sekolah', href: '/kontak' },
     ],
@@ -61,9 +63,9 @@ export default function Footer() {
   const { t } = useLanguage()
 
   return (
-    <footer className="bg-gray-950 text-gray-400">
+    <footer className="border-t border-gray-200 bg-slate-100 text-gray-600 transition-colors dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 py-14 border-b border-gray-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 py-14 border-b border-gray-200 dark:border-gray-800">
           <div className="lg:col-span-2">
             <Link
               to="/"
@@ -77,7 +79,7 @@ export default function Footer() {
                 className="h-14 w-14 shrink-0 object-contain"
               />
               <span>
-                <span className="block font-bold text-white text-sm">{schoolProfile.name}</span>
+                <span className="block font-bold text-gray-900 text-sm dark:text-white">{schoolProfile.name}</span>
                 <span className="block text-gray-500 text-xs">{t(schoolProfile.city)}</span>
               </span>
             </Link>
@@ -86,23 +88,23 @@ export default function Footer() {
             </p>
             <address className="not-italic space-y-2.5 text-sm mb-6">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-gray-600 mt-0.5 shrink-0" aria-hidden="true" />
+                <MapPin className="w-4 h-4 text-brand-700 mt-0.5 shrink-0 dark:text-brand-400" aria-hidden="true" />
                 <span>{schoolProfile.address}</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-gray-600 shrink-0" aria-hidden="true" />
+                <Phone className="w-4 h-4 text-brand-700 shrink-0 dark:text-brand-400" aria-hidden="true" />
                 <a
                   href={`tel:${schoolProfile.phoneHref}`}
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-brand-800 dark:hover:text-white"
                 >
                   {schoolProfile.phoneDisplay}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-gray-600 shrink-0" aria-hidden="true" />
+                <Mail className="w-4 h-4 text-brand-700 shrink-0 dark:text-brand-400" aria-hidden="true" />
                 <a
                   href={`mailto:${schoolProfile.email}`}
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-brand-800 dark:hover:text-white"
                 >
                   {schoolProfile.email}
                 </a>
@@ -112,17 +114,17 @@ export default function Footer() {
 
           {navGroups.map((group) => (
             <nav key={group.title} aria-label={t(group.title)}>
-              <p className="text-white font-semibold text-sm mb-4">{t(group.title)}</p>
+              <p className="mb-4 text-xs font-bold uppercase tracking-[0.12em] text-gray-900 dark:text-gray-100">{t(group.title)}</p>
               <ul className="space-y-2.5">
                 {group.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.href}
                       className={[
-                        'text-sm hover:text-white transition-colors',
+                        'text-sm text-gray-600 transition-colors hover:text-brand-800 dark:text-gray-400 dark:hover:text-white',
                         'focus-visible:outline focus-visible:outline-2',
                         'focus-visible:outline-offset-2',
-                        'focus-visible:outline-white',
+                        'focus-visible:outline-brand-700 dark:focus-visible:outline-white',
                       ].join(' ')}
                     >
                       {t(link.label)}
@@ -134,7 +136,7 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+        <div className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-500">
           <p className="text-center sm:text-left">
             © {year} {schoolProfile.name} {t(schoolProfile.city)}.
           </p>
@@ -149,18 +151,18 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label={t(label)}
                   title={t(label)}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-800 text-gray-400 transition-colors hover:border-gray-600 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 bg-white/70 text-gray-600 transition-colors hover:border-brand-700 hover:bg-brand-700 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 dark:border-gray-800 dark:bg-transparent dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-900 dark:hover:text-white dark:focus-visible:outline-white"
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </a>
               ))}
             </div>
             <div className="flex items-center gap-3">
-              <Link to="/privasi" className="hover:text-gray-300 transition-colors">
+              <Link to="/privasi" className="transition-colors hover:text-brand-700 dark:hover:text-gray-300">
                 {t('Kebijakan Privasi')}
               </Link>
               <span aria-hidden="true">·</span>
-              <Link to="/kontak" className="hover:text-gray-300 transition-colors">
+              <Link to="/kontak" className="transition-colors hover:text-brand-700 dark:hover:text-gray-300">
                 {t('Kontak')}
               </Link>
             </div>

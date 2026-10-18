@@ -10,7 +10,9 @@ export default function HeroFacilities() {
   const [repetitions, setRepetitions] = useState(1)
   // Each repeated group must cover the viewport before it can wrap safely.
   const group = Array.from({ length: repetitions }, () => heroFacilities).flat()
-  const cards = [...group, ...group, ...group]
+  // Two identical cycles are enough to wrap safely. A third copy only adds
+  // off-screen DOM nodes and per-card work to the animation loop.
+  const cards = [...group, ...group]
   const groupLength = heroFacilities.length * repetitions
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function HeroFacilities() {
     let pendingPixels = 0
     let resumeAt = 0
     let hovered = false
-    let visible = true
+    let visible = false
     let drag: { x: number; y: number; scroll: number; horizontal: boolean } | null = null
 
     const paint = () => {
@@ -47,8 +49,11 @@ export default function HeroFacilities() {
     const wrap = () => {
       if (!loopWidth) return
       let shift = 0
-      if (track.scrollLeft < loopWidth * 0.5) shift = loopWidth
-      if (track.scrollLeft > loopWidth * 1.5) shift = -loopWidth
+      const scrollRoom = Math.max(0, loopWidth - track.clientWidth)
+      const margin = scrollRoom / 4
+      const maxScroll = track.scrollWidth - track.clientWidth
+      if (track.scrollLeft < margin) shift = loopWidth
+      if (track.scrollLeft > maxScroll - margin) shift = -loopWidth
       if (shift) {
         track.scrollLeft += shift
         if (drag) drag.scroll += shift
@@ -66,30 +71,56 @@ export default function HeroFacilities() {
         return
       }
 
-      const phase = track.scrollLeft % cycleWidth
       loopWidth = figures[groupLength].offsetLeft - figures[0].offsetLeft
+      const maxPhase = Math.max(0, loopWidth - track.clientWidth - 1)
+      const phase = Math.min(track.scrollLeft % cycleWidth, maxPhase)
       track.scrollLeft = loopWidth + phase
       paint()
     }
 
     const animate = (time: number) => {
+      frame = 0
+      if (!visible || hovered || drag || time < resumeAt) {
+        previousTime = 0
+        return
+      }
+
       const elapsed = previousTime ? Math.min(time - previousTime, 40) : 0
       previousTime = time
 
-      if (visible && !hovered && !drag && time > resumeAt) {
-        // 22 pixels per second: a gentle, steady right-to-left movement.
-        pendingPixels += elapsed * 0.022
-        const pixels = Math.floor(pendingPixels)
-        pendingPixels -= pixels
-        track.scrollLeft += pixels
-        wrap()
-      }
+      // 22 pixels per second: a gentle, steady right-to-left movement.
+      // The scroll event paints the cards, so don't repaint the full track here.
+      pendingPixels += elapsed * 0.022
+      const pixels = Math.floor(pendingPixels)
+      pendingPixels -= pixels
+      if (pixels > 0) track.scrollLeft += pixels
       frame = requestAnimationFrame(animate)
     }
 
-    const pauseBriefly = () => { resumeAt = performance.now() + 2200 }
-    const enter = () => { hovered = true }
-    const leave = () => { hovered = false }
+    const stopAnimation = () => {
+      if (frame) cancelAnimationFrame(frame)
+      frame = 0
+      previousTime = 0
+    }
+    const startAnimation = () => {
+      if (reduceMotion || !visible || hovered || drag || frame || performance.now() < resumeAt) return
+      frame = requestAnimationFrame(animate)
+    }
+    let resumeTimer = 0
+    const pauseBriefly = () => {
+      resumeAt = performance.now() + 2200
+      stopAnimation()
+      window.clearTimeout(resumeTimer)
+      resumeTimer = window.setTimeout(startAnimation, 2200)
+    }
+    const enter = () => {
+      hovered = true
+      stopAnimation()
+    }
+    const leave = () => {
+      hovered = false
+      startAnimation()
+    }
     const focus = () => { pauseBriefly() }
     const wheel = (event: WheelEvent) => {
       if (event.ctrlKey) return
@@ -150,6 +181,12 @@ export default function HeroFacilities() {
     const resize = new ResizeObserver(measure)
     const intersection = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting
+      if (visible) {
+        paint()
+        startAnimation()
+      } else {
+        stopAnimation()
+      }
     })
     resize.observe(track)
     intersection.observe(track)
@@ -164,10 +201,11 @@ export default function HeroFacilities() {
     track.addEventListener('pointercancel', up)
     track.addEventListener('lostpointercapture', up)
     measure()
-    if (!reduceMotion) frame = requestAnimationFrame(animate)
+    startAnimation()
 
     return () => {
-      cancelAnimationFrame(frame)
+      stopAnimation()
+      window.clearTimeout(resumeTimer)
       resize.disconnect()
       intersection.disconnect()
       track.removeEventListener('scroll', wrap)

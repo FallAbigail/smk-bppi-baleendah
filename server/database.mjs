@@ -65,6 +65,29 @@ db.exec(`
     created_at TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS ppdb_applications (
+    id TEXT PRIMARY KEY,
+    application_number TEXT NOT NULL UNIQUE,
+    tracking_hash TEXT NOT NULL,
+    academic_year TEXT NOT NULL,
+    student_name TEXT NOT NULL,
+    birth_date TEXT NOT NULL,
+    gender TEXT NOT NULL CHECK(gender IN ('Laki-laki', 'Perempuan')),
+    address TEXT NOT NULL,
+    student_phone TEXT NOT NULL DEFAULT '',
+    student_email TEXT NOT NULL DEFAULT '',
+    guardian_name TEXT NOT NULL,
+    guardian_phone TEXT NOT NULL,
+    previous_school TEXT NOT NULL,
+    graduation_year INTEGER,
+    program_id TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'baru' CHECK(status IN ('baru', 'ditinjau', 'perlu_konfirmasi', 'diterima', 'tidak_diterima')),
+    public_message TEXT NOT NULL DEFAULT '',
+    internal_note TEXT NOT NULL DEFAULT '',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS app_meta (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
@@ -73,6 +96,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at);
   CREATE INDEX IF NOT EXISTS idx_announcements_public_date ON announcements(published, date DESC);
   CREATE INDEX IF NOT EXISTS idx_reviews_created_at ON reviews(created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_ppdb_applications_created ON ppdb_applications(created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_ppdb_applications_status ON ppdb_applications(status, created_at DESC);
 `)
 
 const programColumns = new Set(
@@ -337,6 +362,21 @@ export function updateAdminPassword(username, passwordSalt, passwordHash) {
   })
 }
 
+export function updateAdminCredentials(currentUsername, nextUsername, passwordSalt, passwordHash) {
+  return runTransaction(() => {
+    const result = db
+      .prepare(
+        'UPDATE admins SET username = ?, password_salt = ?, password_hash = ? WHERE username = ? COLLATE NOCASE',
+      )
+      .run(nextUsername, passwordSalt, passwordHash, currentUsername)
+    if (result.changes) {
+      const admin = findAdminByUsername(nextUsername)
+      db.prepare('DELETE FROM sessions WHERE admin_id = ?').run(admin.id)
+    }
+    return result.changes === 1
+  })
+}
+
 export function deleteExpiredSessions(now = Date.now()) {
   db.prepare('DELETE FROM sessions WHERE expires_at <= ?').run(now)
 }
@@ -581,4 +621,122 @@ export function createReview(review) {
     'INSERT INTO reviews (id, name, role, rating, comment, created_at) VALUES (?, ?, ?, ?, ?, ?)',
   ).run(id, review.name, review.role, review.rating, review.comment, createdAt)
   return { id, ...review, createdAt }
+}
+
+export function getPpdbSettings() {
+  return {
+    isOpen: getMeta.get('ppdb_is_open')?.value === 'true',
+    academicYear: getMeta.get('ppdb_academic_year')?.value ?? '',
+    publicMessage: getMeta.get('ppdb_public_message')?.value ?? '',
+  }
+}
+
+export function savePpdbSettings(settings) {
+  runTransaction(() => {
+    setMeta.run('ppdb_is_open', String(settings.isOpen))
+    setMeta.run('ppdb_academic_year', settings.academicYear)
+    setMeta.run('ppdb_public_message', settings.publicMessage)
+  })
+  return getPpdbSettings()
+}
+
+export function createPpdbApplication(application, academicYear, trackingHash) {
+  const id = `ppdb-${randomUUID()}`
+  const createdAt = new Date().toISOString()
+  const year = academicYear.slice(0, 4)
+  let applicationNumber
+  let attempts = 0
+  do {
+    applicationNumber = `BPPI-${year}-${randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`
+    attempts += 1
+  } while (
+    attempts < 3 &&
+    db.prepare('SELECT 1 FROM ppdb_applications WHERE application_number = ?').get(applicationNumber)
+  )
+
+  db.prepare(`
+    INSERT INTO ppdb_applications (
+      id, application_number, tracking_hash, academic_year, student_name, birth_date,
+      gender, address, student_phone, student_email, guardian_name, guardian_phone,
+      previous_school, graduation_year, program_id, status, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'baru', ?, ?)
+  `).run(
+    id,
+    applicationNumber,
+    trackingHash,
+    academicYear,
+    application.studentName,
+    application.birthDate,
+    application.gender,
+    application.address,
+    application.studentPhone,
+    application.studentEmail,
+    application.guardianName,
+    application.guardianPhone,
+    application.previousSchool,
+    application.graduationYear,
+    application.programId,
+    createdAt,
+    createdAt,
+  )
+
+  return { applicationNumber, createdAt }
+}
+
+export function findPpdbApplicationForTracking(applicationNumber, trackingHash) {
+  return db.prepare(`
+    SELECT
+      applications.application_number AS applicationNumber,
+      applications.academic_year AS academicYear,
+      applications.status,
+      applications.public_message AS publicMessage,
+      applications.created_at AS createdAt,
+      programs.title AS programTitle
+    FROM ppdb_applications AS applications
+    LEFT JOIN programs ON programs.id = applications.program_id
+    WHERE applications.application_number = ? AND applications.tracking_hash = ?
+  `).get(applicationNumber, trackingHash)
+}
+
+export function listPpdbApplications() {
+  return db.prepare(`
+    SELECT
+      applications.application_number AS applicationNumber,
+      applications.academic_year AS academicYear,
+      applications.student_name AS studentName,
+      applications.birth_date AS birthDate,
+      applications.gender,
+      applications.address,
+      applications.student_phone AS studentPhone,
+      applications.student_email AS studentEmail,
+      applications.guardian_name AS guardianName,
+      applications.guardian_phone AS guardianPhone,
+      applications.previous_school AS previousSchool,
+      applications.graduation_year AS graduationYear,
+      applications.program_id AS programId,
+      programs.title AS programTitle,
+      applications.status,
+      applications.public_message AS publicMessage,
+      applications.internal_note AS internalNote,
+      applications.created_at AS createdAt,
+      applications.updated_at AS updatedAt
+    FROM ppdb_applications AS applications
+    LEFT JOIN programs ON programs.id = applications.program_id
+    ORDER BY applications.created_at DESC
+    LIMIT 500
+  `).all()
+}
+
+export function updatePpdbApplication(applicationNumber, update) {
+  const result = db.prepare(`
+    UPDATE ppdb_applications
+    SET status = ?, public_message = ?, internal_note = ?, updated_at = ?
+    WHERE application_number = ?
+  `).run(update.status, update.publicMessage, update.internalNote, new Date().toISOString(), applicationNumber)
+  return result.changes === 1
+}
+
+export function deletePpdbApplication(applicationNumber) {
+  const result = db.prepare('DELETE FROM ppdb_applications WHERE application_number = ?').run(applicationNumber)
+  return result.changes === 1
 }

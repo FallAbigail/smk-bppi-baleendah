@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   Bell,
   BookOpen,
+  ClipboardList,
   BriefcaseBusiness,
   Database,
   Check,
@@ -44,8 +45,9 @@ import type {
   SiteContent,
 } from '../data/siteContent'
 import { schoolProfile } from '../data/schoolProfile'
+import PpdbManager from '../components/admin/PpdbManager'
 
-type AdminSection = 'overview' | 'programs' | 'information'
+type AdminSection = 'overview' | 'programs' | 'information' | 'ppdb'
 type ProgramDraft = {
   id?: string
   level: SchoolLevel
@@ -68,6 +70,7 @@ const sections: Array<{ id: AdminSection; label: string; Icon: LucideIcon }> = [
   { id: 'overview', label: 'Ringkasan', Icon: LayoutDashboard },
   { id: 'programs', label: 'Program keahlian', Icon: BookOpen },
   { id: 'information', label: 'Informasi & PPDB', Icon: Megaphone },
+  { id: 'ppdb', label: 'Pendaftar PPDB', Icon: ClipboardList },
 ]
 
 const programIcons: Array<{ value: ProgramIcon; label: string }> = [
@@ -299,24 +302,23 @@ function AdminAccessScreen({
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Kembali ke situs
         </a>
-        <div
-          className={[
-            'mb-6 flex h-12 w-12 items-center justify-center',
-            'rounded-2xl bg-brand-50 text-brand-700 dark:bg-brand-950',
-            'dark:text-brand-300',
-          ].join(' ')}
-        >
-          {setupRequired ? (
-            <ShieldCheck className="h-6 w-6" aria-hidden="true" />
-          ) : (
-            <LockKeyhole className="h-6 w-6" aria-hidden="true" />
-          )}
+        <div className="mb-7 flex items-center gap-3.5">
+          <img
+            src="/images/logo-smk-bppi.png"
+            alt={schoolProfile.name}
+            className="h-14 w-14 shrink-0 object-contain"
+          />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold text-gray-900 dark:text-white">
+              {schoolProfile.name}
+            </p>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+              {schoolProfile.city} · Panel pengelola
+            </p>
+          </div>
         </div>
         {setupRequired ? (
           <>
-            <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">
-              Panel pengelola
-            </p>
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               Siapkan akun admin
             </h1>
@@ -353,9 +355,6 @@ function AdminAccessScreen({
           </>
         ) : (
           <>
-            <p className="text-sm font-semibold text-brand-700 dark:text-brand-300">
-              {schoolProfile.name} · Pengelola
-            </p>
             <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               Masuk ke panel admin
             </h1>
@@ -637,15 +636,18 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
       >
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-700 text-white">
-              <BookOpen className="h-5 w-5" aria-hidden="true" />
-            </span>
+            <img
+              src="/images/logo-smk-bppi.png"
+              alt=""
+              aria-hidden="true"
+              className="h-11 w-11 shrink-0 object-contain"
+            />
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-gray-900 dark:text-white">
-                Panel pengelola
+                {schoolProfile.name}
               </p>
               <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                {schoolProfile.name} · Konten situs
+                {schoolProfile.city} · Panel pengelola
               </p>
             </div>
           </div>
@@ -733,6 +735,8 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
                   'Atur program keahlian SMK yang ditampilkan di situs.'}
                 {activeSection === 'information' &&
                   'Tulis draft atau publikasikan berita, pengumuman, dan informasi PPDB SMK.'}
+                {activeSection === 'ppdb' &&
+                  'Atur periode pendaftaran online dan tinjau data calon siswa yang masuk.'}
               </p>
             </div>
             <button
@@ -874,6 +878,8 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
               onFilter={setAnnouncementFilter}
             />
           )}
+
+          {activeSection === 'ppdb' && <PpdbManager />}
         </main>
       </div>
     </div>
@@ -890,7 +896,7 @@ function AdminNavigation({
   compact?: boolean
 }) {
   return (
-    <nav aria-label="Menu admin" className={compact ? 'grid grid-cols-3 gap-2' : 'space-y-1'}>
+    <nav aria-label="Menu admin" className={compact ? 'grid grid-cols-2 gap-2 sm:grid-cols-4' : 'space-y-1'}>
       {sections.map(({ id, label, Icon }) => (
         <button
           key={id}

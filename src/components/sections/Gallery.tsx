@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useInView, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ArrowRight, X } from 'lucide-react'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -108,6 +108,20 @@ const items: GalleryItem[] = [
 
 const categories: Category[] = ['Semua', 'Literasi', 'Pembiasaan', 'Olahraga', 'Prestasi', 'Industri']
 
+const galleryTileLayout: Record<number, string> = {
+  1: 'xl:col-span-2 xl:row-span-2',
+  2: 'xl:row-span-1',
+  3: 'xl:row-span-1',
+  4: 'xl:col-span-2 xl:row-span-1',
+  5: 'xl:row-span-2',
+  6: 'xl:col-span-2 xl:row-span-1',
+  7: 'xl:row-span-2',
+  8: 'xl:col-span-2 xl:row-span-2',
+  9: 'xl:row-span-1',
+  10: 'xl:row-span-1',
+  11: 'xl:col-span-2 xl:row-span-1',
+}
+
 export default function Gallery({
   headingLevel = 'h2',
   preview = false,
@@ -115,8 +129,6 @@ export default function Gallery({
   headingLevel?: 'h1' | 'h2'
   preview?: boolean
 }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
   const Heading = headingLevel
   const { t } = useLanguage()
   const [active, setActive] = useState<Category>('Semua')
@@ -153,15 +165,10 @@ export default function Gallery({
   }, [lightbox])
 
   return (
-    <section ref={ref} className="py-24 bg-white dark:bg-gray-900">
+    <section className="py-24 bg-gray-50 dark:bg-gray-950">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8"
-        >
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
           <div>
             <p className="text-sm font-semibold text-brand-700 dark:text-brand-400 uppercase tracking-wider mb-3">
               {t('Galeri')}
@@ -185,7 +192,7 @@ export default function Gallery({
           >
             {t('Lihat semua')} <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
-        </motion.div>
+        </div>
 
         {!preview && (
           <div className="mb-7 flex flex-wrap gap-2">
@@ -207,7 +214,10 @@ export default function Gallery({
         )}
 
         {/* Grid */}
-        <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <motion.div
+          layout
+          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-flow-dense xl:auto-rows-[14rem] xl:grid-cols-4"
+        >
           <AnimatePresence mode="popLayout">
             {visibleItems.map((item, idx) => (
               <motion.button
@@ -222,11 +232,13 @@ export default function Gallery({
                 aria-label={`${t('Lihat foto kegiatan:')} ${t(item.title)}`}
                 aria-haspopup="dialog"
                 className={[
-                  'relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer',
+                  'group relative aspect-[4/3] cursor-pointer overflow-hidden rounded-xl',
                   'p-0 text-left bg-gray-200 dark:bg-gray-800',
+                  'xl:h-full xl:aspect-auto',
                   'focus-visible:outline',
                   'focus-visible:outline-2 focus-visible:outline-offset-2',
                   'focus-visible:outline-brand-700',
+                  galleryTileLayout[item.id] ?? '',
                 ].join(' ')}
               >
                 <img
@@ -234,7 +246,7 @@ export default function Gallery({
                   alt={t(item.title)}
                   loading="lazy"
                   decoding="async"
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">

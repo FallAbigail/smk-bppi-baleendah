@@ -44,7 +44,7 @@ export default function Stats() {
   const inView = useInView(inViewRef, { once: true, margin: '-100px' })
 
   return (
-    <section className="py-20 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+    <section className="py-20 bg-gray-50 dark:bg-gray-950">
       <div ref={inViewRef} className="max-w-7xl mx-auto px-6 lg:px-8">
         <div
           className={[

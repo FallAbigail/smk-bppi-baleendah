@@ -45,7 +45,7 @@ const sections = [
     category: 'penerimaan' as AnnouncementCategory,
     icon: GraduationCap,
     title: 'PPDB SMK',
-    text: 'Belum ada informasi penerimaan yang dipublikasikan. Hubungi sekolah untuk memastikan jadwal dan persyaratan terbaru.',
+    text: 'Lihat periode pendaftaran yang tersedia atau isi formulir PPDB online jika pendaftaran sedang dibuka.',
   },
   {
     id: 'kalender',
@@ -216,23 +216,27 @@ export default function Informasi() {
                       {t(text)}
                     </p>
                   )}
+                  {id === 'penerimaan' && (
+                    <Link to="/ppdb" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-800">
+                      {t('Buka halaman PPDB online')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  )}
                 </div>
               </section>
             )
           })}
         </div>
 
-        <div className="mt-8 rounded-2xl bg-brand-950 p-6 sm:p-8 text-white">
-          <h2 className="text-xl font-bold">{t('Perlu konfirmasi langsung?')}</h2>
-          <p className="mt-2 text-sm text-brand-200">
+        <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white sm:p-8">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('Perlu konfirmasi langsung?')}</h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {t('Hubungi sekolah untuk mendapatkan informasi terbaru dan terverifikasi.')}
           </p>
           <Link
             to="/kontak"
             className={[
-              'mt-5 inline-flex items-center gap-2 rounded-lg bg-white',
-              'px-5 py-3 text-sm font-semibold text-brand-950',
-              'hover:bg-brand-50',
+              'mt-5 inline-flex items-center gap-2 rounded-lg bg-brand-700',
+              'px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-800',
             ].join(' ')}
           >
             {t('Hubungi Sekolah')} <ArrowRight className="h-4 w-4" aria-hidden="true" />

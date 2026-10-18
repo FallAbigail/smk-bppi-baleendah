@@ -13,6 +13,7 @@
     "start": "node server/index.mjs",
     "admin:create": "node server/admin-cli.mjs create",
     "admin:reset-password": "node server/admin-cli.mjs reset-password",
+    "admin:set-credentials": "node server/admin-cli.mjs set-credentials",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0"
   },

@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion, useInView, useReducedMotion } from 'framer-motion'
 import { Search, X } from 'lucide-react'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { schoolLeaders, schoolStaffSource, teachingStaff } from '../../data/schoolStaff'
-import { leaderPhotoByPosition, teacherPhotoByName } from '../../data/staffPhotoAssets'
+import { leaderPhotoByPosition, teacherOriginalPhotoByName } from '../../data/staffPhotoAssets'
 
 type ProfilePhoto = {
   name: string
@@ -13,10 +12,7 @@ type ProfilePhoto = {
 
 export default function StaffDirectory() {
   const { t } = useLanguage()
-  const sectionRef = useRef<HTMLElement>(null)
   const photoDialogRef = useRef<HTMLDialogElement>(null)
-  const inView = useInView(sectionRef, { once: true, margin: '-80px' })
-  const reduceMotion = useReducedMotion()
   const [query, setQuery] = useState('')
   const [subject, setSubject] = useState('')
   const [selectedPhoto, setSelectedPhoto] = useState<ProfilePhoto | null>(null)
@@ -40,7 +36,7 @@ export default function StaffDirectory() {
   const openPhoto = (photo: ProfilePhoto) => setSelectedPhoto(photo)
 
   return (
-    <section ref={sectionRef} id="pengajar" className="scroll-mt-24 bg-white py-20 dark:bg-gray-900" aria-labelledby="staff-heading">
+    <section id="pengajar" className="scroll-mt-24 bg-gray-50 py-20 dark:bg-gray-950" aria-labelledby="staff-heading">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <header className="mb-8 max-w-3xl">
           <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">
@@ -54,36 +50,42 @@ export default function StaffDirectory() {
           </p>
         </header>
 
-        <div className="mb-10 grid gap-3 sm:grid-cols-3">
+        <div className="mb-12 grid gap-x-5 gap-y-10 md:grid-cols-2 xl:grid-cols-3">
           {schoolLeaders.map((leader, index) => (
-            <motion.article
+            <article
               key={leader.position}
-              initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.28, delay: index * 0.035 }}
-              className="flex min-w-0 items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-800/70"
+              className="group relative min-w-0 pt-8"
             >
+              <div className={`relative flex min-h-[17rem] flex-col justify-end overflow-hidden rounded-[1.4rem] border px-5 pb-6 pt-24 shadow-sm transition-colors sm:px-6 sm:pb-7 ${
+                index === 0
+                  ? 'border-brand-200 bg-gradient-to-br from-brand-50 via-white to-slate-50 dark:border-brand-900 dark:from-gray-800 dark:via-gray-900 dark:to-gray-900'
+                  : 'border-gray-200 bg-gradient-to-br from-slate-50 via-white to-brand-50/60 dark:border-gray-800 dark:from-gray-800 dark:via-gray-900 dark:to-gray-900'
+              }`}>
+                <span className="pointer-events-none absolute -right-10 top-8 h-40 w-40 rounded-full border border-brand-200/60 dark:border-brand-800/50" aria-hidden="true" />
+                <div className="relative z-10 max-w-[calc(100%-5.75rem)] sm:max-w-[62%]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-700 dark:text-brand-400">
+                    {t(leader.position)}
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold leading-snug text-gray-900 dark:text-white sm:text-xl">
+                    {leader.name}
+                  </h3>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => openPhoto({ name: leader.name, detail: leader.position, src: leaderPhotoByPosition[leader.position] })}
                 aria-label={`${t('Lihat foto')} ${leader.name}`}
-                className="group/photo h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-full border-2 border-white bg-gray-200 shadow-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 dark:border-gray-700 dark:bg-gray-700"
+                className="absolute right-4 top-0 z-20 h-32 w-32 overflow-hidden rounded-full border-[5px] border-white bg-white shadow-lg outline-none transition-transform duration-200 ease-out hover:-translate-y-1 focus-visible:-translate-y-1 focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 dark:border-gray-800 dark:bg-gray-800 sm:right-5 sm:h-36 sm:w-36 xl:right-6 xl:h-40 xl:w-40"
               >
                 <img
                   src={leaderPhotoByPosition[leader.position]}
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full scale-[1.16] object-cover object-[center_24%]"
                 />
               </button>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-700 dark:text-brand-400">
-                  {t(leader.position)}
-                </p>
-                <h3 className="mt-1 text-sm font-semibold leading-snug text-gray-900 dark:text-white sm:text-base">{leader.name}</h3>
-              </div>
-            </motion.article>
+            </article>
           ))}
         </div>
 
@@ -119,22 +121,19 @@ export default function StaffDirectory() {
         </p>
         {visibleTeachers.length > 0 ? (
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
-            {visibleTeachers.map((teacher, index) => (
-              <motion.li
+            {visibleTeachers.map((teacher) => (
+              <li
                 key={teacher.name}
-                initial={reduceMotion ? false : { opacity: 0, y: 6 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.28, delay: (index % 9) * 0.025 }}
                 className="flex min-w-0 items-center gap-3 rounded-2xl border border-gray-200 bg-white p-3 transition-colors hover:border-brand-300 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-brand-800 sm:gap-4 sm:p-4"
               >
                 <button
                   type="button"
-                  onClick={() => openPhoto({ name: teacher.name, detail: teacher.subject, src: teacherPhotoByName[teacher.name] })}
+                  onClick={() => openPhoto({ name: teacher.name, detail: teacher.subject, src: teacherOriginalPhotoByName[teacher.name] })}
                   aria-label={`${t('Lihat foto')} ${teacher.name}`}
                   className="h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-full border-2 border-gray-100 bg-gray-100 outline-none transition-colors hover:border-brand-400 focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-brand-500"
                 >
                   <img
-                    src={teacherPhotoByName[teacher.name]}
+                    src={teacherOriginalPhotoByName[teacher.name]}
                     alt=""
                     loading="lazy"
                     decoding="async"
@@ -147,7 +146,7 @@ export default function StaffDirectory() {
                     {t('Mengajar')}: <span className="font-medium text-brand-800 dark:text-brand-300">{t(teacher.subject)}</span>
                   </p>
                 </div>
-              </motion.li>
+              </li>
             ))}
           </ul>
         ) : (

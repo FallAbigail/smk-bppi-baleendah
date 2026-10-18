@@ -9,6 +9,13 @@ const programIcons = new Set([
 ])
 const schoolLevels = new Set(['smk'])
 const announcementCategories = new Set(['berita', 'pengumuman', 'penerimaan'])
+const ppdbApplicationStatuses = new Set([
+  'baru',
+  'ditinjau',
+  'perlu_konfirmasi',
+  'diterima',
+  'tidak_diterima',
+])
 
 function isRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -59,6 +66,130 @@ export function validateAnnouncement(input) {
   }
   if (typeof input.published !== 'boolean') throw new Error('Status publikasi tidak valid.')
   return { title, body, category: input.category, date: input.date, published: input.published }
+}
+
+function optionalText(value, label, maxLength) {
+  if (value === undefined || value === null || value === '') return ''
+  if (typeof value !== 'string') throw new Error(`${label} harus berupa teks.`)
+  const normalized = value.trim().replace(/\s+/g, ' ')
+  if (normalized.length > maxLength) throw new Error(`${label} terlalu panjang.`)
+  return normalized
+}
+
+function validIsoDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
+  const date = new Date(`${value}T00:00:00.000Z`)
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value
+}
+
+function jakartaToday() {
+  const values = Object.fromEntries(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+      .formatToParts(new Date())
+      .map((part) => [part.type, part.value]),
+  )
+  return `${values.year}-${values.month}-${values.day}`
+}
+
+function phone(value, label, required = true) {
+  if (typeof value !== 'string') throw new Error(`${label} tidak valid.`)
+  const normalized = value.trim().replace(/[\s().-]/g, '')
+  if (!normalized && !required) return ''
+  if (!/^\+?\d{8,15}$/.test(normalized)) {
+    throw new Error(`${label} harus berisi 8–15 angka.`)
+  }
+  return normalized
+}
+
+export function validatePpdbApplication(input) {
+  if (!isRecord(input)) throw new Error('Data pendaftaran tidak valid.')
+  if (typeof input.website === 'string' && input.website.trim()) {
+    throw new Error('Data pendaftaran tidak valid.')
+  }
+  const studentName = text(input.studentName, 'Nama calon siswa', 100).replace(/\s+/g, ' ')
+  if (studentName.length < 2) throw new Error('Nama calon siswa minimal 2 karakter.')
+  if (!validIsoDate(input.birthDate) || input.birthDate > jakartaToday()) {
+    throw new Error('Tanggal lahir tidak valid.')
+  }
+  if (!['Laki-laki', 'Perempuan'].includes(input.gender)) {
+    throw new Error('Pilih jenis kelamin calon siswa.')
+  }
+  const address = text(input.address, 'Alamat', 500)
+  if (address.length < 8) throw new Error('Alamat calon siswa terlalu singkat.')
+  const guardianName = text(input.guardianName, 'Nama orang tua/wali', 100).replace(/\s+/g, ' ')
+  if (guardianName.length < 2) throw new Error('Nama orang tua/wali minimal 2 karakter.')
+  const guardianPhone = phone(input.guardianPhone, 'Nomor telepon orang tua/wali')
+  const studentPhone = phone(input.studentPhone ?? '', 'Nomor telepon calon siswa', false)
+  const studentEmail = optionalText(input.studentEmail, 'Email', 150).toLowerCase()
+  if (studentEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(studentEmail)) {
+    throw new Error('Alamat email tidak valid.')
+  }
+  const previousSchool = text(input.previousSchool, 'Asal sekolah', 150)
+  const graduationYear = input.graduationYear === undefined || input.graduationYear === '' || input.graduationYear === null
+    ? null
+    : Number(input.graduationYear)
+  if (
+    graduationYear !== null &&
+    (!Number.isInteger(graduationYear) || graduationYear < 2000 || graduationYear > new Date().getFullYear() + 1)
+  ) {
+    throw new Error('Tahun lulus tidak valid.')
+  }
+  if (typeof input.programId !== 'string' || !/^[\w-]{1,100}$/.test(input.programId)) {
+    throw new Error('Pilih program keahlian.')
+  }
+  if (input.consent !== true) throw new Error('Persetujuan penggunaan data wajib dicentang.')
+
+  return {
+    studentName,
+    birthDate: input.birthDate,
+    gender: input.gender,
+    address,
+    studentPhone,
+    studentEmail,
+    guardianName,
+    guardianPhone,
+    previousSchool,
+    graduationYear,
+    programId: input.programId,
+  }
+}
+
+export function validatePpdbSettings(input) {
+  if (!isRecord(input) || typeof input.isOpen !== 'boolean') {
+    throw new Error('Pengaturan pendaftaran tidak valid.')
+  }
+  const academicYear = optionalText(input.academicYear, 'Tahun ajaran', 9)
+  if (academicYear && !/^\d{4}\/\d{4}$/.test(academicYear)) {
+    throw new Error('Tahun ajaran harus menggunakan format, misalnya 2026/2027.')
+  }
+  if (academicYear) {
+    const [start, end] = academicYear.split('/').map(Number)
+    if (end !== start + 1) throw new Error('Tahun ajaran harus terdiri dari dua tahun berurutan.')
+  }
+  if (input.isOpen && !academicYear) {
+    throw new Error('Isi tahun ajaran sebelum membuka pendaftaran.')
+  }
+  return {
+    isOpen: input.isOpen,
+    academicYear,
+    publicMessage: optionalText(input.publicMessage, 'Pesan pendaftaran', 500),
+  }
+}
+
+export function validatePpdbApplicationUpdate(input) {
+  if (!isRecord(input) || !ppdbApplicationStatuses.has(input.status)) {
+    throw new Error('Status pendaftaran tidak valid.')
+  }
+  return {
+    status: input.status,
+    publicMessage: optionalText(input.publicMessage, 'Pesan untuk pendaftar', 500),
+    internalNote: optionalText(input.internalNote, 'Catatan internal', 1000),
+  }
 }
 
 export function validateSiteContent(input) {

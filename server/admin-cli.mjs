@@ -1,6 +1,11 @@
 import { createInterface } from 'node:readline/promises'
 import { stderr, stdin, stdout } from 'node:process'
-import { createAdmin, findAdminByUsername, updateAdminPassword } from './database.mjs'
+import {
+  createAdmin,
+  findAdminByUsername,
+  updateAdminCredentials,
+  updateAdminPassword,
+} from './database.mjs'
 import { hashPassword, validatePassword } from './passwords.mjs'
 
 async function readHidden(prompt) {
@@ -58,24 +63,37 @@ function validateUsername(username) {
   }
 }
 
-async function promptUsername() {
+async function promptUsername(prompt = 'Username admin: ') {
   const rl = createInterface({ input: stdin, output: stdout })
-  const username = (await rl.question('Username admin: ')).trim()
+  const username = (await rl.question(prompt)).trim()
   rl.close()
   return username
 }
 
 async function main() {
   const action = process.argv[2]
-  if (!['create', 'reset-password'].includes(action)) {
-    throw new Error('Gunakan: npm run admin:create atau npm run admin:reset-password')
+  if (!['create', 'reset-password', 'set-credentials'].includes(action)) {
+    throw new Error(
+      'Gunakan: npm run admin:create, npm run admin:reset-password, atau npm run admin:set-credentials',
+    )
   }
 
-  const username = await promptUsername()
+  const username = await promptUsername(
+    action === 'set-credentials' ? 'Username admin saat ini: ' : 'Username admin: ',
+  )
   validateUsername(username)
 
-  if (action === 'reset-password' && !findAdminByUsername(username)) {
+  const existingAdmin = findAdminByUsername(username)
+  if (action !== 'create' && !existingAdmin) {
     throw new Error(`Admin "${username}" tidak ditemukan.`)
+  }
+
+  const nextUsername =
+    action === 'set-credentials' ? await promptUsername('Username admin baru: ') : username
+  validateUsername(nextUsername)
+  const conflictingAdmin = findAdminByUsername(nextUsername)
+  if (conflictingAdmin && conflictingAdmin.id !== existingAdmin?.id) {
+    throw new Error(`Username "${nextUsername}" sudah digunakan.`)
   }
 
   const password = await readHidden('Kata sandi baru (tidak ditampilkan): ')
@@ -90,7 +108,19 @@ async function main() {
     return
   }
 
-  updateAdminPassword(username, salt, hash)
+  if (action === 'set-credentials') {
+    if (!updateAdminCredentials(username, nextUsername, salt, hash)) {
+      throw new Error(`Admin "${username}" tidak ditemukan.`)
+    }
+    stdout.write(
+      `Username dan kata sandi admin berhasil diperbarui. Semua sesi lama sudah dicabut.\n`,
+    )
+    return
+  }
+
+  if (!updateAdminPassword(username, salt, hash)) {
+    throw new Error(`Admin "${username}" tidak ditemukan.`)
+  }
   stdout.write(
     `Kata sandi admin "${username}" berhasil diperbarui. Semua sesi lama sudah dicabut.\n`,
   )

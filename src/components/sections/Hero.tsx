@@ -1,11 +1,13 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ArrowRight, MessageCircle } from 'lucide-react'
 import { schoolProfile } from '../../data/schoolProfile'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { cn } from '../../utils/cn'
+import { useSlideTransition } from '../scroll/useSlideTransition'
 import HeroFacilities from './HeroFacilities'
+import WaveFace from './WaveFace'
 import {
   consumeHomeWaveOpeningSkip,
   HERO_WAVE_EXIT_PROGRESS,
@@ -13,49 +15,11 @@ import {
 
 const HERO_VIDEO = '/videos/smk-bppi-hero.mp4'
 const HERO_POSTER = '/images/bppi/gerbang-sekolah.jpg'
-const HERO_STUDENTS_IMAGE = '/images/bppi/hero-students-transparent.png'
-
-const HERO_WAVE_PATHS = {
-  top: [
-    'M0 150',
-    'C145 171 262 159 405 130',
-    'C560 100 700 103 848 136',
-    'C1000 171 1125 174 1270 150',
-    'C1345 139 1395 132 1440 140 V0 H0 Z',
-  ].join(' '),
-  bottom: [
-    'M0 50 C145 29 262 41 405 70',
-    'C560 100 700 97 848 64',
-    'C1000 29 1125 26 1270 50',
-    'C1345 61 1395 68 1440 60 V200 H0 Z',
-  ].join(' '),
-}
-
-function HeroRevealWave({ edge }: { edge: 'top' | 'bottom' }) {
-  const gradientId = `hero-wave-gradient-${edge}`
-  const path = HERO_WAVE_PATHS[edge]
-
-  return (
-    <svg
-      className="hero-wave-face"
-      viewBox="0 0 1440 200"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="rgb(var(--hero-wave-start-rgb))" />
-          <stop offset="100%" stopColor="rgb(var(--hero-wave-end-rgb))" />
-        </linearGradient>
-      </defs>
-      <path d={path} fill={`url(#${gradientId})`} />
-    </svg>
-  )
-}
 
 export default function Hero({ blank = false }: { blank?: boolean }) {
   const { t } = useLanguage()
   const heroRef = useRef<HTMLElement>(null)
+  const heroVideoRef = useRef<HTMLVideoElement>(null)
   const heroSchoolName = schoolProfile.name.replace(/^Sekolah\s+/i, '')
   const heroSchoolNameWords = heroSchoolName.split(/\s+/).filter(Boolean)
   // Keep the route-return bypass for this mount: its shorter scroll range
@@ -67,6 +31,28 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
     target: heroRef,
     offset: ['start start', 'end end'],
   })
+  const { scrollYProgress: visibilityProgress } = useScroll({
+    target: heroRef,
+    offset: ['start end', 'end start'],
+  })
+  const { opacity: sectionOpacity, scale: sectionScale, y: sectionY } =
+    useSlideTransition(visibilityProgress)
+
+  useEffect(() => {
+    const hero = heroRef.current
+    const video = heroVideoRef.current
+    if (!hero || !video) return
+
+    const visibility = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !shouldReduceMotion) {
+        void video.play().catch(() => {})
+      } else {
+        video.pause()
+      }
+    })
+    visibility.observe(hero)
+    return () => visibility.disconnect()
+  }, [shouldReduceMotion])
 
   const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '-5%'])
   const waveOpeningScale = useTransform(
@@ -98,16 +84,21 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
   const activeImageScale = skippedHomeEntry ? 1.06 : waveOpeningScale
 
   return (
-    <section
+    <motion.section
       ref={heroRef}
       id="section-hero"
+      style={shouldReduceMotion ? undefined : { opacity: sectionOpacity }}
       className={cn(
         'hero-intro-scroll',
         skippedHomeEntry && 'hero-intro-skip-opening',
         shouldReduceMotion && 'hero-intro-static',
       )}
     >
-      <div id="hero" className={cn('hero-scene-sticky', blank && 'hero-scene-empty')}>
+      <motion.div
+        id="hero"
+        className={cn('hero-scene-sticky', blank && 'hero-scene-empty')}
+        style={shouldReduceMotion ? undefined : { scale: sectionScale, y: sectionY }}
+      >
         <motion.div
           className="hero-background-layer"
           style={shouldReduceMotion
@@ -118,6 +109,7 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
           aria-hidden="true"
         >
           <video
+            ref={heroVideoRef}
             className="h-full w-full object-cover object-center"
             autoPlay={!shouldReduceMotion}
             muted
@@ -132,27 +124,26 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
 
         {blank && (
           <div className="hero-stage">
-            <div className="hero-students-cutout" aria-hidden="true">
-              <img src={HERO_STUDENTS_IMAGE} alt="" draggable={false} />
-            </div>
             <div className="hero-name-layout">
-              <h1 className="hero-school-name">
-                <span className="hero-school-prefix">Sekolah</span>
-                <span className="hero-school-name-main">
-                  {heroSchoolNameWords.map((word, index) => (
-                    <span
-                      key={`${word}-${index}`}
-                      className={cn(
-                        'hero-school-name-word',
-                        index === heroSchoolNameWords.length - 1 && 'hero-school-name-word-accent',
-                      )}
-                    >
-                      {index > 0 && ' '}
-                      {word}
-                    </span>
-                  ))}
-                </span>
-              </h1>
+              <div className="hero-name-content">
+                <h1 className="hero-school-name">
+                  <span className="hero-school-name-main">
+                    {heroSchoolNameWords.map((word, index) => (
+                      <span
+                        key={`${word}-${index}`}
+                        className={cn(
+                          'hero-school-name-word',
+                          index === heroSchoolNameWords.length - 1 && 'hero-school-name-word-accent',
+                        )}
+                      >
+                        {index > 0 && ' '}
+                        {word}
+                      </span>
+                    ))}
+                  </span>
+                </h1>
+                <span className="hero-campaign-tag">#GoDigiGoIndustri</span>
+              </div>
               <HeroFacilities />
             </div>
           </div>
@@ -244,7 +235,7 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
                   : topPanelY,
             }}
           >
-            <HeroRevealWave edge="top" />
+            <WaveFace edge="top" />
           </motion.div>
           <motion.div
             className="hero-reveal-panel hero-reveal-panel-bottom"
@@ -256,11 +247,11 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
                   : bottomPanelY,
             }}
           >
-            <HeroRevealWave edge="bottom" />
+            <WaveFace edge="bottom" />
           </motion.div>
         </div>
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   )
 }
 

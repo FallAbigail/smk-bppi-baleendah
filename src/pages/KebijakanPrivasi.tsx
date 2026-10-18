@@ -6,7 +6,7 @@ export default function KebijakanPrivasi() {
   const { t } = useLanguage()
   usePageMeta(
     t('Kebijakan Privasi'),
-    `${t('Penjelasan tentang preferensi tema dan formulir kontak di situs')} ${schoolProfile.name}.`,
+    `${t('Penjelasan tentang preferensi tampilan, formulir kontak, dan data pendaftaran PPDB')} ${schoolProfile.name}.`,
   )
 
   return (
@@ -45,6 +45,17 @@ export default function KebijakanPrivasi() {
             </h2>
             <p>
               {t('Formulir kontak menyiapkan draf email di aplikasi email pada perangkat Anda. Situs ini tidak mengirim atau menyimpan isi pesan. Pesan hanya terkirim jika Anda mengirimkannya dari aplikasi email tersebut.')}
+            </p>
+          </section>
+          <section>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              {t('Data pendaftaran PPDB')}
+            </h2>
+            <p>
+              {t('Formulir PPDB menyimpan nama, tanggal lahir, jenis kelamin, alamat, program pilihan, asal sekolah, serta kontak calon siswa dan orang tua atau wali untuk keperluan proses penerimaan. Data hanya tersedia di panel admin yang memerlukan autentikasi. Nomor pendaftaran dan kode pelacakan digunakan untuk melihat status tanpa menampilkan data pribadi.')}
+            </p>
+            <p className="mt-3">
+              {t('Untuk memperbarui atau meminta penghapusan data pendaftaran, hubungi sekolah melalui alamat email atau nomor telepon yang tercantum di situs.')}
             </p>
           </section>
           <section>

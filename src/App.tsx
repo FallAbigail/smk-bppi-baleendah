@@ -9,9 +9,13 @@ import { useLanguage } from './contexts/LanguageContext'
 const Home = lazy(() => import('./pages/Home'))
 const Tentang = lazy(() => import('./pages/Tentang'))
 const Program = lazy(() => import('./pages/Program'))
+const ProgramArticle = lazy(() => import('./pages/ProgramArticle'))
+const Eskul = lazy(() => import('./pages/Eskul'))
 const Galeri = lazy(() => import('./pages/Galeri'))
+const ExtracurricularArticle = lazy(() => import('./pages/ExtracurricularArticle'))
 const Kontak = lazy(() => import('./pages/Kontak'))
 const Informasi = lazy(() => import('./pages/Informasi'))
+const Ppdb = lazy(() => import('./pages/Ppdb'))
 const KebijakanPrivasi = lazy(() => import('./pages/KebijakanPrivasi'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Admin = lazy(() => import('./pages/Admin'))
@@ -50,9 +54,13 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/tentang" element={<Tentang />} />
           <Route path="/program" element={<Program />} />
+          <Route path="/program/:slug" element={<ProgramArticle />} />
+          <Route path="/ekskul" element={<Eskul />} />
+          <Route path="/ekskul/:slug" element={<ExtracurricularArticle />} />
           <Route path="/galeri" element={<Galeri />} />
           <Route path="/kontak" element={<Kontak />} />
           <Route path="/informasi" element={<Informasi />} />
+          <Route path="/ppdb" element={<Ppdb />} />
           <Route path="/privasi" element={<KebijakanPrivasi />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -4,82 +4,118 @@ import { useLanguage } from '../../contexts/LanguageContext'
 
 interface SchoolPartner {
   name: string
-  logo?: string
-  logoClassName?: string
-  surface?: 'light' | 'otsuka'
+  detail: string
+  accent: string
+  logoSurface: string
+  logo: string
 }
 
-// Partner names are taken from SMK BPPI's official site. Only verified logo
-// files are used; entries without an image stay as plain text wordmarks.
+// Partner logos use local copies of source assets so the marquee does not rely
+// on live third-party image servers at runtime.
 const schoolPartners: SchoolPartner[] = [
   {
-    name: 'PT Amerta Indah Otsuka',
+    name: 'Amerta Indah Otsuka',
+    detail: 'Kunjungan industri',
+    accent: '#28745b',
+    logoSurface: '#1d614f',
     logo: '/images/sponsors/amerta-indah-otsuka.webp',
-    logoClassName: 'h-9 w-[9rem] object-contain',
-    surface: 'otsuka',
   },
   {
     name: 'CyberLabs',
+    detail: 'Teaching Factory',
+    accent: '#1f679a',
+    logoSurface: '#ffffff',
     logo: '/images/sponsors/cyberlabs.png',
-    logoClassName: 'h-8 w-[8.5rem] object-contain',
   },
   {
     name: 'Axioo Class Program',
+    detail: 'Kelas industri · PT Tera Data Indonusa Tbk',
+    accent: '#1674b8',
+    logoSurface: '#ffffff',
     logo: '/images/bppi/programs/acp.png',
-    logoClassName: 'h-[3.8rem] w-[3.8rem] object-contain',
   },
   {
-    name: 'PT Wahana Internet Nusantara (BNET)',
+    name: 'BNET',
+    detail: 'PT Wahana Internet Nusantara',
+    accent: '#2673b8',
+    logoSurface: '#245c91',
     logo: '/images/sponsors/bnet.png',
-    logoClassName: 'h-9 w-[6rem] object-contain',
   },
   {
-    name: 'Bank Syariah Indonesia (BSI)',
+    name: 'Bank Syariah Indonesia',
+    detail: 'Mitra sekolah',
+    accent: '#168b72',
+    logoSurface: '#ffffff',
     logo: '/images/sponsors/bsi.svg',
-    logoClassName: 'h-8 w-[8.5rem] object-contain',
   },
   {
-    name: 'Korea Investment & Sekuritas Indonesia (KISI)',
+    name: 'KISI',
+    detail: 'Korea Investment & Sekuritas Indonesia',
+    accent: '#28527b',
+    logoSurface: '#ffffff',
     logo: '/images/sponsors/kisi.svg',
-    logoClassName: 'h-8 w-[9rem] object-contain',
   },
   {
     name: 'SATU University',
+    detail: 'Mitra pendidikan',
+    accent: '#a64c34',
+    logoSurface: '#ffffff',
     logo: '/images/sponsors/satu-university.png',
-    logoClassName: 'h-[3.8rem] w-[7rem] object-contain',
   },
-  { name: 'PT Esto Kreasi Nusantara' },
-  { name: 'PT Teradata Indonesia Tbk' },
-  { name: 'Bursa Efek Indonesia' },
+  {
+    name: 'PT Esto Kreasi Nusantara',
+    detail: 'Mitra sekolah',
+    accent: '#315d7c',
+    logoSurface: '#edf2f7',
+    logo: '/images/sponsors/esto-kreasi-nusantara.png',
+  },
+  {
+    name: 'PT Tera Data Indonusa Tbk',
+    detail: 'Teknologi · AXIOO',
+    accent: '#32668c',
+    logoSurface: '#173a58',
+    logo: '/images/sponsors/tera-data-indonusa.png',
+  },
+  {
+    name: 'Bursa Efek Indonesia',
+    detail: 'Sekolah Pasar Modal',
+    accent: '#b72e36',
+    logoSurface: '#ffffff',
+    logo: '/images/sponsors/idx-bei.png',
+  },
 ]
 
 function PartnerPill({ partner, ariaHidden }: { partner: SchoolPartner; ariaHidden: boolean }) {
-  const isOtsuka = partner.surface === 'otsuka'
-
   return (
     <li
       aria-label={ariaHidden ? undefined : partner.name}
       aria-hidden={ariaHidden}
-      className={[
-        'flex h-[4.75rem] w-[15.5rem] shrink-0 items-center justify-center rounded-full border px-5',
-        isOtsuka
-          ? 'border-[#1d614f] bg-[#1d614f] text-white'
-          : 'border-gray-200 bg-white text-gray-800 dark:border-gray-700 dark:bg-white dark:text-gray-800',
-      ].join(' ')}
+      className="partner-pill flex h-[5rem] w-[19rem] shrink-0 items-center gap-3 rounded-full border px-4"
+      style={{ '--partner-accent': partner.accent } as CSSProperties}
     >
-      {partner.logo && (
+      <span
+        className="partner-logo-frame flex h-12 w-[4.25rem] shrink-0 items-center justify-center overflow-hidden rounded-full px-1.5"
+        style={{ backgroundColor: partner.logoSurface }}
+        aria-hidden="true"
+      >
         <img
           src={partner.logo}
           alt=""
           loading="lazy"
           decoding="async"
           draggable={false}
-          className={`shrink-0 ${partner.logoClassName ?? 'h-9 w-14 object-contain'}`}
+          className="max-h-10 max-w-full object-contain"
         />
-      )}
-      {!partner.logo && (
-        <span className="text-center text-[0.72rem] font-semibold leading-snug">{partner.name}</span>
-      )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-xs font-semibold leading-tight text-gray-900 dark:text-gray-100">
+          {partner.name}
+        </span>
+        <span className="mt-1 block line-clamp-2 text-[0.625rem] leading-tight text-gray-600 dark:text-gray-300">
+          {partner.detail}
+        </span>
+      </span>
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--partner-accent)]" aria-hidden="true" />
     </li>
   )
 }
@@ -151,6 +187,19 @@ export default function Sponsors() {
         @keyframes sponsor-ticker-right {
           from { transform: translateX(-50%); }
           to { transform: translateX(0); }
+        }
+        .partner-pill {
+          border-color: color-mix(in srgb, var(--partner-accent) 27%, rgb(var(--gray-200)));
+          background: rgb(255 255 255 / 88%);
+          box-shadow: 0 4px 14px color-mix(in srgb, var(--partner-accent) 8%, transparent);
+        }
+        .dark .partner-pill {
+          border-color: color-mix(in srgb, var(--partner-accent) 42%, rgb(var(--gray-800)));
+          background: rgb(var(--gray-900));
+          box-shadow: none;
+        }
+        .partner-logo-frame {
+          border: 1px solid color-mix(in srgb, var(--partner-accent) 16%, transparent);
         }
         .sponsor-marquee-left { animation: sponsor-ticker-left var(--ticker-duration) linear infinite; }
         .sponsor-marquee-right { animation: sponsor-ticker-right var(--ticker-duration) linear infinite; }

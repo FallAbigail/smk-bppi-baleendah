@@ -21,10 +21,15 @@ const navLinks = [
   { label: 'Beranda', href: '/' },
   { label: 'Tentang', href: '/tentang' },
   { label: 'Program', href: '/program' },
+  { label: 'Ekskul', href: '/ekskul' },
   { label: 'Galeri', href: '/galeri' },
   { label: 'Informasi', href: '/informasi' },
   { label: 'Kontak', href: '/kontak' },
 ]
+
+function isNavLinkActive(pathname: string, href: string) {
+  return pathname === href || (href !== '/' && pathname.startsWith(`${href}/`))
+}
 
 function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
   const { language, setLanguage, t } = useLanguage()
@@ -35,7 +40,7 @@ function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
       aria-label={t('Pilih bahasa')}
       className={cn(
         'inline-flex items-center rounded-lg border border-gray-200/80 dark:border-gray-700/80',
-        'bg-white/50 dark:bg-gray-900/40 p-0.5',
+        'bg-transparent p-0.5',
         mobile ? 'self-end mx-4 my-2' : 'ml-1 shrink-0',
       )}
     >
@@ -64,20 +69,12 @@ function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
 export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null> }) {
   const location = useLocation()
   const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
   const [heroWaveFinished, setHeroWaveFinished] = useState(
     () => location.pathname !== '/' || hasHomeWaveOpeningSkip(),
   )
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const { isDark, toggleTheme } = useTheme()
   const { t } = useLanguage()
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   useLayoutEffect(() => {
     if (location.pathname !== '/') {
@@ -305,12 +302,12 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
           </span>
         </Link>
 
-        <div className={cn('navbar-glass', scrolled && 'is-scrolled', open && 'is-open')}>
+        <div className="navbar-menu">
           <div className="navbar-content px-2 sm:px-4 lg:px-4 xl:px-6">
             <div className="navbar-controls flex items-center justify-between h-14 md:h-16">
-              <nav className="hidden lg:flex items-center gap-1" aria-label={t('Navigasi utama')}>
+              <nav className="hidden lg:flex items-center gap-0.5" aria-label={t('Navigasi utama')}>
                 {navLinks.map((link) => {
-                  const active = location.pathname === link.href
+                  const active = isNavLinkActive(location.pathname, link.href)
                   return (
                     <Link
                       key={link.href}
@@ -318,14 +315,14 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                       onClick={link.href === '/' ? handleHomeClick : undefined}
                       aria-current={active ? 'page' : undefined}
                       className={cn(
-                        'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                        'navbar-link px-1.5 py-2 text-sm font-medium transition-colors xl:px-3',
                         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
                         'focus-visible:outline-brand-700',
                         active
-                          ? 'bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-400'
+                          ? 'text-brand-900 dark:text-brand-200'
                           : [
-                              'text-gray-600 dark:text-gray-300 hover:text-gray-900',
-                              'dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800',
+                              'text-gray-900 dark:text-gray-100 hover:text-brand-700',
+                              'dark:hover:text-brand-200',
                             ].join(' '),
                       )}
                     >
@@ -342,7 +339,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   onClick={toggleTheme}
                   className={[
                     'w-10 h-10 rounded-lg flex items-center justify-center',
-                    'text-gray-500 dark:text-gray-400 hover:bg-gray-100',
+                    'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}
                   aria-label={themeLabel}
@@ -354,10 +351,26 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   )}
                 </button>
                 <Link
+                  to="/ppdb"
+                  aria-current={isNavLinkActive(location.pathname, '/ppdb') ? 'page' : undefined}
+                  className={cn(
+                    'inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-semibold',
+                    'border-brand-300 bg-white text-brand-900 transition-colors',
+                    'hover:bg-brand-50 focus-visible:outline focus-visible:outline-2',
+                    'focus-visible:outline-offset-2 focus-visible:outline-brand-700',
+                    'dark:border-brand-700 dark:bg-gray-900 dark:text-brand-200 dark:hover:bg-gray-800',
+                    isNavLinkActive(location.pathname, '/ppdb') &&
+                      'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-950/70',
+                  )}
+                >
+                  {t('PPDB')}
+                </Link>
+                <Link
                   to="/kontak"
+                  aria-current={isNavLinkActive(location.pathname, '/kontak') ? 'page' : undefined}
                   className={[
-                    'bg-brand-700 text-white text-sm',
-                    'font-semibold px-5 py-2.5 rounded-lg',
+                    'inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm',
+                    'font-semibold text-white transition-colors hover:bg-brand-800',
                     'focus-visible:outline focus-visible:outline-2',
                     'focus-visible:outline-offset-2',
                     'focus-visible:outline-brand-700',
@@ -373,7 +386,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   onClick={toggleTheme}
                   className={[
                     'w-10 h-10 rounded-lg flex items-center justify-center',
-                    'text-gray-500 dark:text-gray-400 hover:bg-gray-100',
+                    'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}
                   aria-label={themeLabel}
@@ -390,7 +403,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   onClick={() => setOpen((value) => !value)}
                   className={[
                     'w-10 h-10 rounded-lg flex items-center justify-center',
-                    'text-gray-600 dark:text-gray-300 hover:bg-gray-100',
+                    'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}
                   aria-label={t(open ? 'Tutup menu navigasi' : 'Buka menu navigasi')}
@@ -416,7 +429,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
               hidden={!open}
             >
               {navLinks.map((link) => {
-                const active = location.pathname === link.href
+                const active = isNavLinkActive(location.pathname, link.href)
                 return (
                   <Link
                     key={link.href}
@@ -427,10 +440,10 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                     }}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                      'navbar-link block px-4 py-2.5 text-sm font-medium transition-colors',
                       active
-                        ? 'bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-400'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800',
+                        ? 'text-brand-900 dark:text-brand-200'
+                        : 'text-gray-900 dark:text-gray-100 hover:text-brand-700 dark:hover:text-brand-200',
                     )}
                   >
                     {t(link.label)}
@@ -438,13 +451,28 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                 )
               })}
               <LanguageSwitcher mobile />
-              <div className="px-4 pt-2">
+              <div className="flex gap-2 px-4 pt-2">
+                <Link
+                  to="/ppdb"
+                  onClick={() => setOpen(false)}
+                  aria-current={isNavLinkActive(location.pathname, '/ppdb') ? 'page' : undefined}
+                  className={cn(
+                    'inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border px-4 py-2',
+                    'border-brand-300 bg-white text-center text-sm font-semibold text-brand-900',
+                    'transition-colors hover:bg-brand-50 dark:border-brand-700 dark:bg-gray-900',
+                    'dark:text-brand-200 dark:hover:bg-gray-800',
+                    isNavLinkActive(location.pathname, '/ppdb') &&
+                      'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-950/70',
+                  )}
+                >
+                  {t('PPDB')}
+                </Link>
                 <Link
                   to="/kontak"
                   onClick={() => setOpen(false)}
                   className={[
-                    'block w-full text-center bg-brand-700',
-                    'text-white text-sm font-semibold px-5 py-2.5 rounded-lg',
+                    'inline-flex min-h-10 flex-1 items-center justify-center rounded-lg bg-brand-700 px-3 py-2',
+                    'text-center text-sm font-semibold text-white transition-colors hover:bg-brand-800',
                   ].join(' ')}
                 >
                   {t('Hubungi Sekolah')}

@@ -8,7 +8,9 @@ import {
   addLegacyContentIfUnchanged,
   contentRevision,
   createReview,
+  createPpdbApplication,
   createSession,
+  deletePpdbApplication,
   db,
   deleteExpiredSessions,
   deleteSession,
@@ -16,7 +18,10 @@ import {
   findSession,
   getContentUpdatedAt,
   getReviewSummary,
+  getPpdbSettings,
+  findPpdbApplicationForTracking,
   hasAdminAccounts,
+  listPpdbApplications,
   listReviews,
   readSiteContent,
   removeAnnouncement,
@@ -24,10 +29,19 @@ import {
   replaceSiteContent,
   saveAnnouncement,
   saveProgram,
+  savePpdbSettings,
   setProgramsVerified,
+  updatePpdbApplication,
 } from './database.mjs'
 import { verifyPassword } from './passwords.mjs'
-import { validateAnnouncement, validateProgram, validateSiteContent } from './validation.mjs'
+import {
+  validateAnnouncement,
+  validateProgram,
+  validateSiteContent,
+  validatePpdbApplication,
+  validatePpdbApplicationUpdate,
+  validatePpdbSettings,
+} from './validation.mjs'
 
 const app = express()
 const runtimeMode =
@@ -84,6 +98,22 @@ const reviewLimiter = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { message: 'Batas kiriman ulasan tercapai. Coba lagi satu jam kemudian.' },
+})
+
+const ppdbSubmissionLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Batas pengiriman formulir tercapai. Coba lagi satu jam kemudian.' },
+})
+
+const ppdbStatusLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Batas pemeriksaan status tercapai. Coba lagi nanti.' },
 })
 
 function hashToken(token) {
@@ -230,6 +260,48 @@ app.post('/api/reviews', reviewLimiter, sameOrigin, (req, res) => {
   }
 })
 
+app.get('/api/ppdb/settings', (_req, res) => {
+  res.json(getPpdbSettings())
+})
+
+app.post('/api/ppdb/applications', ppdbSubmissionLimiter, sameOrigin, (req, res) => {
+  const settings = getPpdbSettings()
+  if (!settings.isOpen || !settings.academicYear) {
+    res.status(403).json({ message: 'Pendaftaran online sedang ditutup.' })
+    return
+  }
+
+  try {
+    const application = validatePpdbApplication(req.body)
+    if (!db.prepare('SELECT 1 FROM programs WHERE id = ? AND level = \'smk\'').get(application.programId)) {
+      res.status(400).json({ message: 'Program keahlian yang dipilih tidak tersedia.' })
+      return
+    }
+    const trackingCode = randomBytes(8).toString('hex').toUpperCase()
+    const saved = createPpdbApplication(application, settings.academicYear, hashToken(trackingCode))
+    res.status(201).json({ ...saved, trackingCode })
+  } catch (error) {
+    handleDatabaseError(error, res)
+  }
+})
+
+app.post('/api/ppdb/status', ppdbStatusLimiter, sameOrigin, (req, res) => {
+  const applicationNumber =
+    typeof req.body?.applicationNumber === 'string' ? req.body.applicationNumber.trim().toUpperCase() : ''
+  const trackingCode = typeof req.body?.trackingCode === 'string' ? req.body.trackingCode.trim().toUpperCase() : ''
+  if (!/^BPPI-\d{4}-[A-F0-9]{8}$/.test(applicationNumber) || !/^[A-F0-9]{16}$/.test(trackingCode)) {
+    res.status(404).json({ message: 'Nomor pendaftaran atau kode pelacakan tidak cocok.' })
+    return
+  }
+
+  const application = findPpdbApplicationForTracking(applicationNumber, hashToken(trackingCode))
+  if (!application) {
+    res.status(404).json({ message: 'Nomor pendaftaran atau kode pelacakan tidak cocok.' })
+    return
+  }
+  res.json(application)
+})
+
 app.get('/api/auth/session', (req, res) => {
   deleteExpiredSessions()
   const token = readSessionToken(req)
@@ -287,6 +359,46 @@ app.get('/api/admin/content', requireAdmin, (_req, res) => {
     updatedAt: getContentUpdatedAt(),
     revision: contentRevision(),
   })
+})
+
+app.get('/api/admin/ppdb', requireAdmin, (_req, res) => {
+  res.json({ settings: getPpdbSettings(), applications: listPpdbApplications() })
+})
+
+app.put('/api/admin/ppdb/settings', requireAdmin, sameOrigin, (req, res) => {
+  try {
+    const settings = validatePpdbSettings(req.body)
+    res.json({ settings: savePpdbSettings(settings) })
+  } catch (error) {
+    handleDatabaseError(error, res)
+  }
+})
+
+app.patch('/api/admin/ppdb/applications/:applicationNumber', requireAdmin, sameOrigin, (req, res) => {
+  try {
+    const applicationNumber = req.params.applicationNumber.toUpperCase()
+    if (!/^BPPI-\d{4}-[A-F0-9]{8}$/.test(applicationNumber)) {
+      res.status(404).json({ message: 'Pendaftar tidak ditemukan.' })
+      return
+    }
+    const update = validatePpdbApplicationUpdate(req.body)
+    if (!updatePpdbApplication(applicationNumber, update)) {
+      res.status(404).json({ message: 'Pendaftar tidak ditemukan.' })
+      return
+    }
+    res.json({ ok: true })
+  } catch (error) {
+    handleDatabaseError(error, res)
+  }
+})
+
+app.delete('/api/admin/ppdb/applications/:applicationNumber', requireAdmin, sameOrigin, (req, res) => {
+  const applicationNumber = req.params.applicationNumber.toUpperCase()
+  if (!/^BPPI-\d{4}-[A-F0-9]{8}$/.test(applicationNumber) || !deletePpdbApplication(applicationNumber)) {
+    res.status(404).json({ message: 'Pendaftar tidak ditemukan.' })
+    return
+  }
+  res.json({ ok: true })
 })
 
 app.post('/api/admin/programs', requireAdmin, sameOrigin, (req, res) => {

@@ -27,7 +27,7 @@ export default function Home() {
       </ScrollSection>
 
       <ScrollSection id="section-programs">
-        <Programs />
+        <Programs carousel />
       </ScrollSection>
 
       <ScrollSection id="section-features">
@@ -42,7 +42,9 @@ export default function Home() {
         <CommunityReviews />
       </ScrollSection>
 
-      <Sponsors />
+      <ScrollSection>
+        <Sponsors />
+      </ScrollSection>
 
       <ScrollSection id="section-cta">
         <CTA />

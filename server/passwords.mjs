@@ -6,8 +6,8 @@ const KEY_LENGTH = 64
 const SCRYPT_OPTIONS = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 }
 
 export function validatePassword(password) {
-  if (typeof password !== 'string' || password.length < 12 || password.length > 128) {
-    throw new Error('Kata sandi harus berisi 12–128 karakter.')
+  if (typeof password !== 'string' || password.length < 8 || password.length > 128) {
+    throw new Error('Kata sandi harus berisi 8–128 karakter.')
   }
 }
 

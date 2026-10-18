@@ -19,13 +19,21 @@ Tidak ada akun bawaan dan tidak ada pendaftaran dari halaman web. Buat akun dari
 npm run admin:create
 ```
 
-Masukkan username dan kata sandi saat diminta. Input kata sandi tidak ditampilkan di terminal dan panjangnya minimal 12 karakter. Buka `/admin` untuk login. Untuk mengganti kata sandi:
+Masukkan username dan kata sandi saat diminta. Input kata sandi tidak ditampilkan di terminal dan panjangnya 8–128 karakter. Buka `/admin` untuk login. Untuk mengganti kata sandi:
 
 ```sh
 npm run admin:reset-password
 ```
 
 Reset kata sandi mencabut semua sesi admin yang aktif.
+
+Untuk mengganti username sekaligus kata sandi akun yang sudah ada:
+
+```sh
+npm run admin:set-credentials
+```
+
+Perintah ini juga mencabut semua sesi lama agar perubahan kredensial langsung berlaku.
 
 ## Database dan penyimpanan
 
@@ -34,6 +42,12 @@ Data disimpan di `data/site-content.sqlite` menggunakan SQLite. Database dibuat 
 Data program, pengumuman, status publikasi, akun admin, dan sesi disimpan di server. API publik hanya memberikan pengumuman yang sudah tayang. Draft dan operasi perubahan hanya tersedia untuk sesi admin.
 
 Panel admin menyediakan backup JSON untuk konten. Jika ada konten lama di browser dari versi localStorage, panel menawarkan impor satu kali ke database. Impor hanya diterima jika database belum pernah diedit, sehingga tidak menimpa perubahan server secara diam-diam.
+
+## Sistem PPDB online
+
+Halaman pendaftar berada di `/ppdb`. Pendaftaran tertutup secara default. Setelah login ke `/admin`, buka bagian **Pendaftar PPDB**, isi tahun ajaran, lalu aktifkan penerimaan pendaftaran online. Formulir mengumpulkan data calon siswa, pilihan program, dan kontak orang tua/wali; data disimpan di SQLite dan hanya bisa dikelola melalui sesi admin.
+
+Setelah formulir dikirim, pendaftar mendapat nomor pendaftaran serta kode pelacakan untuk memeriksa status. Admin dapat mengubah status, menulis pesan yang terlihat oleh pendaftar, menambahkan catatan internal, atau menghapus data pendaftaran. Sistem versi ini belum mengirim email otomatis dan belum menyediakan unggah berkas; sekolah dapat memberi arahan lanjutan melalui pesan status atau kontak yang sudah diisi.
 
 ## Menjalankan produksi
 
