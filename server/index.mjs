@@ -7,21 +7,31 @@ import { resolve } from 'node:path'
 import {
   addLegacyContentIfUnchanged,
   contentRevision,
+  createContactMessage,
   createReview,
+  createAdmin,
   createPpdbApplication,
   createSession,
-  deletePpdbApplication,
+  deleteContactMessage,
+  deleteReview,
+  archivePpdbApplication,
+  endPpdbPeriod,
   db,
   deleteExpiredSessions,
   deleteSession,
   findAdminByUsername,
   findSession,
+  getContactMessageSummary,
   getContentUpdatedAt,
   getReviewSummary,
   getPpdbSettings,
   findPpdbApplicationForTracking,
   hasAdminAccounts,
   listPpdbApplications,
+  listArchivedPpdbApplications,
+  listPpdbPeriods,
+  listAdmins,
+  listContactMessages,
   listReviews,
   readSiteContent,
   removeAnnouncement,
@@ -30,10 +40,12 @@ import {
   saveAnnouncement,
   saveProgram,
   savePpdbSettings,
+  setContactMessageStatus,
   setProgramsVerified,
   updatePpdbApplication,
+  restorePpdbApplication,
 } from './database.mjs'
-import { verifyPassword } from './passwords.mjs'
+import { hashPassword, verifyPassword } from './passwords.mjs'
 import {
   validateAnnouncement,
   validateProgram,
@@ -82,7 +94,7 @@ app.use('/api', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store')
   next()
 })
-app.use('/api', express.json({ limit: '256kb', strict: true }))
+app.use('/api', express.json({ limit: '512kb', strict: true }))
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -98,6 +110,14 @@ const reviewLimiter = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { message: 'Batas kiriman ulasan tercapai. Coba lagi satu jam kemudian.' },
+})
+
+const contactMessageLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Batas kirim pesan tercapai. Coba lagi satu jam kemudian.' },
 })
 
 const ppdbSubmissionLimiter = rateLimit({
@@ -181,6 +201,14 @@ function requireAdmin(req, res, next) {
   next()
 }
 
+function requireOwner(req, res, next) {
+  if (req.admin?.role !== 'owner') {
+    res.status(403).json({ message: 'Hanya admin utama yang dapat mengelola akun admin.' })
+    return
+  }
+  next()
+}
+
 function handleValidationError(error, res) {
   if (error?.errcode === 2067 || error?.code === 'SQLITE_CONSTRAINT_UNIQUE') {
     res.status(409).json({ message: 'Nama bidang tersebut sudah digunakan.' })
@@ -205,13 +233,54 @@ app.get('/api/content', (_req, res) => {
   res.json(readSiteContent({ includeDrafts: false }))
 })
 
-const reviewPageSize = 3
+app.post('/api/contact/messages', contactMessageLimiter, sameOrigin, (req, res) => {
+  const name = typeof req.body?.name === 'string'
+    ? req.body.name.trim().replace(/\s+/g, ' ')
+    : ''
+  const phone = typeof req.body?.phone === 'string'
+    ? req.body.phone.trim().replace(/\s+/g, ' ')
+    : ''
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
+  const topic = req.body?.topic
+  const message = typeof req.body?.message === 'string' ? req.body.message.trim() : ''
 
-function reviewPagination(requestedPage, summary) {
-  const pageCount = Math.ceil(summary.count / reviewPageSize)
+  if (name.length < 2 || name.length > 80) {
+    res.status(400).json({ message: 'Nama harus berisi 2–80 karakter.' })
+    return
+  }
+  if (phone.length > 32 || (phone && !/^[+\d().\-\s]+$/.test(phone))) {
+    res.status(400).json({ message: 'Nomor telepon tidak valid.' })
+    return
+  }
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    res.status(400).json({ message: 'Alamat email tidak valid.' })
+    return
+  }
+  if (!['ppdb', 'program', 'partnership', 'other'].includes(topic)) {
+    res.status(400).json({ message: 'Pilih keperluan pesan yang tersedia.' })
+    return
+  }
+  if (message.length < 10 || message.length > 3000) {
+    res.status(400).json({ message: 'Pesan harus berisi 10–3.000 karakter.' })
+    return
+  }
+
+  try {
+    const saved = createContactMessage({ name, phone, email, topic, message })
+    res.status(201).json({ ok: true, id: saved.id })
+  } catch (error) {
+    handleDatabaseError(error, res)
+  }
+})
+
+const reviewPageSize = 3
+const adminReviewPageSize = 12
+
+function reviewPagination(requestedPage, summary, pageSize = reviewPageSize) {
+  const pageCount = Math.ceil(summary.count / pageSize)
   const parsedPage = Number.parseInt(String(requestedPage ?? '1'), 10) || 1
   const page = pageCount ? Math.max(1, Math.min(pageCount, parsedPage)) : 1
-  return { page, pageCount, pageSize: reviewPageSize }
+  return { page, pageCount, pageSize }
 }
 
 app.get('/api/reviews', (req, res) => {
@@ -258,6 +327,63 @@ app.post('/api/reviews', reviewLimiter, sameOrigin, (req, res) => {
   } catch (error) {
     handleDatabaseError(error, res)
   }
+})
+
+app.get('/api/admin/reviews', requireAdmin, (req, res) => {
+  const filter = req.query.filter === 'low' ? 'low' : null
+  const summary = getReviewSummary(filter)
+  const pagination = reviewPagination(req.query.page, summary, adminReviewPageSize)
+  const offset = (pagination.page - 1) * pagination.pageSize
+  res.json({
+    reviews: listReviews(pagination.pageSize, offset, filter),
+    summary,
+    pagination,
+  })
+})
+
+app.delete('/api/admin/reviews/:id', requireAdmin, sameOrigin, (req, res) => {
+  const id = req.params.id
+  if (!/^[\w-]{1,100}$/.test(id) || !deleteReview(id)) {
+    res.status(404).json({ message: 'Ulasan tidak ditemukan.' })
+    return
+  }
+  res.json({ ok: true, summary: getReviewSummary() })
+})
+
+app.get('/api/admin/contact-messages', requireAdmin, (req, res) => {
+  const pageSize = 12
+  const summary = getContactMessageSummary()
+  const pageCount = Math.ceil(summary.total / pageSize)
+  const requestedPage = Number.parseInt(String(req.query.page ?? '1'), 10) || 1
+  const page = pageCount ? Math.max(1, Math.min(pageCount, requestedPage)) : 1
+  res.json({
+    messages: listContactMessages(pageSize, (page - 1) * pageSize),
+    summary,
+    pagination: { page, pageCount, pageSize },
+  })
+})
+
+app.patch('/api/admin/contact-messages/:id', requireAdmin, sameOrigin, (req, res) => {
+  const id = req.params.id
+  const status = req.body?.status
+  if (!/^[\w-]{1,100}$/.test(id) || !['unread', 'read'].includes(status)) {
+    res.status(400).json({ message: 'Status pesan tidak valid.' })
+    return
+  }
+  if (!setContactMessageStatus(id, status)) {
+    res.status(404).json({ message: 'Pesan tidak ditemukan.' })
+    return
+  }
+  res.json({ ok: true, summary: getContactMessageSummary() })
+})
+
+app.delete('/api/admin/contact-messages/:id', requireAdmin, sameOrigin, (req, res) => {
+  const id = req.params.id
+  if (!/^[\w-]{1,100}$/.test(id) || !deleteContactMessage(id)) {
+    res.status(404).json({ message: 'Pesan tidak ditemukan.' })
+    return
+  }
+  res.json({ ok: true, summary: getContactMessageSummary() })
 })
 
 app.get('/api/ppdb/settings', (_req, res) => {
@@ -308,7 +434,7 @@ app.get('/api/auth/session', (req, res) => {
   const admin = token && /^[A-Za-z0-9_-]{40,60}$/.test(token) ? findSession(hashToken(token)) : null
   res.json({
     authenticated: Boolean(admin),
-    ...(admin ? { username: admin.username } : {}),
+    ...(admin ? { username: admin.username, role: admin.role } : {}),
     setupRequired: !hasAdminAccounts(),
   })
 })
@@ -343,7 +469,7 @@ app.post('/api/auth/login', loginLimiter, sameOrigin, async (req, res) => {
   const expiresAt = Date.now() + sessionLifetimeMs
   createSession(admin.id, hashToken(token), expiresAt)
   writeSessionCookie(res, token, Math.floor(sessionLifetimeMs / 1000))
-  res.json({ authenticated: true, username: admin.username })
+  res.json({ authenticated: true, username: admin.username, role: admin.role })
 })
 
 app.post('/api/auth/logout', sameOrigin, (req, res) => {
@@ -351,6 +477,39 @@ app.post('/api/auth/logout', sameOrigin, (req, res) => {
   if (token && /^[A-Za-z0-9_-]{40,60}$/.test(token)) deleteSession(hashToken(token))
   clearSessionCookie(res)
   res.json({ ok: true })
+})
+
+app.get('/api/admin/admins', requireAdmin, requireOwner, (_req, res) => {
+  res.json({ admins: listAdmins() })
+})
+
+app.post('/api/admin/admins', requireAdmin, requireOwner, sameOrigin, async (req, res) => {
+  const username = typeof req.body?.username === 'string' ? req.body.username.trim() : ''
+  const password = typeof req.body?.password === 'string' ? req.body.password : ''
+  if (!/^[a-zA-Z0-9_.-]{3,40}$/.test(username)) {
+    res.status(400).json({
+      message:
+        'Username harus 3–40 karakter dan hanya berisi huruf, angka, titik, garis bawah, atau tanda hubung.',
+    })
+    return
+  }
+
+  try {
+    const { salt, hash } = await hashPassword(password)
+    const id = createAdmin(username, salt, hash)
+    res.status(201).json({ id, admins: listAdmins() })
+  } catch (error) {
+    if (error?.errcode === 2067 || error?.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      res.status(409).json({ message: 'Username tersebut sudah digunakan.' })
+      return
+    }
+    if (error instanceof Error && !error.message.includes('SQLITE_CONSTRAINT')) {
+      res.status(400).json({ message: error.message })
+      return
+    }
+    console.error('Admin account creation failed:', error)
+    res.status(500).json({ message: 'Akun admin belum dapat dibuat. Coba lagi.' })
+  }
 })
 
 app.get('/api/admin/content', requireAdmin, (_req, res) => {
@@ -362,16 +521,30 @@ app.get('/api/admin/content', requireAdmin, (_req, res) => {
 })
 
 app.get('/api/admin/ppdb', requireAdmin, (_req, res) => {
-  res.json({ settings: getPpdbSettings(), applications: listPpdbApplications() })
+  res.json({
+    settings: getPpdbSettings(),
+    applications: listPpdbApplications(),
+    archivedApplications: listArchivedPpdbApplications(),
+    periods: listPpdbPeriods(),
+  })
 })
 
 app.put('/api/admin/ppdb/settings', requireAdmin, sameOrigin, (req, res) => {
   try {
     const settings = validatePpdbSettings(req.body)
-    res.json({ settings: savePpdbSettings(settings) })
+    res.json({ settings: savePpdbSettings(settings), periods: listPpdbPeriods() })
   } catch (error) {
     handleDatabaseError(error, res)
   }
+})
+
+app.post('/api/admin/ppdb/end', requireAdmin, sameOrigin, (req, res) => {
+  const settings = endPpdbPeriod()
+  if (!settings) {
+    res.status(409).json({ message: 'Tidak ada periode PPDB yang sedang dibuka.' })
+    return
+  }
+  res.json({ settings, periods: listPpdbPeriods() })
 })
 
 app.patch('/api/admin/ppdb/applications/:applicationNumber', requireAdmin, sameOrigin, (req, res) => {
@@ -392,13 +565,38 @@ app.patch('/api/admin/ppdb/applications/:applicationNumber', requireAdmin, sameO
   }
 })
 
-app.delete('/api/admin/ppdb/applications/:applicationNumber', requireAdmin, sameOrigin, (req, res) => {
+app.post('/api/admin/ppdb/applications/:applicationNumber/archive', requireAdmin, sameOrigin, (req, res) => {
   const applicationNumber = req.params.applicationNumber.toUpperCase()
-  if (!/^BPPI-\d{4}-[A-F0-9]{8}$/.test(applicationNumber) || !deletePpdbApplication(applicationNumber)) {
+  const archivedAt = /^BPPI-\d{4}-[A-F0-9]{8}$/.test(applicationNumber)
+    ? archivePpdbApplication(applicationNumber)
+    : null
+  if (!archivedAt) {
     res.status(404).json({ message: 'Pendaftar tidak ditemukan.' })
     return
   }
+  res.json({ ok: true, archivedAt })
+})
+
+app.post('/api/admin/ppdb/applications/:applicationNumber/restore', requireAdmin, sameOrigin, (req, res) => {
+  const applicationNumber = req.params.applicationNumber.toUpperCase()
+  if (!/^BPPI-\d{4}-[A-F0-9]{8}$/.test(applicationNumber) || !restorePpdbApplication(applicationNumber)) {
+    res.status(404).json({ message: 'Data arsip tidak ditemukan.' })
+    return
+  }
   res.json({ ok: true })
+})
+
+// Keep old admin clients safe: their former delete action now archives the record.
+app.delete('/api/admin/ppdb/applications/:applicationNumber', requireAdmin, sameOrigin, (req, res) => {
+  const applicationNumber = req.params.applicationNumber.toUpperCase()
+  const archivedAt = /^BPPI-\d{4}-[A-F0-9]{8}$/.test(applicationNumber)
+    ? archivePpdbApplication(applicationNumber)
+    : null
+  if (!archivedAt) {
+    res.status(404).json({ message: 'Pendaftar tidak ditemukan.' })
+    return
+  }
+  res.json({ ok: true, archivedAt })
 })
 
 app.post('/api/admin/programs', requireAdmin, sameOrigin, (req, res) => {

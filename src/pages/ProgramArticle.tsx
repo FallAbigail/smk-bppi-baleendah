@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import { ArrowLeft, ArrowRight, BookOpen } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -7,13 +6,11 @@ import { schoolProfile } from '../data/schoolProfile'
 import { useSiteContent } from '../contexts/SiteContentContext'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { programArticles } from '../data/programArticles'
-import PinnedArticleHeading from '../components/scroll/PinnedArticleHeading'
 
 export default function ProgramArticle() {
   const { slug } = useParams()
   const { content } = useSiteContent()
   const { t } = useLanguage()
-  const articleSectionRef = useRef<HTMLElement>(null)
   const program = content.programs.find((item) => item.level === 'smk' && item.id === slug)
   const article = program ? programArticles[program.id] : undefined
   const title = program ? t(program.title) : t('Program keahlian tidak ditemukan')
@@ -39,7 +36,7 @@ export default function ProgramArticle() {
     )
   }
 
-  const logo = programLogoById[program.id]
+  const logo = program.logo || programLogoById[program.id]
   const relatedPrograms = content.programs.filter(
     (item) => item.level === 'smk' && item.id !== program.id,
   )
@@ -125,9 +122,9 @@ export default function ProgramArticle() {
         </div>
 
         {article && (
-          <section ref={articleSectionRef} className="relative mt-12 grid gap-7 md:grid-cols-[minmax(14rem,0.7fr)_minmax(0,1.3fr)] md:gap-10" aria-labelledby="program-article-heading">
-            <PinnedArticleHeading sectionRef={articleSectionRef} className="self-start">
-              <header className="bg-gray-50 dark:bg-gray-950">
+          <section className="mt-12" aria-labelledby="program-article-heading">
+            <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+              <header className="border-b border-gray-100 p-6 dark:border-gray-800 sm:p-7 md:p-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-700 dark:text-brand-300">
                   {t('Artikel Program Keahlian')}
                 </p>
@@ -135,17 +132,17 @@ export default function ProgramArticle() {
                   {t(article.title)}
                 </h2>
               </header>
-            </PinnedArticleHeading>
-            <article className="rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900 sm:p-8">
-              {article.sections.map((section, index) => (
-                <section key={section.heading} className={index > 0 ? 'mt-7 border-t border-gray-100 pt-6 dark:border-gray-800' : ''}>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t(section.heading)}</h3>
-                  <p className="mt-2 text-sm leading-7 text-gray-600 dark:text-gray-300 sm:text-base">
-                    {t(section.body)}
-                  </p>
-                </section>
-              ))}
-            </article>
+              <article className="grid sm:grid-cols-2">
+                {article.sections.map((section, index) => (
+                  <section key={section.heading} className={`p-6 sm:p-7 md:p-8 ${index > 0 ? 'border-t border-gray-100 dark:border-gray-800 sm:border-l sm:border-t-0' : ''}`}>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t(section.heading)}</h3>
+                    <p className="mt-2 text-sm leading-7 text-gray-600 dark:text-gray-300 sm:text-base">
+                      {t(section.body)}
+                    </p>
+                  </section>
+                ))}
+              </article>
+            </div>
           </section>
         )}
 
@@ -161,7 +158,7 @@ export default function ProgramArticle() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {relatedPrograms.map((item) => {
-                const relatedLogo = programLogoById[item.id]
+                const relatedLogo = item.logo || programLogoById[item.id]
 
                 return (
                   <Link

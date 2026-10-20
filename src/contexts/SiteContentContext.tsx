@@ -62,6 +62,7 @@ function isProgram(value: unknown): value is AcademicProgram {
     typeof value.description === 'string' &&
     Array.isArray(value.highlights) &&
     value.highlights.every((item) => typeof item === 'string') &&
+    (value.logo === undefined || typeof value.logo === 'string') &&
     ['science', 'social', 'technology', 'arts', 'language', 'environment', 'business'].includes(
       String(value.icon),
     )

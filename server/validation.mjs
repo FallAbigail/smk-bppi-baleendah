@@ -13,6 +13,8 @@ const ppdbApplicationStatuses = new Set([
   'baru',
   'ditinjau',
   'perlu_konfirmasi',
+  'menunggu_pembayaran',
+  'pembayaran_dikonfirmasi',
   'diterima',
   'tidak_diterima',
 ])
@@ -27,6 +29,25 @@ function text(value, label, maxLength) {
   if (!normalized) throw new Error(`${label} wajib diisi.`)
   if (normalized.length > maxLength) throw new Error(`${label} terlalu panjang.`)
   return normalized
+}
+
+function programLogo(value) {
+  if (value === undefined || value === null || value === '') return ''
+  if (typeof value !== 'string' || value.length > 360_000) {
+    throw new Error('Logo harus berupa gambar WebP maksimal 270 KB.')
+  }
+  const match = /^data:image\/webp;base64,([A-Za-z0-9+/]+={0,2})$/.exec(value)
+  if (!match) throw new Error('Format logo tidak valid. Unggah gambar PNG, JPG, atau WebP.')
+  const bytes = Buffer.from(match[1], 'base64')
+  if (
+    bytes.length < 12 ||
+    bytes.length > 270_000 ||
+    bytes.toString('ascii', 0, 4) !== 'RIFF' ||
+    bytes.toString('ascii', 8, 12) !== 'WEBP'
+  ) {
+    throw new Error('Logo tidak valid atau ukurannya terlalu besar. Coba gunakan gambar lain.')
+  }
+  return value
 }
 
 export function validateProgram(input) {
@@ -48,7 +69,7 @@ export function validateProgram(input) {
     throw new Error(`${itemLabel} tidak boleh duplikat.`)
   }
   if (!programIcons.has(input.icon)) throw new Error('Ikon bidang tidak valid.')
-  return { level, title, description, highlights, icon: input.icon }
+  return { level, title, description, highlights, icon: input.icon, logo: programLogo(input.logo) }
 }
 
 export function validateAnnouncement(input) {

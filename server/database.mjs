@@ -22,6 +22,7 @@ db.exec(`
     username TEXT NOT NULL UNIQUE COLLATE NOCASE,
     password_salt TEXT NOT NULL,
     password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'admin' CHECK(role IN ('owner', 'admin')),
     created_at TEXT NOT NULL
   );
 
@@ -65,6 +66,17 @@ db.exec(`
     created_at TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS contact_messages (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL DEFAULT '',
+    email TEXT NOT NULL,
+    topic TEXT NOT NULL CHECK(topic IN ('ppdb', 'program', 'partnership', 'other')),
+    message TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'unread' CHECK(status IN ('unread', 'read')),
+    created_at TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS ppdb_applications (
     id TEXT PRIMARY KEY,
     application_number TEXT NOT NULL UNIQUE,
@@ -81,11 +93,19 @@ db.exec(`
     previous_school TEXT NOT NULL,
     graduation_year INTEGER,
     program_id TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'baru' CHECK(status IN ('baru', 'ditinjau', 'perlu_konfirmasi', 'diterima', 'tidak_diterima')),
+    status TEXT NOT NULL DEFAULT 'baru' CHECK(status IN ('baru', 'ditinjau', 'perlu_konfirmasi', 'menunggu_pembayaran', 'pembayaran_dikonfirmasi', 'diterima', 'tidak_diterima')),
     public_message TEXT NOT NULL DEFAULT '',
     internal_note TEXT NOT NULL DEFAULT '',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS ppdb_periods (
+    academic_year TEXT PRIMARY KEY,
+    status TEXT NOT NULL CHECK(status IN ('open', 'closed')),
+    public_message TEXT NOT NULL DEFAULT '',
+    started_at TEXT,
+    ended_at TEXT
   );
 
   CREATE TABLE IF NOT EXISTS app_meta (
@@ -96,9 +116,29 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at);
   CREATE INDEX IF NOT EXISTS idx_announcements_public_date ON announcements(published, date DESC);
   CREATE INDEX IF NOT EXISTS idx_reviews_created_at ON reviews(created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON contact_messages(created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_contact_messages_status_created_at ON contact_messages(status, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_ppdb_applications_created ON ppdb_applications(created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_ppdb_applications_status ON ppdb_applications(status, created_at DESC);
 `)
+
+const adminColumns = new Set(
+  db
+    .prepare('PRAGMA table_info(admins)')
+    .all()
+    .map((column) => column.name),
+)
+if (!adminColumns.has('role')) {
+  db.exec(
+    "ALTER TABLE admins ADD COLUMN role TEXT NOT NULL DEFAULT 'admin' CHECK(role IN ('owner', 'admin'))",
+  )
+}
+if (!db.prepare("SELECT 1 FROM admins WHERE role = 'owner' LIMIT 1").get()) {
+  db.prepare(`
+    UPDATE admins SET role = 'owner'
+    WHERE id = (SELECT id FROM admins ORDER BY created_at ASC, id ASC LIMIT 1)
+  `).run()
+}
 
 const programColumns = new Set(
   db
@@ -110,6 +150,9 @@ if (!programColumns.has('level')) {
   db.exec(
     "ALTER TABLE programs ADD COLUMN level TEXT NOT NULL DEFAULT 'sma' CHECK(level IN ('sma', 'smk'))",
   )
+}
+if (!programColumns.has('logo')) {
+  db.exec("ALTER TABLE programs ADD COLUMN logo TEXT NOT NULL DEFAULT ''")
 }
 
 function runTransaction(operation) {
@@ -128,6 +171,55 @@ function runTransaction(operation) {
   }
 }
 
+const ppdbSchema = db
+  .prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'ppdb_applications'")
+  .get()?.sql ?? ''
+if (!ppdbSchema.includes("'menunggu_pembayaran'") || !ppdbSchema.includes("'pembayaran_dikonfirmasi'")) {
+  runTransaction(() => {
+    db.exec(`
+      CREATE TABLE ppdb_applications_next (
+        id TEXT PRIMARY KEY,
+        application_number TEXT NOT NULL UNIQUE,
+        tracking_hash TEXT NOT NULL,
+        academic_year TEXT NOT NULL,
+        student_name TEXT NOT NULL,
+        birth_date TEXT NOT NULL,
+        gender TEXT NOT NULL CHECK(gender IN ('Laki-laki', 'Perempuan')),
+        address TEXT NOT NULL,
+        student_phone TEXT NOT NULL DEFAULT '',
+        student_email TEXT NOT NULL DEFAULT '',
+        guardian_name TEXT NOT NULL,
+        guardian_phone TEXT NOT NULL,
+        previous_school TEXT NOT NULL,
+        graduation_year INTEGER,
+        program_id TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'baru' CHECK(status IN ('baru', 'ditinjau', 'perlu_konfirmasi', 'menunggu_pembayaran', 'pembayaran_dikonfirmasi', 'diterima', 'tidak_diterima')),
+        public_message TEXT NOT NULL DEFAULT '',
+        internal_note TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      INSERT INTO ppdb_applications_next SELECT * FROM ppdb_applications;
+      DROP TABLE ppdb_applications;
+      ALTER TABLE ppdb_applications_next RENAME TO ppdb_applications;
+      CREATE INDEX idx_ppdb_applications_created ON ppdb_applications(created_at DESC);
+      CREATE INDEX idx_ppdb_applications_status ON ppdb_applications(status, created_at DESC);
+    `)
+  })
+}
+
+const ppdbColumns = new Set(
+  db
+    .prepare('PRAGMA table_info(ppdb_applications)')
+    .all()
+    .map((column) => column.name),
+)
+if (!ppdbColumns.has('archived_at')) {
+  db.exec('ALTER TABLE ppdb_applications ADD COLUMN archived_at TEXT')
+}
+db.exec('CREATE INDEX IF NOT EXISTS idx_ppdb_applications_archived_created ON ppdb_applications(archived_at, created_at DESC)')
+db.exec('CREATE INDEX IF NOT EXISTS idx_ppdb_applications_year_archive ON ppdb_applications(academic_year, archived_at)')
+
 const defaultContent = JSON.parse(
   readFileSync(resolve(projectRoot, 'src/data/site-content.json'), 'utf8'),
 )
@@ -135,6 +227,29 @@ const getMeta = db.prepare('SELECT value FROM app_meta WHERE key = ?')
 const setMeta = db.prepare(
   'INSERT INTO app_meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
 )
+
+db.prepare(`
+  INSERT OR IGNORE INTO ppdb_periods (academic_year, status)
+  SELECT DISTINCT academic_year, 'closed'
+  FROM ppdb_applications
+  WHERE academic_year <> ''
+`).run()
+
+const savedPpdbYear = getMeta.get('ppdb_academic_year')?.value ?? ''
+if (savedPpdbYear) {
+  const isPpdbOpen = getMeta.get('ppdb_is_open')?.value === 'true'
+  db.prepare(`
+    INSERT INTO ppdb_periods (academic_year, status, public_message)
+    VALUES (?, ?, ?)
+    ON CONFLICT(academic_year) DO UPDATE SET
+      status = excluded.status,
+      public_message = excluded.public_message,
+      ended_at = CASE WHEN excluded.status = 'open' THEN NULL ELSE ppdb_periods.ended_at END
+  `).run(savedPpdbYear, isPpdbOpen ? 'open' : 'closed', getMeta.get('ppdb_public_message')?.value ?? '')
+  if (isPpdbOpen) {
+    db.prepare("UPDATE ppdb_periods SET status = 'closed' WHERE academic_year <> ? AND status = 'open'").run(savedPpdbYear)
+  }
+}
 
 if (!getMeta.get('seeded')) {
   runTransaction(() => {
@@ -332,19 +447,33 @@ export function hasAdminAccounts() {
 }
 
 export function createAdmin(username, passwordSalt, passwordHash) {
-  const id = `admin-${randomUUID()}`
-  db.prepare(
-    'INSERT INTO admins (id, username, password_salt, password_hash, created_at) VALUES (?, ?, ?, ?, ?)',
-  ).run(id, username, passwordSalt, passwordHash, new Date().toISOString())
-  return id
+  return runTransaction(() => {
+    const id = `admin-${randomUUID()}`
+    const existingOwner = db.prepare("SELECT 1 FROM admins WHERE role = 'owner' LIMIT 1").get()
+    const assignedRole = existingOwner || hasAdminAccounts() ? 'admin' : 'owner'
+    db.prepare(
+      'INSERT INTO admins (id, username, password_salt, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+    ).run(id, username, passwordSalt, passwordHash, assignedRole, new Date().toISOString())
+    return id
+  })
 }
 
 export function findAdminByUsername(username) {
   return db
     .prepare(
-      'SELECT id, username, password_salt, password_hash FROM admins WHERE username = ? COLLATE NOCASE',
+      'SELECT id, username, password_salt, password_hash, role FROM admins WHERE username = ? COLLATE NOCASE',
     )
     .get(username)
+}
+
+export function listAdmins() {
+  return db
+    .prepare(`
+      SELECT id, username, role, created_at AS createdAt
+      FROM admins
+      ORDER BY (role = 'owner') DESC, created_at ASC
+    `)
+    .all()
 }
 
 export function updateAdminPassword(username, passwordSalt, passwordHash) {
@@ -391,7 +520,7 @@ export function findSession(tokenHash, now = Date.now()) {
   return db
     .prepare(
       `
-    SELECT sessions.admin_id AS id, admins.username
+    SELECT sessions.admin_id AS id, admins.username, admins.role
     FROM sessions JOIN admins ON admins.id = sessions.admin_id
     WHERE sessions.token_hash = ? AND sessions.expires_at > ?
   `,
@@ -406,7 +535,7 @@ export function deleteSession(tokenHash) {
 function readPrograms() {
   return db
     .prepare(
-      'SELECT id, level, title, description, subjects_json, icon FROM programs ORDER BY position, title COLLATE NOCASE',
+      'SELECT id, level, title, description, subjects_json, icon, logo FROM programs ORDER BY position, title COLLATE NOCASE',
     )
     .all()
     .map((program) => ({
@@ -416,6 +545,7 @@ function readPrograms() {
       description: program.description,
       highlights: JSON.parse(program.subjects_json),
       icon: program.icon,
+      logo: program.logo,
     }))
 }
 
@@ -456,14 +586,15 @@ export function saveProgram(program, id = `program-${randomUUID()}`) {
       Number(db.prepare('SELECT COALESCE(MAX(position), -1) + 1 AS next FROM programs').get().next)
     db.prepare(
       `
-      INSERT INTO programs (id, title, description, subjects_json, level, icon, position, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO programs (id, title, description, subjects_json, level, icon, logo, position, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         title = excluded.title,
         description = excluded.description,
         subjects_json = excluded.subjects_json,
         level = excluded.level,
         icon = excluded.icon,
+        logo = excluded.logo,
         updated_at = excluded.updated_at
     `,
     ).run(
@@ -473,6 +604,7 @@ export function saveProgram(program, id = `program-${randomUUID()}`) {
       JSON.stringify(program.highlights),
       program.level,
       program.icon,
+      program.logo ?? '',
       position,
       existing?.created_at ?? now,
       now,
@@ -543,8 +675,8 @@ export function replaceSiteContent(content) {
   return runTransaction(() => {
     db.exec('DELETE FROM programs; DELETE FROM announcements;')
     const insertProgram = db.prepare(`
-      INSERT INTO programs (id, title, description, subjects_json, level, icon, position, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO programs (id, title, description, subjects_json, level, icon, logo, position, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `)
     const insertAnnouncement = db.prepare(`
       INSERT INTO announcements (id, title, body, category, date, published, created_at, updated_at)
@@ -559,6 +691,7 @@ export function replaceSiteContent(content) {
         JSON.stringify(program.highlights),
         program.level,
         program.icon,
+        program.logo ?? '',
         index,
         now,
         now,
@@ -594,6 +727,12 @@ export function getContentUpdatedAt() {
 export function listReviews(limit = 1, offset = 0, rating = null) {
   const safeLimit = Math.max(1, Math.min(12, Math.floor(Number(limit) || 6)))
   const safeOffset = Math.max(0, Math.floor(Number(offset) || 0))
+  if (rating === 'low') {
+    return db
+      .prepare(`SELECT id, name, role, rating, comment, created_at AS createdAt
+                FROM reviews WHERE rating <= 2 ORDER BY created_at DESC LIMIT ? OFFSET ?`)
+      .all(safeLimit, safeOffset)
+  }
   const query = rating === null
     ? `SELECT id, name, role, rating, comment, created_at AS createdAt
        FROM reviews ORDER BY created_at DESC LIMIT ? OFFSET ?`
@@ -606,6 +745,12 @@ export function listReviews(limit = 1, offset = 0, rating = null) {
 }
 
 export function getReviewSummary(rating = null) {
+  if (rating === 'low') {
+    const summary = db
+      .prepare('SELECT COUNT(*) AS count, COALESCE(AVG(rating), 0) AS average FROM reviews WHERE rating <= 2')
+      .get()
+    return { count: summary.count, average: Number(summary.average) }
+  }
   const query = rating === null
     ? 'SELECT COUNT(*) AS count, COALESCE(AVG(rating), 0) AS average FROM reviews'
     : 'SELECT COUNT(*) AS count, COALESCE(AVG(rating), 0) AS average FROM reviews WHERE rating = ?'
@@ -623,6 +768,56 @@ export function createReview(review) {
   return { id, ...review, createdAt }
 }
 
+export function deleteReview(id) {
+  return db.prepare('DELETE FROM reviews WHERE id = ?').run(id).changes > 0
+}
+
+export function createContactMessage(contactMessage) {
+  const id = `contact-${randomUUID()}`
+  const createdAt = new Date().toISOString()
+  db.prepare(`
+    INSERT INTO contact_messages (id, name, phone, email, topic, message, status, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, 'unread', ?)
+  `).run(
+    id,
+    contactMessage.name,
+    contactMessage.phone,
+    contactMessage.email,
+    contactMessage.topic,
+    contactMessage.message,
+    createdAt,
+  )
+  return { id, ...contactMessage, status: 'unread', createdAt }
+}
+
+export function listContactMessages(limit = 12, offset = 0) {
+  const safeLimit = Math.max(1, Math.min(100, Math.floor(Number(limit) || 12)))
+  const safeOffset = Math.max(0, Math.floor(Number(offset) || 0))
+  return db.prepare(`
+    SELECT id, name, phone, email, topic, message, status, created_at AS createdAt
+    FROM contact_messages
+    ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
+  `).all(safeLimit, safeOffset)
+}
+
+export function getContactMessageSummary() {
+  const summary = db.prepare(`
+    SELECT COUNT(*) AS total,
+      COALESCE(SUM(CASE WHEN status = 'unread' THEN 1 ELSE 0 END), 0) AS unread
+    FROM contact_messages
+  `).get()
+  return { total: summary.total, unread: summary.unread }
+}
+
+export function setContactMessageStatus(id, status) {
+  return db.prepare('UPDATE contact_messages SET status = ? WHERE id = ?').run(status, id).changes > 0
+}
+
+export function deleteContactMessage(id) {
+  return db.prepare('DELETE FROM contact_messages WHERE id = ?').run(id).changes > 0
+}
+
 export function getPpdbSettings() {
   return {
     isOpen: getMeta.get('ppdb_is_open')?.value === 'true',
@@ -632,12 +827,70 @@ export function getPpdbSettings() {
 }
 
 export function savePpdbSettings(settings) {
+  const now = new Date().toISOString()
   runTransaction(() => {
     setMeta.run('ppdb_is_open', String(settings.isOpen))
     setMeta.run('ppdb_academic_year', settings.academicYear)
     setMeta.run('ppdb_public_message', settings.publicMessage)
+
+    if (settings.isOpen) {
+      db.prepare(`
+        UPDATE ppdb_periods
+        SET status = 'closed', ended_at = COALESCE(ended_at, ?)
+        WHERE status = 'open' AND academic_year <> ?
+      `).run(now, settings.academicYear)
+      db.prepare(`
+        INSERT INTO ppdb_periods (academic_year, status, public_message, started_at, ended_at)
+        VALUES (?, 'open', ?, ?, NULL)
+        ON CONFLICT(academic_year) DO UPDATE SET
+          status = 'open',
+          public_message = excluded.public_message,
+          started_at = COALESCE(ppdb_periods.started_at, excluded.started_at),
+          ended_at = NULL
+      `).run(settings.academicYear, settings.publicMessage, now)
+    } else {
+      db.prepare(`
+        UPDATE ppdb_periods
+        SET status = 'closed', ended_at = COALESCE(ended_at, ?)
+        WHERE status = 'open'
+      `).run(now)
+    }
   })
   return getPpdbSettings()
+}
+
+export function endPpdbPeriod() {
+  const settings = getPpdbSettings()
+  if (!settings.isOpen || !settings.academicYear) return null
+
+  const now = new Date().toISOString()
+  runTransaction(() => {
+    setMeta.run('ppdb_is_open', 'false')
+    db.prepare(`
+      UPDATE ppdb_periods
+      SET status = 'closed', ended_at = ?
+      WHERE academic_year = ? AND status = 'open'
+    `).run(now, settings.academicYear)
+  })
+  return getPpdbSettings()
+}
+
+export function listPpdbPeriods() {
+  return db.prepare(`
+    SELECT
+      periods.academic_year AS academicYear,
+      periods.status,
+      periods.started_at AS startedAt,
+      periods.ended_at AS endedAt,
+      COUNT(applications.id) AS applicationCount,
+      COALESCE(SUM(CASE WHEN applications.archived_at IS NULL AND applications.id IS NOT NULL THEN 1 ELSE 0 END), 0) AS activeApplicationCount,
+      COALESCE(SUM(CASE WHEN applications.archived_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS archivedApplicationCount
+    FROM ppdb_periods AS periods
+    LEFT JOIN ppdb_applications AS applications
+      ON applications.academic_year = periods.academic_year
+    GROUP BY periods.academic_year
+    ORDER BY periods.academic_year DESC
+  `).all()
 }
 
 export function createPpdbApplication(application, academicYear, trackingHash) {
@@ -691,6 +944,7 @@ export function findPpdbApplicationForTracking(applicationNumber, trackingHash) 
       applications.status,
       applications.public_message AS publicMessage,
       applications.created_at AS createdAt,
+      applications.updated_at AS updatedAt,
       programs.title AS programTitle
     FROM ppdb_applications AS applications
     LEFT JOIN programs ON programs.id = applications.program_id
@@ -698,7 +952,7 @@ export function findPpdbApplicationForTracking(applicationNumber, trackingHash) 
   `).get(applicationNumber, trackingHash)
 }
 
-export function listPpdbApplications() {
+function queryPpdbApplications(archived) {
   return db.prepare(`
     SELECT
       applications.application_number AS applicationNumber,
@@ -719,12 +973,21 @@ export function listPpdbApplications() {
       applications.public_message AS publicMessage,
       applications.internal_note AS internalNote,
       applications.created_at AS createdAt,
-      applications.updated_at AS updatedAt
+      applications.updated_at AS updatedAt,
+      applications.archived_at AS archivedAt
     FROM ppdb_applications AS applications
     LEFT JOIN programs ON programs.id = applications.program_id
+    WHERE applications.archived_at IS ${archived ? 'NOT ' : ''}NULL
     ORDER BY applications.created_at DESC
-    LIMIT 500
   `).all()
+}
+
+export function listPpdbApplications() {
+  return queryPpdbApplications(false)
+}
+
+export function listArchivedPpdbApplications() {
+  return queryPpdbApplications(true)
 }
 
 export function updatePpdbApplication(applicationNumber, update) {
@@ -736,7 +999,21 @@ export function updatePpdbApplication(applicationNumber, update) {
   return result.changes === 1
 }
 
-export function deletePpdbApplication(applicationNumber) {
-  const result = db.prepare('DELETE FROM ppdb_applications WHERE application_number = ?').run(applicationNumber)
+export function archivePpdbApplication(applicationNumber) {
+  const archivedAt = new Date().toISOString()
+  const result = db.prepare(`
+    UPDATE ppdb_applications
+    SET archived_at = ?
+    WHERE application_number = ? AND archived_at IS NULL
+  `).run(archivedAt, applicationNumber)
+  return result.changes === 1 ? archivedAt : null
+}
+
+export function restorePpdbApplication(applicationNumber) {
+  const result = db.prepare(`
+    UPDATE ppdb_applications
+    SET archived_at = NULL
+    WHERE application_number = ? AND archived_at IS NOT NULL
+  `).run(applicationNumber)
   return result.changes === 1
 }

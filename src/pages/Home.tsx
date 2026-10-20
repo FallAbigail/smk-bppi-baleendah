@@ -2,6 +2,7 @@ import ScrollSection from '../components/scroll/ScrollSection'
 import Hero from '../components/sections/Hero'
 import About from '../components/sections/About'
 import Programs from '../components/sections/Programs'
+import ExtracurricularPreview from '../components/sections/ExtracurricularPreview'
 import Features from '../components/sections/Features'
 import Gallery from '../components/sections/Gallery'
 import CommunityReviews from '../components/sections/CommunityReviews'
@@ -30,6 +31,10 @@ export default function Home() {
         <Programs carousel />
       </ScrollSection>
 
+      <ScrollSection id="section-extracurriculars">
+        <ExtracurricularPreview />
+      </ScrollSection>
+
       <ScrollSection id="section-features">
         <Features />
       </ScrollSection>
@@ -46,9 +51,7 @@ export default function Home() {
         <Sponsors />
       </ScrollSection>
 
-      <ScrollSection id="section-cta">
-        <CTA />
-      </ScrollSection>
+      <CTA />
     </main>
   )
 }

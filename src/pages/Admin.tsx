@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState, type ChangeEvent, type Dispatch, type FormEvent, type SetStateAction } from 'react'
 import {
   ArrowDownToLine,
   ArrowLeft,
@@ -17,13 +17,16 @@ import {
   BookA,
   Leaf,
   LayoutDashboard,
+  Mail,
   Megaphone,
+  MessageSquareText,
   LockKeyhole,
   LogOut,
   Pencil,
   Plus,
   Save,
   ShieldCheck,
+  UsersRound,
   Trash2,
   X,
   type LucideIcon,
@@ -44,10 +47,22 @@ import type {
   SchoolAnnouncement,
   SiteContent,
 } from '../data/siteContent'
+import { programLogoById } from '../data/programLogos'
 import { schoolProfile } from '../data/schoolProfile'
 import PpdbManager from '../components/admin/PpdbManager'
+import ReviewsManager from '../components/admin/ReviewsManager'
+import ContactMessagesManager from '../components/admin/ContactMessagesManager'
+import AdminAccountsManager from '../components/admin/AdminAccountsManager'
 
-type AdminSection = 'overview' | 'programs' | 'information' | 'ppdb'
+type AdminRole = 'owner' | 'admin'
+type AdminSection =
+  | 'overview'
+  | 'programs'
+  | 'information'
+  | 'ppdb'
+  | 'reviews'
+  | 'messages'
+  | 'admins'
 type ProgramDraft = {
   id?: string
   level: SchoolLevel
@@ -55,7 +70,9 @@ type ProgramDraft = {
   description: string
   highlights: string
   icon: ProgramIcon
+  logo: string
 }
+type ProgramDraftSetter = Dispatch<SetStateAction<ProgramDraft | null>>
 type AnnouncementDraft = {
   id?: string
   title: string
@@ -71,16 +88,9 @@ const sections: Array<{ id: AdminSection; label: string; Icon: LucideIcon }> = [
   { id: 'programs', label: 'Program keahlian', Icon: BookOpen },
   { id: 'information', label: 'Informasi & PPDB', Icon: Megaphone },
   { id: 'ppdb', label: 'Pendaftar PPDB', Icon: ClipboardList },
-]
-
-const programIcons: Array<{ value: ProgramIcon; label: string }> = [
-  { value: 'science', label: 'Sains' },
-  { value: 'social', label: 'Sosial' },
-  { value: 'technology', label: 'Teknologi' },
-  { value: 'arts', label: 'Seni' },
-  { value: 'language', label: 'Bahasa' },
-  { value: 'environment', label: 'Lingkungan' },
-  { value: 'business', label: 'Bisnis & keuangan' },
+  { id: 'reviews', label: 'Ulasan', Icon: MessageSquareText },
+  { id: 'messages', label: 'Pesan Masuk', Icon: Mail },
+  { id: 'admins', label: 'Akun admin', Icon: UsersRound },
 ]
 
 const iconComponents: Record<ProgramIcon, LucideIcon> = {
@@ -91,6 +101,47 @@ const iconComponents: Record<ProgramIcon, LucideIcon> = {
   language: BookA,
   environment: Leaf,
   business: BriefcaseBusiness,
+}
+
+async function prepareProgramLogo(file: File) {
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+    throw new Error('Pilih gambar PNG, JPG, atau WebP.')
+  }
+  if (file.size > 6 * 1024 * 1024) {
+    throw new Error('Ukuran gambar maksimal 6 MB sebelum diproses.')
+  }
+
+  const image = new Image()
+  const objectUrl = URL.createObjectURL(file)
+  try {
+    image.src = objectUrl
+    await image.decode()
+  } finally {
+    URL.revokeObjectURL(objectUrl)
+  }
+
+  if (!image.naturalWidth || !image.naturalHeight) {
+    throw new Error('Gambar logo tidak bisa dibaca.')
+  }
+
+  let maxSide = 512
+  for (let attempt = 0; attempt < 7; attempt += 1) {
+    const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale))
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale))
+    const context = canvas.getContext('2d')
+    if (!context) throw new Error('Gambar logo belum dapat diproses di browser ini.')
+    context.drawImage(image, 0, 0, canvas.width, canvas.height)
+    const logo = canvas.toDataURL('image/webp', 0.82)
+    if (!logo.startsWith('data:image/webp;')) {
+      throw new Error('Browser ini belum mendukung pemrosesan gambar logo.')
+    }
+    if (logo.length <= 360_000) return logo
+    maxSide = Math.floor(maxSide * 0.8)
+  }
+
+  throw new Error('Logo terlalu besar setelah diproses. Coba unggah gambar yang lebih sederhana.')
 }
 
 const categoryLabels: Record<AnnouncementCategory, string> = {
@@ -135,6 +186,7 @@ function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false)
   const [setupRequired, setSetupRequired] = useState(false)
   const [username, setUsername] = useState('')
+  const [adminRole, setAdminRole] = useState<AdminRole>('admin')
   const [authError, setAuthError] = useState('')
   const [loginPending, setLoginPending] = useState(false)
 
@@ -159,12 +211,14 @@ function AdminPage() {
       const session = await apiRequest<{
         authenticated: boolean
         username?: string
+        role?: AdminRole
         setupRequired: boolean
       }>('/auth/session')
       setSetupRequired(session.setupRequired)
       if (session.authenticated) {
         await loadAdminContent()
         setUsername(session.username ?? 'admin')
+        setAdminRole(session.role ?? 'admin')
         setAuthenticated(true)
       } else {
         setAuthenticated(false)
@@ -185,7 +239,7 @@ function AdminPage() {
     setLoginPending(true)
     setAuthError('')
     try {
-      const session = await apiRequest<{ authenticated: boolean; username: string }>(
+      const session = await apiRequest<{ authenticated: boolean; username: string; role: AdminRole }>(
         '/auth/login',
         {
           method: 'POST',
@@ -194,6 +248,7 @@ function AdminPage() {
       )
       await loadAdminContent()
       setUsername(session.username)
+      setAdminRole(session.role)
       setAuthenticated(true)
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : 'Login belum berhasil.')
@@ -208,6 +263,7 @@ function AdminPage() {
       await loadPublicContent().catch(() => undefined)
       setAuthenticated(false)
       setUsername('')
+      setAdminRole('admin')
       setAuthError('')
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : 'Logout belum berhasil.')
@@ -232,6 +288,7 @@ function AdminPage() {
   return (
     <AdminWorkspace
       username={username}
+      role={adminRole}
       onLogout={() => {
         void handleLogout()
       }}
@@ -427,7 +484,15 @@ function AdminAccessScreen({
   )
 }
 
-function AdminWorkspace({ username, onLogout }: { username: string; onLogout: () => void }) {
+function AdminWorkspace({
+  username,
+  role,
+  onLogout,
+}: {
+  username: string
+  role: AdminRole
+  onLogout: () => void
+}) {
   const {
     content,
     storageStatus,
@@ -460,6 +525,7 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
     .sort((a, b) => b.date.localeCompare(a.date))
 
   function openSection(section: AdminSection) {
+    if (section === 'admins' && role !== 'owner') return
     setActiveSection(section)
     setProgramDraft(null)
     setAnnouncementDraft(null)
@@ -469,7 +535,7 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
 
   function startNewProgram(level: SchoolLevel = 'smk') {
     setActiveSection('programs')
-    setProgramDraft({ level, title: '', description: '', highlights: '', icon: 'science' })
+    setProgramDraft({ level, title: '', description: '', highlights: '', icon: 'science', logo: '' })
     setFormError('')
     setFeedback('')
   }
@@ -482,6 +548,7 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
       description: program.description,
       highlights: program.highlights.join(', '),
       icon: program.icon,
+      logo: program.logo ?? '',
     })
     setFormError('')
     setFeedback('')
@@ -520,6 +587,7 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
         description,
         highlights,
         icon: programDraft.icon,
+        logo: programDraft.logo,
       })
       setProgramDraft(null)
       setFormError('')
@@ -659,7 +727,8 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
                 'dark:bg-brand-950 dark:text-brand-200 sm:inline-flex',
               ].join(' ')}
             >
-              <ShieldCheck className="h-4 w-4" aria-hidden="true" /> {username}
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" /> {username} ·{' '}
+              {role === 'owner' ? 'Admin utama' : 'Admin'}
             </span>
             <a
               href="/"
@@ -699,7 +768,11 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
           <p className="mb-3 px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
             Pengelolaan
           </p>
-          <AdminNavigation activeSection={activeSection} onNavigate={openSection} />
+          <AdminNavigation
+            activeSection={activeSection}
+            onNavigate={openSection}
+            isOwner={role === 'owner'}
+          />
           <div className="mt-8 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
               <Bell className="h-4 w-4 text-brand-600 dark:text-brand-400" aria-hidden="true" />
@@ -717,7 +790,12 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
           className="min-w-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-10"
         >
           <div className="mb-6 lg:hidden">
-            <AdminNavigation activeSection={activeSection} onNavigate={openSection} compact />
+            <AdminNavigation
+              activeSection={activeSection}
+              onNavigate={openSection}
+              compact
+              isOwner={role === 'owner'}
+            />
           </div>
 
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -737,6 +815,12 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
                   'Tulis draft atau publikasikan berita, pengumuman, dan informasi PPDB SMK.'}
                 {activeSection === 'ppdb' &&
                   'Atur periode pendaftaran online dan tinjau data calon siswa yang masuk.'}
+                {activeSection === 'reviews' &&
+                  'Tinjau ulasan yang masuk dari situs dan hapus komentar yang tidak sesuai.'}
+                {activeSection === 'messages' &&
+                  'Baca dan tindak lanjuti pesan yang dikirim melalui formulir kontak website.'}
+                {activeSection === 'admins' &&
+                  'Buat akun admin tambahan. Pengelolaan akun admin hanya tersedia untuk admin utama.'}
               </p>
             </div>
             <button
@@ -880,6 +964,9 @@ function AdminWorkspace({ username, onLogout }: { username: string; onLogout: ()
           )}
 
           {activeSection === 'ppdb' && <PpdbManager />}
+          {activeSection === 'reviews' && <ReviewsManager />}
+          {activeSection === 'messages' && <ContactMessagesManager />}
+          {activeSection === 'admins' && role === 'owner' && <AdminAccountsManager />}
         </main>
       </div>
     </div>
@@ -890,14 +977,17 @@ function AdminNavigation({
   activeSection,
   onNavigate,
   compact = false,
+  isOwner = false,
 }: {
   activeSection: AdminSection
   onNavigate: (section: AdminSection) => void
   compact?: boolean
+  isOwner?: boolean
 }) {
+  const visibleSections = isOwner ? sections : sections.filter((section) => section.id !== 'admins')
   return (
     <nav aria-label="Menu admin" className={compact ? 'grid grid-cols-2 gap-2 sm:grid-cols-4' : 'space-y-1'}>
-      {sections.map(({ id, label, Icon }) => (
+      {visibleSections.map(({ id, label, Icon }) => (
         <button
           key={id}
           type="button"
@@ -1213,7 +1303,7 @@ function ProgramManager({
   onEdit: (program: AcademicProgram) => void
   onDelete: (program: AcademicProgram) => void
   onCancel: () => void
-  onChange: (draft: ProgramDraft | null) => void
+  onChange: ProgramDraftSetter
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   onVerify: () => void
 }) {
@@ -1294,6 +1384,7 @@ function ProgramManager({
         <div className="grid gap-4 xl:grid-cols-2">
           {content.programs.map((program) => {
             const Icon = iconComponents[program.icon]
+            const logo = program.logo || programLogoById[program.id]
             return (
               <article
                 key={program.id}
@@ -1307,7 +1398,11 @@ function ProgramManager({
                       'dark:text-brand-400',
                     ].join(' ')}
                   >
-                    <Icon className="h-5 w-5" aria-hidden="true" />
+                    {logo ? (
+                      <img src={logo} alt={`Logo ${program.title}`} className="h-full w-full object-contain p-1" />
+                    ) : (
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    )}
                   </span>
                   <div className="min-w-0 flex-1">
                     <span
@@ -1402,10 +1497,29 @@ function ProgramForm({
 }: {
   draft: ProgramDraft
   error: string
-  onChange: (draft: ProgramDraft) => void
+  onChange: ProgramDraftSetter
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   onCancel: () => void
 }) {
+  const [logoError, setLogoError] = useState('')
+  const [processingLogo, setProcessingLogo] = useState(false)
+  const previewLogo = draft.logo || (draft.id ? programLogoById[draft.id] : '')
+
+  function uploadLogo(event: ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget
+    const file = input.files?.[0]
+    if (!file) return
+    setLogoError('')
+    setProcessingLogo(true)
+    void prepareProgramLogo(file)
+      .then((logo) => onChange((current) => current ? { ...current, logo } : current))
+      .catch((cause) => setLogoError(cause instanceof Error ? cause.message : 'Logo belum dapat diproses.'))
+      .finally(() => {
+        setProcessingLogo(false)
+        input.value = ''
+      })
+  }
+
   return (
     <section className="rounded-2xl border border-brand-200 bg-white p-5 dark:border-brand-900 dark:bg-gray-900 sm:p-6">
       <div className="mb-5 flex items-start justify-between gap-3">
@@ -1438,20 +1552,45 @@ function ProgramForm({
             placeholder="Contoh: Pengembangan Perangkat Lunak dan Gim"
           />
         </label>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Ikon
-          <select
-            value={draft.icon}
-            onChange={(event) => onChange({ ...draft, icon: event.target.value as ProgramIcon })}
-            className={inputClass}
-          >
-            {programIcons.map((icon) => (
-              <option key={icon.value} value={icon.value}>
-                {icon.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="grid gap-4 rounded-xl border border-gray-200 p-4 dark:border-gray-700 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Tambahkan logo program
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={uploadLogo}
+              disabled={processingLogo}
+              className={inputClass}
+            />
+            <span className="mt-1 block text-xs font-normal text-gray-500 dark:text-gray-400">
+              PNG, JPG, atau WebP. Maksimal 6 MB; gambar akan diperkecil otomatis.
+            </span>
+          </label>
+          <div className="flex min-h-20 items-center gap-3 sm:justify-end">
+            <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 p-2 dark:border-gray-700 dark:bg-gray-800">
+              {previewLogo ? (
+                <img src={previewLogo} alt="Pratinjau logo program" className="h-full w-full object-contain" />
+              ) : (
+                <span className="text-center text-xs text-gray-500 dark:text-gray-400">Belum ada logo</span>
+              )}
+            </div>
+            {draft.logo && (
+              <button
+                type="button"
+                disabled={processingLogo}
+                onClick={() => { onChange({ ...draft, logo: '' }); setLogoError('') }}
+                className="text-sm font-semibold text-gray-600 underline underline-offset-4 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-300 dark:hover:text-red-300"
+              >
+                Hapus logo
+              </button>
+            )}
+          </div>
+          {(logoError || processingLogo) && (
+            <p role={logoError ? 'alert' : 'status'} className={`text-sm md:col-span-2 ${logoError ? 'text-red-700 dark:text-red-300' : 'text-gray-500 dark:text-gray-400'}`}>
+              {logoError || 'Memproses logo…'}
+            </p>
+          )}
+        </div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 md:col-span-2">
           Deskripsi
           <textarea
@@ -1486,9 +1625,10 @@ function ProgramForm({
         <div className="flex flex-wrap gap-2 md:col-span-2">
           <button
             type="submit"
+            disabled={processingLogo}
             className={[
               'inline-flex items-center gap-2 rounded-lg bg-brand-700',
-              'px-4 py-2.5 text-sm font-semibold text-white',
+              'px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60',
               'hover:bg-brand-800',
             ].join(' ')}
           >

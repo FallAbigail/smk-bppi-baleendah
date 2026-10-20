@@ -19,6 +19,7 @@ export interface AcademicProgram {
   description: string
   highlights: string[]
   icon: ProgramIcon
+  logo?: string
 }
 
 export interface SchoolAnnouncement {

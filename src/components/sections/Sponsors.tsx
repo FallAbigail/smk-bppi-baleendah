@@ -234,14 +234,14 @@ export default function Sponsors() {
           <MarqueeRow
             partners={schoolPartners}
             direction="left"
-            duration={58}
+            duration={66.7}
             visible={inView}
             label={t('Mitra SMK BPPI')}
           />
           <MarqueeRow
             partners={[...schoolPartners].reverse()}
             direction="right"
-            duration={64}
+            duration={73.6}
             visible={inView}
             label={t('Mitra SMK BPPI')}
           />

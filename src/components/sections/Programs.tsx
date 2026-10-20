@@ -49,8 +49,10 @@ export default function Programs({
   const { content } = useSiteContent()
   const { t } = useLanguage()
   const programs = content.programs.filter((program) => program.level === 'smk')
-  const [activeProgramIndex, setActiveProgramIndex] = useState(0)
-  const selectedProgramIndex = Math.min(activeProgramIndex, programs.length - 1)
+  const [activeProgramIndex, setActiveProgramIndex] = useState<number | null>(null)
+  const selectedProgramIndex = activeProgramIndex === null
+    ? null
+    : Math.min(activeProgramIndex, programs.length - 1)
 
   return (
     <section id="smk" className="scroll-mt-28 bg-gray-50 py-24 dark:bg-gray-950">
@@ -65,7 +67,7 @@ export default function Programs({
                 {t('Program Keahlian')}
               </Heading>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('Kenali program keahlian yang tersedia di SMK BPPI Baleendah.')}
+                {t('Pilih salah satu jurusan untuk melihat gambaran dan fokus pembelajarannya.')}
               </p>
             </div>
             <div className="flex flex-wrap items-end gap-4 sm:shrink-0">
@@ -123,7 +125,7 @@ function ProgramSelect({
   onSelect,
 }: {
   programs: AcademicProgram[]
-  selectedIndex: number
+  selectedIndex: number | null
   onSelect: (index: number) => void
 }) {
   const { t } = useLanguage()
@@ -132,7 +134,7 @@ function ProgramSelect({
   const triggerRef = useRef<HTMLButtonElement>(null)
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
   const listId = useId()
-  const activeProgram = programs[selectedIndex]
+  const activeProgram = selectedIndex === null ? undefined : programs[selectedIndex]
   const activeAbbreviation = activeProgram
     ? programAbbreviations[activeProgram.id] ?? t(activeProgram.title)
     : ''
@@ -147,7 +149,7 @@ function ProgramSelect({
 
   useEffect(() => {
     if (open) {
-      requestAnimationFrame(() => optionRefs.current[selectedIndex]?.focus())
+      requestAnimationFrame(() => optionRefs.current[selectedIndex ?? 0]?.focus())
     }
   }, [open])
 
@@ -187,8 +189,8 @@ function ProgramSelect({
             event.preventDefault()
             setOpen(true)
             const nextIndex = event.key === 'ArrowDown'
-              ? Math.min(selectedIndex, programs.length - 1)
-              : Math.max(0, selectedIndex)
+              ? Math.min(selectedIndex ?? 0, programs.length - 1)
+              : Math.max(0, selectedIndex ?? 0)
             requestAnimationFrame(() => optionRefs.current[nextIndex]?.focus())
           } else if (event.key === 'Escape') {
             setOpen(false)
@@ -197,7 +199,9 @@ function ProgramSelect({
         className="flex h-10 w-36 items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3 text-left text-sm font-medium text-gray-800 transition-colors hover:border-brand-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-brand-500"
       >
         <span className="truncate">
-          {activeProgram && `${String(selectedIndex + 1).padStart(2, '0')} · ${activeAbbreviation}`}
+          {activeProgram
+            ? `${String(selectedIndex! + 1).padStart(2, '0')} · ${activeAbbreviation}`
+            : t('Pilih jurusan')}
         </span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-gray-500 transition-transform duration-150 dark:text-gray-400 ${open ? 'rotate-180' : ''}`}
@@ -259,12 +263,22 @@ function ProgramCarousel({
   activeIndex,
 }: {
   programs: AcademicProgram[]
-  activeIndex: number
+  activeIndex: number | null
 }) {
   const { t } = useLanguage()
   const reduceMotion = useReducedMotion()
+  if (activeIndex === null) {
+    return (
+      <div className="flex min-h-[17.5rem] items-center justify-center rounded-2xl border border-gray-200 bg-gray-100 p-6 dark:border-gray-700 dark:bg-gray-800">
+        <p className="max-w-sm text-center text-sm font-medium leading-relaxed text-gray-600 dark:text-gray-300">
+          {t('Pilih salah satu jurusan dari menu di atas untuk melihat informasinya.')}
+        </p>
+      </div>
+    )
+  }
+
   const activeProgram = programs[activeIndex]
-  const activeLogo = programLogoById[activeProgram.id]
+  const activeLogo = activeProgram.logo || programLogoById[activeProgram.id]
   const activeProfile = activeProgram.description
   const ActiveIcon = programPresentation[activeProgram.icon] ?? BookOpen
 
@@ -341,7 +355,7 @@ function ProgramCard({
 }) {
   const Icon = programPresentation[program.icon] ?? BookOpen
   const { t } = useLanguage()
-  const logo = programLogoById[program.id]
+  const logo = program.logo || programLogoById[program.id]
   const profile = program.description
 
   return (

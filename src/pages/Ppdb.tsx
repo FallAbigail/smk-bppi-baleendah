@@ -87,18 +87,29 @@ export default function Ppdb() {
 
   useEffect(() => {
     let active = true
-    apiRequest<PpdbSettings>('/ppdb/settings')
-      .then((data) => {
-        if (active) setSettings(data)
-      })
-      .catch((error) => {
-        if (active) setSettingsError(error instanceof Error ? error.message : t('Informasi PPDB belum dapat dimuat.'))
-      })
-      .finally(() => {
-        if (active) setSettingsLoading(false)
-      })
+    let initialRequest = true
+    const loadSettings = async () => {
+      try {
+        const data = await apiRequest<PpdbSettings>('/ppdb/settings')
+        if (active) {
+          setSettings(data)
+          setSettingsError('')
+        }
+      } catch (error) {
+        if (active && initialRequest) {
+          setSettingsError(error instanceof Error ? error.message : t('Informasi PPDB belum dapat dimuat.'))
+        }
+      } finally {
+        if (active && initialRequest) setSettingsLoading(false)
+        initialRequest = false
+      }
+    }
+
+    void loadSettings()
+    const refreshTimer = window.setInterval(() => void loadSettings(), 10_000)
     return () => {
       active = false
+      if (refreshTimer !== undefined) window.clearInterval(refreshTimer)
     }
   }, [t])
 
@@ -192,7 +203,7 @@ export default function Ppdb() {
                     <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" aria-hidden="true" />
                     <div className="min-w-0">
                       <h3 className="font-bold text-emerald-950 dark:text-emerald-100">{t('Pendaftaran berhasil dikirim')}</h3>
-                      <p className="mt-1 text-sm leading-6 text-emerald-900 dark:text-emerald-200">{t('Simpan nomor pendaftaran dan kode pelacakan ini. Keduanya diperlukan untuk memeriksa status.')}</p>
+                      <p className="mt-1 text-sm leading-6 text-emerald-900 dark:text-emerald-200">{t('Simpan nomor pendaftaran dan kode pelacakan ini. Keduanya diperlukan untuk memeriksa status. Admin sekolah akan meninjau data, mengonfirmasi pembayaran, dan memperbarui hasil penerimaan secara manual.')}</p>
                     </div>
                   </div>
                   <dl className="mt-4 grid gap-3 rounded-lg bg-white/80 p-4 text-sm dark:bg-gray-900/80 sm:grid-cols-2">
@@ -270,6 +281,7 @@ export default function Ppdb() {
                     <div className="flex justify-between gap-3"><dt>{t('Tahun ajaran')}</dt><dd className="font-medium text-right">{status.academicYear}</dd></div>
                     <div className="flex justify-between gap-3"><dt>{t('Program pilihan')}</dt><dd className="font-medium text-right">{status.programTitle ?? t('Program keahlian')}</dd></div>
                     <div className="flex justify-between gap-3"><dt>{t('Tanggal daftar')}</dt><dd className="font-medium text-right">{formatDate(status.createdAt)}</dd></div>
+                    <div className="flex justify-between gap-3"><dt>{t('Pembaruan status')}</dt><dd className="font-medium text-right">{formatDate(status.updatedAt)}</dd></div>
                   </dl>
                   {status.publicMessage && <p className="mt-3 border-t border-brand-200 pt-3 text-sm leading-6 text-gray-700 dark:border-brand-900 dark:text-gray-200">{status.publicMessage}</p>}
                 </div>
