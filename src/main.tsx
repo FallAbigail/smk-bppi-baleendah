@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { MotionConfig } from 'framer-motion'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { ConfirmDialogProvider } from './contexts/ConfirmDialogContext'
 import { SiteContentProvider } from './contexts/SiteContentContext'
 import './index.css'
 import App from './App.tsx'
@@ -13,11 +14,13 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ThemeProvider>
         <LanguageProvider>
-          <SiteContentProvider>
-            <MotionConfig reducedMotion="user">
-              <App />
-            </MotionConfig>
-          </SiteContentProvider>
+          <ConfirmDialogProvider>
+            <SiteContentProvider>
+              <MotionConfig reducedMotion="user">
+                <App />
+              </MotionConfig>
+            </SiteContentProvider>
+          </ConfirmDialogProvider>
         </LanguageProvider>
       </ThemeProvider>
     </BrowserRouter>

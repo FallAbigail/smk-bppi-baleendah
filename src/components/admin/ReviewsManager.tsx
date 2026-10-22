@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Star, Trash2 } from 'lucide-react'
 import { apiRequest } from '../../lib/api'
+import { useConfirmDialog } from '../../contexts/ConfirmDialogContext'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 type ReviewerRole = 'alumni' | 'student' | 'parent'
 type ReviewFilter = 'all' | 'low'
@@ -48,6 +50,8 @@ function formatDate(value: string) {
 }
 
 export default function ReviewsManager() {
+  const confirm = useConfirmDialog()
+  const { t } = useLanguage()
   const [reviews, setReviews] = useState<Review[]>([])
   const [summary, setSummary] = useState(emptySummary)
   const [pagination, setPagination] = useState(emptyPagination)
@@ -94,9 +98,12 @@ export default function ReviewsManager() {
   }
 
   async function removeReview(review: Review) {
-    const confirmed = window.confirm(
-      `Hapus ulasan dari ${review.name} dengan rating ${review.rating}/5? Ulasan yang dihapus tidak dapat dipulihkan.`,
-    )
+    const confirmed = await confirm({
+      title: t('Hapus ulasan?'),
+      description: `${t('Ulasan dari')} ${review.name} ${t('dengan rating')} ${review.rating}/5 ${t('akan dihapus. Tindakan ini tidak dapat dibatalkan.')}`,
+      confirmLabel: t('Hapus ulasan'),
+      tone: 'danger',
+    })
     if (!confirmed) return
 
     setRemovingId(review.id)

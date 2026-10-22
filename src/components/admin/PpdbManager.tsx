@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Archive, Check, CircleStop, ClipboardList, LoaderCircle, RotateCcw, Search, Settings2, X } from 'lucide-react'
 import { apiRequest } from '../../lib/api'
+import { useConfirmDialog } from '../../contexts/ConfirmDialogContext'
+import { useLanguage } from '../../contexts/LanguageContext'
 import {
   ppdbStatusOptions,
   type PpdbApplication,
@@ -32,6 +34,8 @@ function statusTone(status: PpdbApplicationStatus) {
 }
 
 export default function PpdbManager() {
+  const confirm = useConfirmDialog()
+  const { t } = useLanguage()
   const [data, setData] = useState<AdminPpdbResponse | null>(null)
   const [settingsDraft, setSettingsDraft] = useState<PpdbSettings>(emptySettings)
   const [edits, setEdits] = useState<Record<string, ApplicationEdit>>({})
@@ -115,9 +119,12 @@ export default function PpdbManager() {
   async function endPpdb() {
     if (!data?.settings.isOpen) return
     const academicYear = data.settings.academicYear
-    const confirmed = window.confirm(
-      `Akhiri PPDB tahun ajaran ${academicYear}? Formulir pendaftaran akan langsung ditutup. Semua data pendaftar tetap tersimpan dan bisa dilihat di riwayat tahun ajaran.`,
-    )
+    const confirmed = await confirm({
+      title: `${t('Akhiri PPDB tahun ajaran')} ${academicYear}?`,
+      description: t('Formulir pendaftaran akan langsung ditutup. Semua data pendaftar tetap tersimpan dan bisa dilihat di riwayat tahun ajaran.'),
+      confirmLabel: t('Akhiri PPDB'),
+      tone: 'warning',
+    })
     if (!confirmed) return
 
     setEndingPpdb(true)
@@ -186,7 +193,13 @@ export default function PpdbManager() {
   }
 
   async function archiveApplication(application: PpdbApplication) {
-    if (!window.confirm(`Pindahkan pendaftaran ${application.studentName} (${application.applicationNumber}) ke arsip? Datanya tetap tersimpan dan bisa dipulihkan kapan saja.`)) return
+    const confirmed = await confirm({
+      title: t('Pindahkan pendaftaran ke arsip?'),
+      description: `${application.studentName} · ${application.applicationNumber}. ${t('Data tetap tersimpan dan bisa dipulihkan kapan saja.')}`,
+      confirmLabel: t('Pindahkan ke arsip'),
+      tone: 'warning',
+    })
+    if (!confirmed) return
     setProcessingApplication(application.applicationNumber)
     setError('')
     setFeedback('')

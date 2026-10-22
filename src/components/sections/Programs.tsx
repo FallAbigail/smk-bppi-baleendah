@@ -57,7 +57,7 @@ export default function Programs({
   return (
     <section id="smk" className="scroll-mt-28 bg-gray-50 py-24 dark:bg-gray-950">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mb-10">
+        <div className="relative z-20 mb-10">
           <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">
             {schoolProfile.name}
           </p>
@@ -169,7 +169,7 @@ function ProgramSelect({
   }
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className={`relative ${open ? 'z-50' : ''}`}>
       <label
         htmlFor="home-program-select"
         className="absolute left-2.5 top-0 z-10 -translate-y-1/2 bg-gray-50 px-1 text-[10px] font-medium text-gray-500 dark:bg-gray-950 dark:text-gray-400"
@@ -196,13 +196,16 @@ function ProgramSelect({
             setOpen(false)
           }
         }}
-        className="flex h-10 w-36 items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3 text-left text-sm font-medium text-gray-800 transition-colors hover:border-brand-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-brand-500"
+        className="flex h-10 w-40 items-center justify-between gap-2 rounded-lg border border-gray-300 bg-white px-3 text-left text-sm font-medium text-gray-800 transition-colors hover:border-brand-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-brand-500"
       >
-        <span className="truncate">
-          {activeProgram
-            ? `${String(selectedIndex! + 1).padStart(2, '0')} · ${activeAbbreviation}`
-            : t('Pilih jurusan')}
-        </span>
+        {activeProgram ? (
+          <span className="flex min-w-0 items-center gap-2">
+            <ProgramLogoMark program={activeProgram} />
+            <span className="truncate">{activeAbbreviation}</span>
+          </span>
+        ) : (
+          <span className="truncate">{t('Pilih jurusan')}</span>
+        )}
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-gray-500 transition-transform duration-150 dark:text-gray-400 ${open ? 'rotate-180' : ''}`}
           aria-hidden="true"
@@ -210,7 +213,7 @@ function ProgramSelect({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-2 w-80 max-w-[calc(100vw-3rem)] rounded-xl border border-gray-200 bg-white p-2 shadow-[0_12px_30px_rgba(25,47,67,0.14)] dark:border-gray-700 dark:bg-gray-900 dark:shadow-black/30">
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-3rem)] rounded-xl border border-gray-200 bg-white p-2 shadow-[0_12px_30px_rgba(25,47,67,0.14)] dark:border-gray-700 dark:bg-gray-900 dark:shadow-black/30">
           <div id={listId} role="listbox" aria-label={t('Pilih jurusan')}>
             {programs.map((program, index) => {
               const isSelected = selectedIndex === index
@@ -236,9 +239,7 @@ function ProgramSelect({
                   }}
                   className={`grid w-full grid-cols-[1.75rem_minmax(0,1fr)_1rem] items-center gap-2 rounded-lg px-2 py-2 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-600 ${isSelected ? 'bg-brand-50 dark:bg-brand-950/60' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
-                  <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold ${isSelected ? 'bg-brand-700 text-white dark:bg-brand-500 dark:text-gray-950' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300'}`}>
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
+                  <ProgramLogoMark program={program} />
                   <span className="min-w-0">
                     <span className="block text-xs font-medium leading-snug text-gray-800 dark:text-gray-100">
                       {t(program.title)}
@@ -255,6 +256,34 @@ function ProgramSelect({
         </div>
       )}
     </div>
+  )
+}
+
+function ProgramLogoMark({ program }: { program: AcademicProgram }) {
+  const { t } = useLanguage()
+  const logo = program.logo || programLogoById[program.id]
+  const Icon = programPresentation[program.icon] ?? BookOpen
+  const [failedLogo, setFailedLogo] = useState<string | null>(null)
+
+  useEffect(() => {
+    setFailedLogo(null)
+  }, [logo])
+
+  return (
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
+      {logo && failedLogo !== logo ? (
+        <img
+          src={logo}
+          alt={`${t('Logo')} ${t(program.title)}`}
+          className="h-full w-full object-contain"
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailedLogo(logo)}
+        />
+      ) : (
+        <Icon className="h-4 w-4 text-brand-700 dark:text-brand-300" aria-hidden="true" />
+      )}
+    </span>
   )
 }
 

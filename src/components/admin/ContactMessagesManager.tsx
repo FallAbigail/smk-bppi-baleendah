@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Check, Mail, Phone, Reply, RotateCcw, Trash2 } from 'lucide-react'
 import { apiRequest } from '../../lib/api'
+import { useConfirmDialog } from '../../contexts/ConfirmDialogContext'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 type MessageTopic = 'ppdb' | 'program' | 'partnership' | 'other'
 type MessageStatus = 'unread' | 'read'
@@ -43,6 +45,8 @@ function formatDate(value: string) {
 }
 
 export default function ContactMessagesManager() {
+  const confirm = useConfirmDialog()
+  const { t } = useLanguage()
   const [data, setData] = useState(emptyResponse)
   const [page, setPage] = useState(1)
   const [refreshKey, setRefreshKey] = useState(0)
@@ -92,7 +96,13 @@ export default function ContactMessagesManager() {
   }
 
   async function deleteMessage(message: ContactMessage) {
-    if (!window.confirm(`Hapus pesan dari ${message.name}? Tindakan ini tidak dapat dibatalkan.`)) return
+    const confirmed = await confirm({
+      title: t('Hapus pesan?'),
+      description: `${t('Pesan dari')} ${message.name} ${t('akan dihapus. Tindakan ini tidak dapat dibatalkan.')}`,
+      confirmLabel: t('Hapus pesan'),
+      tone: 'danger',
+    })
+    if (!confirmed) return
     setPendingId(message.id)
     setError('')
     setNotice('')

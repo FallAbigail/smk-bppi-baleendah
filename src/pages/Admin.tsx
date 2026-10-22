@@ -38,6 +38,8 @@ import {
   useSiteContent,
   type StorageStatus,
 } from '../contexts/SiteContentContext'
+import { useConfirmDialog } from '../contexts/ConfirmDialogContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import { apiRequest } from '../lib/api'
 import type {
   AcademicProgram,
@@ -493,6 +495,8 @@ function AdminWorkspace({
   role: AdminRole
   onLogout: () => void
 }) {
+  const confirm = useConfirmDialog()
+  const { t } = useLanguage()
   const {
     content,
     storageStatus,
@@ -642,7 +646,13 @@ function AdminWorkspace({
   }
 
   async function deleteProgram(program: AcademicProgram) {
-    if (!window.confirm(`Hapus "${program.title}" dari situs?`)) return
+    const confirmed = await confirm({
+      title: t('Hapus program keahlian?'),
+      description: `“${program.title}” ${t('akan dihapus dari situs. Tindakan ini tidak dapat dibatalkan.')}`,
+      confirmLabel: t('Hapus program'),
+      tone: 'danger',
+    })
+    if (!confirmed) return
     try {
       await removeProgram(program.id)
       setFeedback(`"${program.title}" dihapus dari database.`)
@@ -653,7 +663,13 @@ function AdminWorkspace({
   }
 
   async function deleteAnnouncement(item: SchoolAnnouncement) {
-    if (!window.confirm(`Hapus informasi "${item.title}"?`)) return
+    const confirmed = await confirm({
+      title: t('Hapus informasi sekolah?'),
+      description: `“${item.title}” ${t('akan dihapus dari situs. Tindakan ini tidak dapat dibatalkan.')}`,
+      confirmLabel: t('Hapus informasi'),
+      tone: 'danger',
+    })
+    if (!confirmed) return
     try {
       await removeAnnouncement(item.id)
       setFeedback('Informasi dihapus dari database.')
