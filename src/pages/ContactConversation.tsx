@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, LoaderCircle, LockKeyhole, MessageSquareText, RefreshCw } from 'lucide-react'
 import { usePageMeta } from '../hooks/usePageMeta'
@@ -16,6 +16,7 @@ interface ContactConversation {
   replies: Array<{
     id: string
     body: string
+    sender: 'admin' | 'user'
     createdAt: string
   }>
 }
@@ -40,6 +41,10 @@ export default function ContactConversationPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
+  const [replyBody, setReplyBody] = useState('')
+  const [replyError, setReplyError] = useState('')
+  const [replyNotice, setReplyNotice] = useState('')
+  const [sendingReply, setSendingReply] = useState(false)
 
   usePageMeta('Percakapan Pesan', 'Lihat pesan dan balasan dari SMK BPPI Baleendah.')
 
@@ -80,6 +85,34 @@ export default function ContactConversationPage() {
       active = false
     }
   }, [trackingCode, refreshKey])
+
+  async function sendContinuation(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const body = replyBody.trim()
+    if (!body || sendingReply) return
+
+    setSendingReply(true)
+    setReplyError('')
+    setReplyNotice('')
+    try {
+      const response = await apiRequest<{ reply: ContactConversation['replies'][number] }>(
+        '/contact/messages/conversation/replies',
+        {
+          method: 'POST',
+          body: JSON.stringify({ trackingCode, body }),
+        },
+      )
+      setConversation((current) => current
+        ? { ...current, replies: [...current.replies, response.reply] }
+        : current)
+      setReplyBody('')
+      setReplyNotice('Pesan lanjutan terkirim dan sudah masuk ke admin.')
+    } catch (requestError) {
+      setReplyError(requestError instanceof Error ? requestError.message : 'Pesan lanjutan belum dapat dikirim.')
+    } finally {
+      setSendingReply(false)
+    }
+  }
 
   return (
     <main id="main-content" tabIndex={-1} className="min-h-screen bg-gray-50 pt-24 dark:bg-gray-950">
@@ -127,9 +160,11 @@ export default function ContactConversationPage() {
             </article>
 
             {conversation.replies.length > 0 ? conversation.replies.map((reply) => (
-              <article key={reply.id} className="ml-4 rounded-2xl border border-brand-200 bg-brand-50/80 p-5 dark:border-brand-900 dark:bg-brand-950/30 sm:ml-10 sm:p-6">
+              <article key={reply.id} className={`max-w-[92%] rounded-2xl border p-5 sm:p-6 ${reply.sender === 'user' ? 'ml-auto border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900' : 'mr-auto border-brand-200 bg-brand-50/80 dark:border-brand-900 dark:bg-brand-950/30'}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-brand-800 dark:text-brand-300">Balasan SMK BPPI Baleendah</p>
+                  <p className={`text-xs font-semibold uppercase tracking-wide ${reply.sender === 'user' ? 'text-gray-600 dark:text-gray-300' : 'text-brand-800 dark:text-brand-300'}`}>
+                    {reply.sender === 'user' ? 'Pesan lanjutan Anda' : 'Balasan SMK BPPI Baleendah'}
+                  </p>
                   <time className="text-xs text-gray-500 dark:text-gray-400" dateTime={reply.createdAt}>{formatDate(reply.createdAt)}</time>
                 </div>
                 <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-gray-800 dark:text-gray-200">{reply.body}</p>
@@ -137,10 +172,32 @@ export default function ContactConversationPage() {
             )) : (
               <div role="status" className="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-center dark:border-gray-700 dark:bg-gray-900">
                 <MessageSquareText className="mx-auto h-6 w-6 text-gray-400" aria-hidden="true" />
-                <p className="mt-3 font-semibold text-gray-800 dark:text-gray-200">Belum ada balasan</p>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Admin akan menambahkan balasan di sini. Perbarui halaman ini nanti untuk melihat kabar terbaru.</p>
+                <p className="mt-3 font-semibold text-gray-800 dark:text-gray-200">Percakapan dimulai</p>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Balasan admin akan muncul di sini. Anda juga bisa melanjutkan percakapan dari halaman ini.</p>
               </div>
             )}
+
+            <form onSubmit={(event) => void sendContinuation(event)} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
+              <label htmlFor="private-conversation-reply" className="block text-sm font-semibold text-gray-900 dark:text-white">Lanjutkan percakapan</label>
+              <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">Pesan ini akan masuk ke kotak pesan admin dengan nama pengirim yang sama.</p>
+              <textarea
+                id="private-conversation-reply"
+                rows={4}
+                maxLength={3000}
+                required
+                value={replyBody}
+                onChange={(event) => { setReplyBody(event.target.value); setReplyError(''); setReplyNotice('') }}
+                placeholder="Tulis pesan lanjutan…"
+                className="mt-4 w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm leading-6 text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:ring-brand-950"
+              />
+              <p className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">{replyBody.length}/3.000</p>
+              {replyError && <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">{replyError}</p>}
+              {replyNotice && <p role="status" className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200">{replyNotice}</p>}
+              <button type="submit" disabled={!replyBody.trim() || sendingReply} className="mt-3 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60">
+                {sendingReply ? <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" /> : <MessageSquareText className="h-4 w-4" aria-hidden="true" />}
+                {sendingReply ? 'Mengirim…' : 'Kirim pesan lanjutan'}
+              </button>
+            </form>
 
             <button type="button" onClick={() => setRefreshKey((value) => value + 1)} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">
               <RefreshCw className="h-4 w-4" aria-hidden="true" /> Perbarui percakapan

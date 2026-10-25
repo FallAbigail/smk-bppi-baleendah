@@ -8,6 +8,7 @@ import {
   addLegacyContentIfUnchanged,
   contentRevision,
   createContactMessage,
+  createContactConversationReply,
   createContactMessageReply,
   createReview,
   createAdmin,
@@ -128,6 +129,14 @@ const contactConversationLimiter = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { message: 'Batas pemeriksaan percakapan tercapai. Coba lagi nanti.' },
+})
+
+const contactConversationReplyLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Batas balasan percakapan tercapai. Coba lagi satu jam kemudian.' },
 })
 
 const ppdbSubmissionLimiter = rateLimit({
@@ -302,6 +311,30 @@ app.post('/api/contact/messages/conversation', contactConversationLimiter, sameO
     return
   }
   res.json(conversation)
+})
+
+app.post('/api/contact/messages/conversation/replies', contactConversationReplyLimiter, sameOrigin, (req, res) => {
+  const trackingCode = typeof req.body?.trackingCode === 'string' ? req.body.trackingCode.trim() : ''
+  const body = typeof req.body?.body === 'string' ? req.body.body.trim() : ''
+  if (!/^[A-Za-z0-9_-]{40,60}$/.test(trackingCode)) {
+    res.status(404).json({ message: 'Tautan percakapan tidak valid atau sudah tidak tersedia.' })
+    return
+  }
+  if (!body || body.length > 3000) {
+    res.status(400).json({ message: 'Pesan lanjutan harus berisi 1–3.000 karakter.' })
+    return
+  }
+
+  try {
+    const reply = createContactConversationReply(hashToken(trackingCode), body)
+    if (!reply) {
+      res.status(404).json({ message: 'Tautan percakapan tidak valid atau sudah tidak tersedia.' })
+      return
+    }
+    res.status(201).json({ reply })
+  } catch (error) {
+    handleDatabaseError(error, res)
+  }
 })
 
 const reviewPageSize = 3

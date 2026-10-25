@@ -11,6 +11,7 @@ type ReplyChannel = 'website' | 'email'
 interface ContactMessageReply {
   id: string
   body: string
+  sender: 'admin' | 'user'
   createdAt: string
 }
 
@@ -23,6 +24,7 @@ interface ContactMessage {
   message: string
   status: MessageStatus
   createdAt: string
+  lastActivityAt: string
   hasPrivateThread: boolean
   replies: ContactMessageReply[]
 }
@@ -261,8 +263,16 @@ export default function ContactMessagesManager() {
                     <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${message.status === 'unread' ? 'bg-brand-50 text-brand-800 dark:bg-brand-950 dark:text-brand-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                       {message.status === 'unread' ? 'Belum dibaca' : 'Sudah dibaca'}
                     </span>
+                    {message.status === 'unread' && message.replies.some((reply) => reply.sender === 'user') && (
+                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
+                        Ada pesan lanjutan
+                      </span>
+                    )}
                   </div>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{formatDate(message.createdAt)}</p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Pesan awal · {formatDate(message.createdAt)}</p>
+                  {message.lastActivityAt !== message.createdAt && (
+                    <p className="mt-1 text-xs font-medium text-brand-700 dark:text-brand-300">Aktivitas terbaru · {formatDate(message.lastActivityAt)}</p>
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
                   <span className="inline-flex items-center gap-1.5 font-medium text-brand-700 dark:text-brand-300">
@@ -282,11 +292,16 @@ export default function ContactMessagesManager() {
 
               {message.replies.length > 0 && (
                 <div className="mt-4 space-y-3 border-l-2 border-brand-200 pl-4 dark:border-brand-800">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-brand-800 dark:text-brand-300">Balasan dari sekolah</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Riwayat percakapan</p>
                   {message.replies.map((reply) => (
-                    <div key={reply.id} className="rounded-lg bg-brand-50/70 px-3 py-2.5 dark:bg-brand-950/30">
+                    <div key={reply.id} className={`rounded-lg border px-3 py-2.5 ${reply.sender === 'user' ? 'border-amber-200 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/20' : 'border-brand-100 bg-brand-50/70 dark:border-brand-900 dark:bg-brand-950/30'}`}>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className={`text-xs font-semibold ${reply.sender === 'user' ? 'text-amber-900 dark:text-amber-200' : 'text-brand-800 dark:text-brand-300'}`}>
+                          {reply.sender === 'user' ? `Pesan lanjutan dari ${message.name}` : 'Balasan dari sekolah'}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(reply.createdAt)}</p>
+                      </div>
                       <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-800 dark:text-gray-200">{reply.body}</p>
-                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{formatDate(reply.createdAt)}</p>
                     </div>
                   ))}
                 </div>
