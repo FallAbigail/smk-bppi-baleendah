@@ -73,6 +73,7 @@ db.exec(`
     email TEXT NOT NULL,
     topic TEXT NOT NULL CHECK(topic IN ('ppdb', 'program', 'partnership', 'other')),
     message TEXT NOT NULL,
+    reply_channel TEXT NOT NULL DEFAULT 'website' CHECK(reply_channel IN ('website', 'email')),
     status TEXT NOT NULL DEFAULT 'unread' CHECK(status IN ('unread', 'read')),
     reply_token_hash TEXT,
     created_at TEXT NOT NULL
@@ -141,6 +142,9 @@ const contactMessageColumns = new Set(
 )
 if (!contactMessageColumns.has('reply_token_hash')) {
   db.exec('ALTER TABLE contact_messages ADD COLUMN reply_token_hash TEXT')
+}
+if (!contactMessageColumns.has('reply_channel')) {
+  db.exec("ALTER TABLE contact_messages ADD COLUMN reply_channel TEXT NOT NULL DEFAULT 'website' CHECK(reply_channel IN ('website', 'email'))")
 }
 const contactMessageReplyColumns = new Set(
   db
@@ -813,9 +817,10 @@ export function deleteReview(id) {
 export function createContactMessage(contactMessage, replyTokenHash) {
   const id = `contact-${randomUUID()}`
   const createdAt = new Date().toISOString()
+  const replyChannel = contactMessage.replyChannel === 'email' ? 'email' : 'website'
   db.prepare(`
-    INSERT INTO contact_messages (id, name, phone, email, topic, message, status, reply_token_hash, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, 'unread', ?, ?)
+    INSERT INTO contact_messages (id, name, phone, email, topic, message, reply_channel, status, reply_token_hash, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'unread', ?, ?)
   `).run(
     id,
     contactMessage.name,
@@ -823,10 +828,11 @@ export function createContactMessage(contactMessage, replyTokenHash) {
     contactMessage.email,
     contactMessage.topic,
     contactMessage.message,
+    replyChannel,
     replyTokenHash,
     createdAt,
   )
-  return { id, ...contactMessage, status: 'unread', createdAt }
+  return { id, ...contactMessage, replyChannel, status: 'unread', createdAt }
 }
 
 function listRepliesForContactMessage(messageId) {
@@ -842,7 +848,7 @@ export function listContactMessages(limit = 12, offset = 0) {
   const safeLimit = Math.max(1, Math.min(100, Math.floor(Number(limit) || 12)))
   const safeOffset = Math.max(0, Math.floor(Number(offset) || 0))
   const messages = db.prepare(`
-    SELECT id, name, phone, email, topic, message, status,
+    SELECT id, name, phone, email, topic, message, reply_channel AS replyChannel, status,
       CASE WHEN reply_token_hash IS NULL THEN 0 ELSE 1 END AS hasPrivateThread,
       created_at AS createdAt,
       COALESCE(
@@ -888,8 +894,9 @@ function insertContactMessageReply(messageId, body, sender, senderName = '') {
 
 export function createContactMessageReply(messageId, body, replyTokenHash) {
   return runTransaction(() => {
-    const message = db.prepare('SELECT reply_token_hash FROM contact_messages WHERE id = ?').get(messageId)
+    const message = db.prepare('SELECT reply_token_hash, reply_channel AS replyChannel FROM contact_messages WHERE id = ?').get(messageId)
     if (!message) return null
+    if (message.replyChannel !== 'website') return { channelMismatch: true }
     const trackingTokenCreated = !message.reply_token_hash
     if (trackingTokenCreated) {
       db.prepare('UPDATE contact_messages SET reply_token_hash = ? WHERE id = ?').run(replyTokenHash, messageId)
@@ -905,12 +912,12 @@ export function createContactConversationReply(replyTokenHash, body) {
     const message = db.prepare('SELECT id FROM contact_messages WHERE reply_token_hash = ?').get(replyTokenHash)
     if (!message) return null
     const reply = insertContactMessageReply(message.id, body, 'user')
-    db.prepare("UPDATE contact_messages SET status = 'unread' WHERE id = ?").run(message.id)
+    db.prepare("UPDATE contact_messages SET status = 'unread', reply_channel = 'website' WHERE id = ?").run(message.id)
     return reply
   })
 }
 
-export function createContactFormFollowUp(replyTokenHash, { name, email, topic, message }) {
+export function createContactFormFollowUp(replyTokenHash, { name, email, topic, message, replyChannel }) {
   return runTransaction(() => {
     const thread = db.prepare(`
       SELECT id FROM contact_messages
@@ -930,7 +937,7 @@ export function createContactFormFollowUp(replyTokenHash, { name, email, topic, 
       'user',
       name,
     )
-    db.prepare("UPDATE contact_messages SET status = 'unread' WHERE id = ?").run(thread.id)
+    db.prepare("UPDATE contact_messages SET status = 'unread', reply_channel = ? WHERE id = ?").run(replyChannel, thread.id)
     return { id: thread.id, reply }
   })
 }

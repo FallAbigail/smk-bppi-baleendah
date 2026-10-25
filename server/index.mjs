@@ -267,6 +267,7 @@ app.post('/api/contact/messages', contactMessageLimiter, sameOrigin, (req, res) 
     : ''
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
   const topic = req.body?.topic
+  const replyChannel = req.body?.replyChannel ?? 'website'
   const message = typeof req.body?.message === 'string' ? req.body.message.trim() : ''
 
   if (name.length < 2 || name.length > 80) {
@@ -285,6 +286,10 @@ app.post('/api/contact/messages', contactMessageLimiter, sameOrigin, (req, res) 
     res.status(400).json({ message: 'Pilih keperluan pesan yang tersedia.' })
     return
   }
+  if (!['website', 'email'].includes(replyChannel)) {
+    res.status(400).json({ message: 'Pilih cara menerima balasan yang tersedia.' })
+    return
+  }
   if (message.length < 10 || message.length > 3000) {
     res.status(400).json({ message: 'Pesan harus berisi 10–3.000 karakter.' })
     return
@@ -297,7 +302,7 @@ app.post('/api/contact/messages', contactMessageLimiter, sameOrigin, (req, res) 
     if (/^[A-Za-z0-9_-]{40,60}$/.test(continuationTrackingCode)) {
       const continuation = createContactFormFollowUp(
         hashToken(continuationTrackingCode),
-        { name, email, topic, message },
+        { name, email, topic, message, replyChannel },
       )
       if (continuation) {
         res.status(201).json({
@@ -311,7 +316,7 @@ app.post('/api/contact/messages', contactMessageLimiter, sameOrigin, (req, res) 
     }
 
     const trackingCode = randomBytes(32).toString('base64url')
-    const saved = createContactMessage({ name, phone, email, topic, message }, hashToken(trackingCode))
+    const saved = createContactMessage({ name, phone, email, topic, message, replyChannel }, hashToken(trackingCode))
     res.status(201).json({ ok: true, id: saved.id, trackingCode, reusedConversation: false })
   } catch (error) {
     handleDatabaseError(error, res)
@@ -462,6 +467,10 @@ app.post('/api/admin/contact-messages/:id/replies', requireAdmin, sameOrigin, (r
   const result = createContactMessageReply(id, body, hashToken(trackingCode))
   if (result === null) {
     res.status(404).json({ message: 'Pesan tidak ditemukan.' })
+    return
+  }
+  if (result.channelMismatch) {
+    res.status(409).json({ message: 'Pengirim memilih balasan email. Pengiriman otomatis belum aktif.' })
     return
   }
   res.status(201).json({

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Check, Copy, Mail, MessageSquareText, Phone, Reply, RotateCcw, Send, Trash2, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Check, Copy, Mail, Phone, Reply, RotateCcw, Send, Trash2, X } from 'lucide-react'
 import { apiRequest } from '../../lib/api'
 import { useConfirmDialog } from '../../contexts/ConfirmDialogContext'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -23,6 +23,7 @@ interface ContactMessage {
   email: string
   topic: MessageTopic
   message: string
+  replyChannel: ReplyChannel
   status: MessageStatus
   createdAt: string
   lastActivityAt: string
@@ -69,7 +70,6 @@ export default function ContactMessagesManager() {
   const [replyingTo, setReplyingTo] = useState<ContactMessage | null>(null)
   const [replySubject, setReplySubject] = useState('')
   const [replyBody, setReplyBody] = useState('')
-  const [replyChannel, setReplyChannel] = useState<ReplyChannel>('website')
   const [copyNotice, setCopyNotice] = useState('')
   const [privateReplyLink, setPrivateReplyLink] = useState('')
   const [privateLinkCopied, setPrivateLinkCopied] = useState(false)
@@ -152,7 +152,6 @@ export default function ContactMessagesManager() {
     setReplyingTo(message)
     setReplySubject(`Re: ${topicLabels[message.topic]}`)
     setReplyBody('')
-    setReplyChannel('website')
     setCopyNotice('')
     setPrivateReplyLink('')
     setPrivateLinkCopied(false)
@@ -160,7 +159,7 @@ export default function ContactMessagesManager() {
   }
 
   async function sendWebsiteReply() {
-    if (!replyingTo?.hasPrivateThread || !replyBody.trim()) return
+    if (!replyingTo || replyingTo.replyChannel !== 'website' || !replyingTo.hasPrivateThread || !replyBody.trim()) return
     setPendingId(replyingTo.id)
     setError('')
     setNotice('')
@@ -184,11 +183,11 @@ export default function ContactMessagesManager() {
 
   async function copyReply() {
     try {
-      const text = replyChannel === 'email'
+      const text = replyingTo?.replyChannel === 'email'
         ? `Kepada: ${replyingTo?.email ?? ''}\nSubjek: ${replySubject}\n\n${replyBody}`
         : replyBody
       await navigator.clipboard.writeText(text)
-      setCopyNotice(replyChannel === 'email' ? 'Draf email disalin.' : 'Balasan disalin.')
+      setCopyNotice(replyingTo?.replyChannel === 'email' ? 'Draf email disalin.' : 'Balasan disalin.')
     } catch {
       setCopyNotice('Teks belum dapat disalin dari browser ini. Pilih dan salin teks balasan secara manual.')
     }
@@ -212,7 +211,7 @@ export default function ContactMessagesManager() {
           Kotak pesan website
         </h2>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-          Balasan melalui website akan tersimpan di sini dan bisa dibaca pengirim lewat tautan percakapan privat.
+          Pengirim memilih kanal balasan melalui formulir. Komposer mengikuti pilihan itu; pengiriman email otomatis belum aktif.
         </p>
       </div>
 
@@ -260,6 +259,9 @@ export default function ContactMessagesManager() {
                     <h3 className="font-semibold text-gray-900 dark:text-white">{message.name}</h3>
                     <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                       {topicLabels[message.topic]}
+                    </span>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${message.replyChannel === 'email' ? 'bg-violet-50 text-violet-800 dark:bg-violet-950/50 dark:text-violet-200' : 'bg-sky-50 text-sky-800 dark:bg-sky-950/50 dark:text-sky-200'}`}>
+                      {message.replyChannel === 'email' ? 'Balasan via email' : 'Balasan via tautan website'}
                     </span>
                     <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${message.status === 'unread' ? 'bg-brand-50 text-brand-800 dark:bg-brand-950 dark:text-brand-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}`}>
                       {message.status === 'unread' ? 'Belum dibaca' : 'Sudah dibaca'}
@@ -387,27 +389,19 @@ export default function ContactMessagesManager() {
               </button>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800" aria-label="Kanal balasan">
-              <button type="button" aria-pressed={replyChannel === 'website'} onClick={() => { setReplyChannel('website'); setCopyNotice('') }} className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${replyChannel === 'website' ? 'bg-white text-brand-800 shadow-sm dark:bg-gray-700 dark:text-brand-200' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'}`}>
-                <MessageSquareText className="h-4 w-4" aria-hidden="true" /> Website
-              </button>
-              <button type="button" aria-pressed={replyChannel === 'email'} onClick={() => { setReplyChannel('email'); setCopyNotice('') }} className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${replyChannel === 'email' ? 'bg-white text-brand-800 shadow-sm dark:bg-gray-700 dark:text-brand-200' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'}`}>
-                <Mail className="h-4 w-4" aria-hidden="true" /> Email <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-600 dark:text-gray-200">Disiapkan</span>
-              </button>
-            </div>
-
-            {replyChannel === 'website' ? (
+            {replyingTo.replyChannel === 'website' ? (
               replyingTo.hasPrivateThread ? (
-                <p className="mt-3 rounded-lg bg-brand-50 px-3 py-2.5 text-xs leading-5 text-brand-900 dark:bg-brand-950/40 dark:text-brand-200">
-                  Balasan akan tersimpan di percakapan website. Pengirim bisa membacanya lewat tautan privat yang muncul setelah mengirim formulir.
+                <p className="mt-5 rounded-lg bg-brand-50 px-3 py-2.5 text-xs leading-5 text-brand-900 dark:bg-brand-950/40 dark:text-brand-200">
+                  Pengirim memilih percakapan website. Balasan akan tersimpan pada tautan privat yang sama.
                 </p>
               ) : (
-                <p role="status" className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                <p role="status" className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
                   Pesan ini belum memiliki tautan privat. Tautan akan dibuat saat balasan pertama dikirim; salin dan bagikan ke pengirim agar ia bisa membuka percakapan.
                 </p>
               )
             ) : (
-              <div className="mt-3 space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-sm dark:border-amber-900 dark:bg-amber-950/30">
+              <div className="mt-5 space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-sm dark:border-amber-900 dark:bg-amber-950/30">
+                <p className="text-xs font-semibold text-amber-950 dark:text-amber-100">Pengirim memilih balasan melalui email.</p>
                 <div>
                   <label htmlFor="contact-reply-to" className="mb-1.5 block text-xs font-semibold text-amber-950 dark:text-amber-100">Penerima</label>
                   <input id="contact-reply-to" readOnly value={replyingTo.email} className="w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none dark:border-amber-900 dark:bg-gray-900 dark:text-gray-200" />
@@ -416,7 +410,7 @@ export default function ContactMessagesManager() {
                   <label htmlFor="contact-reply-subject" className="mb-1.5 block text-xs font-semibold text-amber-950 dark:text-amber-100">Subjek email</label>
                   <input id="contact-reply-subject" value={replySubject} onChange={(event) => setReplySubject(event.target.value)} className="w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:border-amber-900 dark:bg-gray-900 dark:text-white" />
                 </div>
-                <p className="text-xs leading-5 text-amber-900 dark:text-amber-200">Pengiriman email belum aktif. Tampilan ini sudah disiapkan dan bisa dihubungkan setelah SMTP atau penyedia email server dikonfigurasi.</p>
+                <p className="text-xs leading-5 text-amber-900 dark:text-amber-200">Pengiriman email otomatis belum aktif. Draf dapat disalin untuk disiapkan; tombol kirim akan tersedia setelah SMTP atau penyedia email server dikonfigurasi.</p>
               </div>
             )}
 
@@ -426,8 +420,8 @@ export default function ContactMessagesManager() {
             </div>
 
             <div className="mt-4">
-              <label htmlFor="contact-reply-body" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{replyChannel === 'website' ? 'Balasan untuk website' : 'Isi email'}</label>
-              <textarea id="contact-reply-body" rows={7} maxLength={3000} value={replyBody} onChange={(event) => { setReplyBody(event.target.value); setCopyNotice('') }} placeholder={replyChannel === 'website' ? 'Tulis balasan yang akan dibaca pengirim di website…' : 'Tulis isi email…'} className="w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm leading-6 text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-950" />
+              <label htmlFor="contact-reply-body" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">{replyingTo.replyChannel === 'website' ? 'Balasan untuk website' : 'Isi draf email'}</label>
+              <textarea id="contact-reply-body" rows={7} maxLength={3000} value={replyBody} onChange={(event) => { setReplyBody(event.target.value); setCopyNotice('') }} placeholder={replyingTo.replyChannel === 'website' ? 'Tulis balasan yang akan dibaca pengirim di website…' : 'Tulis isi email…'} className="w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm leading-6 text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-950" />
               <p className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">{replyBody.length}/3.000</p>
             </div>
 
@@ -439,9 +433,9 @@ export default function ContactMessagesManager() {
                 Batal
               </button>
               <button type="button" onClick={() => void copyReply()} disabled={!replyBody.trim()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-                <Copy className="h-4 w-4" aria-hidden="true" /> {replyChannel === 'website' ? 'Salin balasan' : 'Salin draf email'}
+                <Copy className="h-4 w-4" aria-hidden="true" /> {replyingTo.replyChannel === 'website' ? 'Salin balasan' : 'Salin draf email'}
               </button>
-              {replyChannel === 'website' ? (
+              {replyingTo.replyChannel === 'website' ? (
                 <button type="button" disabled={!replyBody.trim() || pendingId === replyingTo.id} onClick={() => void sendWebsiteReply()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700">
                   <Send className="h-4 w-4" aria-hidden="true" /> {pendingId === replyingTo.id ? 'Menyimpan…' : 'Kirim balasan website'}
                 </button>
