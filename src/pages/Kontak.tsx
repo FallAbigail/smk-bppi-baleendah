@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { AlertCircle, ArrowLeft, CheckCircle2, LoaderCircle, Mail, MapPin, Phone, Send } from 'lucide-react'
+import { AlertCircle, ArrowLeft, CheckCircle2, Clipboard, LoaderCircle, Mail, MapPin, Phone, Send } from 'lucide-react'
 import { schoolProfile } from '../data/schoolProfile'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -10,6 +10,8 @@ import { apiRequest } from '../lib/api'
 export default function Kontak() {
   const [isSending, setIsSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [conversationPath, setConversationPath] = useState('')
+  const [linkCopied, setLinkCopied] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const { t } = useLanguage()
   usePageMeta(
@@ -32,16 +34,27 @@ export default function Kontak() {
     setIsSending(true)
     setSubmitError('')
     try {
-      await apiRequest<{ ok: boolean }>('/contact/messages', {
+      const response = await apiRequest<{ ok: boolean; trackingCode: string }>('/contact/messages', {
         method: 'POST',
         body: JSON.stringify(contactMessage),
       })
       formElement.reset()
+      setConversationPath(`/pesan/${response.trackingCode}`)
+      setLinkCopied(false)
       setSent(true)
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : t('Pesan belum dapat dikirim. Coba lagi.'))
     } finally {
       setIsSending(false)
+    }
+  }
+
+  async function copyConversationLink() {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}${conversationPath}`)
+      setLinkCopied(true)
+    } catch {
+      setLinkCopied(false)
     }
   }
 
@@ -177,11 +190,23 @@ export default function Kontak() {
                   {t('Pesan berhasil dikirim')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-5">
-                  {t('Pesan Anda sudah masuk ke sistem sekolah. Admin dapat menindaklanjutinya melalui kontak yang Anda cantumkan.')}
+                  Pesan tersimpan di website. Balasan admin akan muncul di percakapan privat ini. Simpan tautannya agar Anda bisa membukanya kembali.
                 </p>
+                {conversationPath && (
+                  <div className="rounded-xl border border-emerald-200 bg-white p-4 text-left dark:border-emerald-900 dark:bg-gray-900">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Tautan percakapan privat</p>
+                    <Link to={conversationPath} className="mt-2 block break-all text-sm font-medium text-brand-700 underline underline-offset-2 dark:text-brand-300">
+                      {window.location.origin}{conversationPath}
+                    </Link>
+                    <button type="button" onClick={() => void copyConversationLink()} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+                      <Clipboard className="h-4 w-4" aria-hidden="true" /> {linkCopied ? 'Tautan disalin' : 'Salin tautan privat'}
+                    </button>
+                    <p className="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400">Siapa pun yang memiliki tautan ini dapat melihat pesan dan balasannya. Jangan bagikan ke orang lain.</p>
+                  </div>
+                )}
                 <button
                   type="button"
-                  onClick={() => setSent(false)}
+                  onClick={() => { setSent(false); setConversationPath(''); setLinkCopied(false) }}
                   className="mt-3 inline-flex items-center justify-center rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700"
                 >
                   {t('Kirim pesan lain')}

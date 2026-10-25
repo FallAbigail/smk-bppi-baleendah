@@ -74,6 +74,14 @@ db.exec(`
     topic TEXT NOT NULL CHECK(topic IN ('ppdb', 'program', 'partnership', 'other')),
     message TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'unread' CHECK(status IN ('unread', 'read')),
+    reply_token_hash TEXT,
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS contact_message_replies (
+    id TEXT PRIMARY KEY,
+    message_id TEXT NOT NULL REFERENCES contact_messages(id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
     created_at TEXT NOT NULL
   );
 
@@ -118,8 +126,24 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_reviews_created_at ON reviews(created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON contact_messages(created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_contact_messages_status_created_at ON contact_messages(status, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_contact_message_replies_message_created ON contact_message_replies(message_id, created_at ASC);
   CREATE INDEX IF NOT EXISTS idx_ppdb_applications_created ON ppdb_applications(created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_ppdb_applications_status ON ppdb_applications(status, created_at DESC);
+`)
+
+const contactMessageColumns = new Set(
+  db
+    .prepare('PRAGMA table_info(contact_messages)')
+    .all()
+    .map((column) => column.name),
+)
+if (!contactMessageColumns.has('reply_token_hash')) {
+  db.exec('ALTER TABLE contact_messages ADD COLUMN reply_token_hash TEXT')
+}
+db.exec(`
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_contact_messages_reply_token_hash
+  ON contact_messages(reply_token_hash)
+  WHERE reply_token_hash IS NOT NULL
 `)
 
 const adminColumns = new Set(
@@ -772,12 +796,12 @@ export function deleteReview(id) {
   return db.prepare('DELETE FROM reviews WHERE id = ?').run(id).changes > 0
 }
 
-export function createContactMessage(contactMessage) {
+export function createContactMessage(contactMessage, replyTokenHash) {
   const id = `contact-${randomUUID()}`
   const createdAt = new Date().toISOString()
   db.prepare(`
-    INSERT INTO contact_messages (id, name, phone, email, topic, message, status, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, 'unread', ?)
+    INSERT INTO contact_messages (id, name, phone, email, topic, message, status, reply_token_hash, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, 'unread', ?, ?)
   `).run(
     id,
     contactMessage.name,
@@ -785,20 +809,65 @@ export function createContactMessage(contactMessage) {
     contactMessage.email,
     contactMessage.topic,
     contactMessage.message,
+    replyTokenHash,
     createdAt,
   )
   return { id, ...contactMessage, status: 'unread', createdAt }
 }
 
+function listRepliesForContactMessage(messageId) {
+  return db.prepare(`
+    SELECT id, body, created_at AS createdAt
+    FROM contact_message_replies
+    WHERE message_id = ?
+    ORDER BY created_at ASC, id ASC
+  `).all(messageId)
+}
+
 export function listContactMessages(limit = 12, offset = 0) {
   const safeLimit = Math.max(1, Math.min(100, Math.floor(Number(limit) || 12)))
   const safeOffset = Math.max(0, Math.floor(Number(offset) || 0))
-  return db.prepare(`
-    SELECT id, name, phone, email, topic, message, status, created_at AS createdAt
+  const messages = db.prepare(`
+    SELECT id, name, phone, email, topic, message, status,
+      CASE WHEN reply_token_hash IS NULL THEN 0 ELSE 1 END AS hasPrivateThread,
+      created_at AS createdAt
     FROM contact_messages
     ORDER BY created_at DESC
     LIMIT ? OFFSET ?
   `).all(safeLimit, safeOffset)
+  return messages.map((message) => ({
+    ...message,
+    hasPrivateThread: Boolean(message.hasPrivateThread),
+    replies: listRepliesForContactMessage(message.id),
+  }))
+}
+
+export function findContactConversation(replyTokenHash) {
+  const message = db.prepare(`
+    SELECT id, name, topic, message, created_at AS createdAt
+    FROM contact_messages
+    WHERE reply_token_hash = ?
+  `).get(replyTokenHash)
+  if (!message) return null
+  const { id, ...publicMessage } = message
+  return { message: publicMessage, replies: listRepliesForContactMessage(id) }
+}
+
+export function createContactMessageReply(messageId, body) {
+  const message = db.prepare('SELECT reply_token_hash FROM contact_messages WHERE id = ?').get(messageId)
+  if (!message) return null
+  if (!message.reply_token_hash) return false
+  const reply = {
+    id: `contact-reply-${randomUUID()}`,
+    body,
+    createdAt: new Date().toISOString(),
+  }
+  db.prepare(`
+    INSERT INTO contact_message_replies (id, message_id, body, created_at)
+    VALUES (?, ?, ?, ?)
+  `).run(reply.id, messageId, reply.body, reply.createdAt)
+  db.prepare("UPDATE contact_messages SET status = 'read' WHERE id = ?").run(messageId)
+  return reply
 }
 
 export function getContactMessageSummary() {

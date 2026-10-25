@@ -8,6 +8,7 @@ import {
   addLegacyContentIfUnchanged,
   contentRevision,
   createContactMessage,
+  createContactMessageReply,
   createReview,
   createAdmin,
   createPpdbApplication,
@@ -20,6 +21,7 @@ import {
   deleteExpiredSessions,
   deleteSession,
   findAdminByUsername,
+  findContactConversation,
   findSession,
   getContactMessageSummary,
   getContentUpdatedAt,
@@ -118,6 +120,14 @@ const contactMessageLimiter = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   message: { message: 'Batas kirim pesan tercapai. Coba lagi satu jam kemudian.' },
+})
+
+const contactConversationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { message: 'Batas pemeriksaan percakapan tercapai. Coba lagi nanti.' },
 })
 
 const ppdbSubmissionLimiter = rateLimit({
@@ -271,11 +281,27 @@ app.post('/api/contact/messages', contactMessageLimiter, sameOrigin, (req, res) 
   }
 
   try {
-    const saved = createContactMessage({ name, phone, email, topic, message })
-    res.status(201).json({ ok: true, id: saved.id })
+    const trackingCode = randomBytes(32).toString('base64url')
+    const saved = createContactMessage({ name, phone, email, topic, message }, hashToken(trackingCode))
+    res.status(201).json({ ok: true, id: saved.id, trackingCode })
   } catch (error) {
     handleDatabaseError(error, res)
   }
+})
+
+app.post('/api/contact/messages/conversation', contactConversationLimiter, sameOrigin, (req, res) => {
+  const trackingCode = typeof req.body?.trackingCode === 'string' ? req.body.trackingCode.trim() : ''
+  if (!/^[A-Za-z0-9_-]{40,60}$/.test(trackingCode)) {
+    res.status(404).json({ message: 'Tautan percakapan tidak valid atau sudah tidak tersedia.' })
+    return
+  }
+
+  const conversation = findContactConversation(hashToken(trackingCode))
+  if (!conversation) {
+    res.status(404).json({ message: 'Tautan percakapan tidak valid atau sudah tidak tersedia.' })
+    return
+  }
+  res.json(conversation)
 })
 
 const reviewPageSize = 3
@@ -366,6 +392,29 @@ app.get('/api/admin/contact-messages', requireAdmin, (req, res) => {
     summary,
     pagination: { page, pageCount, pageSize },
   })
+})
+
+app.post('/api/admin/contact-messages/:id/replies', requireAdmin, sameOrigin, (req, res) => {
+  const id = req.params.id
+  const body = typeof req.body?.body === 'string' ? req.body.body.trim() : ''
+  if (!/^[\w-]{1,100}$/.test(id)) {
+    res.status(400).json({ message: 'Pesan tidak valid.' })
+    return
+  }
+  if (!body || body.length > 3000) {
+    res.status(400).json({ message: 'Balasan harus berisi 1–3.000 karakter.' })
+    return
+  }
+  const reply = createContactMessageReply(id, body)
+  if (reply === null) {
+    res.status(404).json({ message: 'Pesan tidak ditemukan.' })
+    return
+  }
+  if (reply === false) {
+    res.status(409).json({ message: 'Pesan ini belum memiliki tautan percakapan privat. Minta pengirim mengirim pesan baru agar dapat membacanya melalui website.' })
+    return
+  }
+  res.status(201).json({ reply })
 })
 
 app.patch('/api/admin/contact-messages/:id', requireAdmin, sameOrigin, (req, res) => {

@@ -15,6 +15,7 @@ const Eskul = lazy(() => import('./pages/Eskul'))
 const Galeri = lazy(() => import('./pages/Galeri'))
 const ExtracurricularArticle = lazy(() => import('./pages/ExtracurricularArticle'))
 const Kontak = lazy(() => import('./pages/Kontak'))
+const ContactConversation = lazy(() => import('./pages/ContactConversation'))
 const Informasi = lazy(() => import('./pages/Informasi'))
 const Ppdb = lazy(() => import('./pages/Ppdb'))
 const KebijakanPrivasi = lazy(() => import('./pages/KebijakanPrivasi'))
@@ -61,6 +62,7 @@ function App() {
           <Route path="/ekskul/:slug" element={<ExtracurricularArticle />} />
           <Route path="/galeri" element={<Galeri />} />
           <Route path="/kontak" element={<Kontak />} />
+          <Route path="/pesan/:trackingCode" element={<ContactConversation />} />
           <Route path="/informasi" element={<Informasi />} />
           <Route path="/ppdb" element={<Ppdb />} />
           <Route path="/privasi" element={<KebijakanPrivasi />} />
