@@ -12,6 +12,7 @@ interface ContactMessageReply {
   id: string
   body: string
   sender: 'admin' | 'user'
+  senderName: string
   createdAt: string
 }
 
@@ -297,7 +298,7 @@ export default function ContactMessagesManager() {
                     <div key={reply.id} className={`rounded-lg border px-3 py-2.5 ${reply.sender === 'user' ? 'border-amber-200 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/20' : 'border-brand-100 bg-brand-50/70 dark:border-brand-900 dark:bg-brand-950/30'}`}>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className={`text-xs font-semibold ${reply.sender === 'user' ? 'text-amber-900 dark:text-amber-200' : 'text-brand-800 dark:text-brand-300'}`}>
-                          {reply.sender === 'user' ? `Pesan lanjutan dari ${message.name}` : 'Balasan dari sekolah'}
+                          {reply.sender === 'user' ? `Pesan lanjutan dari ${reply.senderName || message.name}` : 'Balasan dari sekolah'}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(reply.createdAt)}</p>
                       </div>

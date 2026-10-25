@@ -28,6 +28,8 @@ const topicLabels: Record<ContactMessageTopic, string> = {
   other: 'Lainnya',
 }
 
+const activePrivateThreadStorageKey = 'smk-bppi-private-thread:active'
+
 function formatDate(value: string) {
   const date = new Date(value)
   return Number.isNaN(date.getTime())
@@ -63,6 +65,15 @@ export default function ContactConversationPage() {
       else createdRobots.remove()
     }
   }, [])
+
+  useEffect(() => {
+    if (!/^[A-Za-z0-9_-]{40,60}$/.test(trackingCode)) return
+    try {
+      window.localStorage.setItem(activePrivateThreadStorageKey, trackingCode)
+    } catch {
+      // The private link still works when browser storage is unavailable.
+    }
+  }, [trackingCode])
 
   useEffect(() => {
     let active = true

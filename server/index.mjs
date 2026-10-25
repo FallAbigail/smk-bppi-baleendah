@@ -9,6 +9,7 @@ import {
   contentRevision,
   createContactMessage,
   createContactConversationReply,
+  createContactFormFollowUp,
   createContactMessageReply,
   createReview,
   createAdmin,
@@ -290,9 +291,28 @@ app.post('/api/contact/messages', contactMessageLimiter, sameOrigin, (req, res) 
   }
 
   try {
+    const continuationTrackingCode = typeof req.body?.continuationTrackingCode === 'string'
+      ? req.body.continuationTrackingCode.trim()
+      : ''
+    if (/^[A-Za-z0-9_-]{40,60}$/.test(continuationTrackingCode)) {
+      const continuation = createContactFormFollowUp(
+        hashToken(continuationTrackingCode),
+        { name, email, topic, message },
+      )
+      if (continuation) {
+        res.status(201).json({
+          ok: true,
+          id: continuation.id,
+          trackingCode: continuationTrackingCode,
+          reusedConversation: true,
+        })
+        return
+      }
+    }
+
     const trackingCode = randomBytes(32).toString('base64url')
     const saved = createContactMessage({ name, phone, email, topic, message }, hashToken(trackingCode))
-    res.status(201).json({ ok: true, id: saved.id, trackingCode })
+    res.status(201).json({ ok: true, id: saved.id, trackingCode, reusedConversation: false })
   } catch (error) {
     handleDatabaseError(error, res)
   }

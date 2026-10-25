@@ -7,10 +7,33 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { useLanguage } from '../contexts/LanguageContext'
 import { apiRequest } from '../lib/api'
 
+const privateThreadStoragePrefix = 'smk-bppi-private-thread:'
+const activePrivateThreadStorageKey = 'smk-bppi-private-thread:active'
+
+function getStoredPrivateThread(email: string) {
+  try {
+    return window.localStorage.getItem(`${privateThreadStoragePrefix}${email}`)
+      ?? window.localStorage.getItem(activePrivateThreadStorageKey)
+      ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function savePrivateThread(email: string, trackingCode: string) {
+  try {
+    window.localStorage.setItem(`${privateThreadStoragePrefix}${email}`, trackingCode)
+    window.localStorage.setItem(activePrivateThreadStorageKey, trackingCode)
+  } catch {
+    // The conversation link remains available in the submission confirmation.
+  }
+}
+
 export default function Kontak() {
   const [isSending, setIsSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [conversationPath, setConversationPath] = useState('')
+  const [continuedPreviousConversation, setContinuedPreviousConversation] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const { t } = useLanguage()
@@ -26,7 +49,7 @@ export default function Kontak() {
     const contactMessage = {
       name: String(form.get('name') ?? ''),
       phone: String(form.get('phone') ?? ''),
-      email: String(form.get('email') ?? ''),
+      email: String(form.get('email') ?? '').trim().toLowerCase(),
       topic: String(form.get('topic') ?? 'other'),
       message: String(form.get('message') ?? ''),
     }
@@ -34,12 +57,15 @@ export default function Kontak() {
     setIsSending(true)
     setSubmitError('')
     try {
-      const response = await apiRequest<{ ok: boolean; trackingCode: string }>('/contact/messages', {
+      const continuationTrackingCode = getStoredPrivateThread(contactMessage.email)
+      const response = await apiRequest<{ ok: boolean; trackingCode: string; reusedConversation: boolean }>('/contact/messages', {
         method: 'POST',
-        body: JSON.stringify(contactMessage),
+        body: JSON.stringify({ ...contactMessage, continuationTrackingCode }),
       })
       formElement.reset()
+      savePrivateThread(contactMessage.email, response.trackingCode)
       setConversationPath(`/pesan/${response.trackingCode}`)
+      setContinuedPreviousConversation(response.reusedConversation)
       setLinkCopied(false)
       setSent(true)
     } catch (error) {
@@ -187,10 +213,12 @@ export default function Kontak() {
                   <CheckCircle2 className="w-7 h-7" aria-hidden="true" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  {t('Pesan berhasil dikirim')}
+                  {continuedPreviousConversation ? 'Pesan lanjutan terkirim' : t('Pesan berhasil dikirim')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-5">
-                  Pesan tersimpan di website. Balasan admin akan muncul di percakapan privat ini. Simpan tautannya agar Anda bisa membukanya kembali.
+                  {continuedPreviousConversation
+                    ? 'Email ini cocok dengan percakapan privat yang tersimpan di browser ini, jadi pesan masuk ke percakapan yang sama dan tautannya tetap sama.'
+                    : 'Pesan tersimpan di website. Balasan admin akan muncul di percakapan privat ini. Simpan tautannya agar Anda bisa membukanya kembali.'}
                 </p>
                 {conversationPath && (
                   <div className="rounded-xl border border-emerald-200 bg-white p-4 text-left dark:border-emerald-900 dark:bg-gray-900">
@@ -206,7 +234,7 @@ export default function Kontak() {
                 )}
                 <button
                   type="button"
-                  onClick={() => { setSent(false); setConversationPath(''); setLinkCopied(false) }}
+                  onClick={() => { setSent(false); setConversationPath(''); setContinuedPreviousConversation(false); setLinkCopied(false) }}
                   className="mt-3 inline-flex items-center justify-center rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700"
                 >
                   {t('Kirim pesan lain')}
