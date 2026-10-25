@@ -170,7 +170,12 @@ function clearSessionCookie(res) {
 function sameOrigin(req, res, next) {
   const origin = req.get('origin')
   const expectedOrigin = `${req.protocol}://${req.get('host')}`
-  const developmentOrigins = new Set(['http://localhost:5173', 'http://127.0.0.1:5173'])
+  const developmentOrigins = new Set([
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5174',
+  ])
   const configuredOrigin = process.env.APP_ORIGIN?.replace(/\/$/, '')
   const allowed = new Set([expectedOrigin, configuredOrigin].filter(Boolean))
   if (!isProduction)

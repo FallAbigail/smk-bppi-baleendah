@@ -25,29 +25,77 @@ export default function HeroFacilities() {
     let previousTime = 0
     let pendingPixels = 0
     let resumeAt = 0
-    let hovered = false
     let visible = false
+    let lastPaintedScroll = Number.NaN
     let drag: { x: number; y: number; scroll: number; horizontal: boolean } | null = null
 
-    const paint = () => {
-      const center = track.scrollLeft + track.clientWidth / 2
-      figures.forEach((card) => {
-        const distance = card.offsetLeft + card.offsetWidth / 2 - center
-        const side = Math.max(-1, Math.min(1, distance / (track.clientWidth / 2)))
-        // The reference is a concave arc: small in the middle, large at
-        // both edges. Keep the horizontal positions evenly spaced.
-        const scale = 0.86 + 0.46 * Math.pow(Math.abs(side), 1.6)
-        const rotation = -side * 35
+    const paint = (force = false, fractionalScroll = 0) => {
+      const visualScroll = track.scrollLeft + fractionalScroll
+      if (!force && visualScroll === lastPaintedScroll) return
+      lastPaintedScroll = visualScroll
+      const center = visualScroll + track.clientWidth / 2
+      const baseWidth = figures[0]?.offsetWidth ?? 0
+      if (!baseWidth) return
 
+      const baseCenters = figures.map((card) => card.offsetLeft + card.offsetWidth / 2)
+      let offsets = figures.map(() => 0)
+      let states: { side: number; scale: number; rotation: number; visibleWidth: number }[] = []
+
+      // Keep each rendered edge gap equal to the track gap while cards change
+      // size. Translate offsets compensate for the width added or removed by
+      // each neighboring pair; anchoring the visible cards prevents the row
+      // from drifting as the carousel loops.
+      for (let pass = 0; pass < 4; pass += 1) {
+        states = baseCenters.map((baseCenter, index) => {
+          const distance = baseCenter + offsets[index] - center
+          const side = Math.max(-1, Math.min(1, distance / (track.clientWidth / 2)))
+          const curve = Math.pow(Math.abs(side), 1.7)
+          const scale = reduceMotion ? 1 : (0.68 + 0.62 * curve) * 1.15
+          const rotation = reduceMotion ? 0 : -Math.sin(side * Math.PI / 2) * 36
+          const visibleWidth = scale * Math.cos(rotation * Math.PI / 180)
+          return { side, scale, rotation, visibleWidth }
+        })
+
+        const nextOffsets = figures.map(() => 0)
+        for (let index = 1; index < figures.length; index += 1) {
+          const pairWidth = (states[index - 1].visibleWidth + states[index].visibleWidth) / 2
+          nextOffsets[index] = nextOffsets[index - 1] + (pairWidth - 1) * baseWidth
+        }
+
+        // Interpolate the anchor at the viewport center instead of averaging
+        // a thresholded set of cards. The set changed abruptly as cards crossed
+        // its bounds, shifting the whole row by a few pixels in one frame.
+        let rightIndex = baseCenters.findIndex((x) => x >= center)
+        if (rightIndex < 0) rightIndex = baseCenters.length - 1
+        const leftIndex = Math.max(0, rightIndex - 1)
+        const span = baseCenters[rightIndex] - baseCenters[leftIndex]
+        const progress = span > 0
+          ? Math.max(0, Math.min(1, (center - baseCenters[leftIndex]) / span))
+          : 0
+        const anchor = nextOffsets[leftIndex]
+          + (nextOffsets[rightIndex] - nextOffsets[leftIndex]) * progress
+        offsets = nextOffsets.map((offset) => offset - anchor)
+      }
+
+      figures.forEach((card, index) => {
+        const { side, scale, rotation } = states[index]
+        const verticalScale = reduceMotion
+          ? 1
+          : scale * Math.cos(rotation * Math.PI / 180)
+        const horizontalOffset = offsets[index] - fractionalScroll
+        card.style.setProperty('translate', reduceMotion ? 'none' : `${horizontalOffset}px 0px`)
         card.style.transform = reduceMotion
           ? 'none'
-          : `perspective(900px) rotateY(${rotation}deg) scale(${scale})`
+          : `perspective(900px) rotateY(${rotation}deg) scale(${scale}, ${verticalScale})`
         card.style.zIndex = String(Math.round(Math.abs(side) * 100))
       })
     }
 
-    const wrap = () => {
-      if (!loopWidth) return
+    const wrap = (fractionalScroll = 0) => {
+      if (!loopWidth) {
+        paint(false, fractionalScroll)
+        return
+      }
       let shift = 0
       const scrollRoom = Math.max(0, loopWidth - track.clientWidth)
       const margin = scrollRoom / 4
@@ -58,7 +106,7 @@ export default function HeroFacilities() {
         track.scrollLeft += shift
         if (drag) drag.scroll += shift
       }
-      paint()
+      paint(false, fractionalScroll)
     }
 
     const measure = () => {
@@ -75,12 +123,12 @@ export default function HeroFacilities() {
       const maxPhase = Math.max(0, loopWidth - track.clientWidth - 1)
       const phase = Math.min(track.scrollLeft % cycleWidth, maxPhase)
       track.scrollLeft = loopWidth + phase
-      paint()
+      paint(true)
     }
 
     const animate = (time: number) => {
       frame = 0
-      if (!visible || hovered || drag || time < resumeAt) {
+      if (!visible || drag || time < resumeAt) {
         previousTime = 0
         return
       }
@@ -88,12 +136,13 @@ export default function HeroFacilities() {
       const elapsed = previousTime ? Math.min(time - previousTime, 40) : 0
       previousTime = time
 
-      // 22 pixels per second: a gentle, steady right-to-left movement.
-      // The scroll event paints the cards, so don't repaint the full track here.
+      // Preserve subpixel motion between integer scrollLeft updates so even
+      // browsers that quantize scrollLeft can animate at the display frame rate.
       pendingPixels += elapsed * 0.022
       const pixels = Math.floor(pendingPixels)
       pendingPixels -= pixels
       if (pixels > 0) track.scrollLeft += pixels
+      wrap(pendingPixels)
       frame = requestAnimationFrame(animate)
     }
 
@@ -103,25 +152,20 @@ export default function HeroFacilities() {
       previousTime = 0
     }
     const startAnimation = () => {
-      if (reduceMotion || !visible || hovered || drag || frame || performance.now() < resumeAt) return
+      if (reduceMotion || !visible || drag || frame || performance.now() < resumeAt) return
       frame = requestAnimationFrame(animate)
     }
     let resumeTimer = 0
     const pauseBriefly = () => {
       resumeAt = performance.now() + 2200
       stopAnimation()
+      pendingPixels = 0
+      paint(true)
       window.clearTimeout(resumeTimer)
       resumeTimer = window.setTimeout(startAnimation, 2200)
     }
-    const enter = () => {
-      hovered = true
-      stopAnimation()
-    }
-    const leave = () => {
-      hovered = false
-      startAnimation()
-    }
     const focus = () => { pauseBriefly() }
+    const onScroll = () => { wrap(pendingPixels) }
     const wheel = (event: WheelEvent) => {
       if (event.ctrlKey) return
       const horizontal = Math.abs(event.deltaX) >= 2
@@ -135,6 +179,7 @@ export default function HeroFacilities() {
       const delta = horizontal ? event.deltaX : event.deltaY
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? track.clientWidth : 1
       track.scrollLeft += Math.max(-80, Math.min(80, delta * unit * 0.75))
+      wrap()
     }
     const down = (event: PointerEvent) => {
       if (!event.isPrimary || event.button !== 0) return
@@ -168,6 +213,7 @@ export default function HeroFacilities() {
       }
       event.preventDefault()
       track.scrollLeft = drag.scroll - deltaX
+      wrap()
     }
     const up = (event: PointerEvent) => {
       drag = null
@@ -182,7 +228,7 @@ export default function HeroFacilities() {
     const intersection = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting
       if (visible) {
-        paint()
+        paint(true)
         startAnimation()
       } else {
         stopAnimation()
@@ -190,10 +236,8 @@ export default function HeroFacilities() {
     })
     resize.observe(track)
     intersection.observe(track)
-    track.addEventListener('scroll', wrap)
+    track.addEventListener('scroll', onScroll)
     track.addEventListener('wheel', wheel, { passive: false })
-    track.addEventListener('mouseenter', enter)
-    track.addEventListener('mouseleave', leave)
     track.addEventListener('focusin', focus)
     track.addEventListener('pointerdown', down)
     track.addEventListener('pointermove', move)
@@ -208,10 +252,8 @@ export default function HeroFacilities() {
       window.clearTimeout(resumeTimer)
       resize.disconnect()
       intersection.disconnect()
-      track.removeEventListener('scroll', wrap)
+      track.removeEventListener('scroll', onScroll)
       track.removeEventListener('wheel', wheel)
-      track.removeEventListener('mouseenter', enter)
-      track.removeEventListener('mouseleave', leave)
       track.removeEventListener('focusin', focus)
       track.removeEventListener('pointerdown', down)
       track.removeEventListener('pointermove', move)
