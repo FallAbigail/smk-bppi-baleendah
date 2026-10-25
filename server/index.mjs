@@ -405,16 +405,16 @@ app.post('/api/admin/contact-messages/:id/replies', requireAdmin, sameOrigin, (r
     res.status(400).json({ message: 'Balasan harus berisi 1–3.000 karakter.' })
     return
   }
-  const reply = createContactMessageReply(id, body)
-  if (reply === null) {
+  const trackingCode = randomBytes(32).toString('base64url')
+  const result = createContactMessageReply(id, body, hashToken(trackingCode))
+  if (result === null) {
     res.status(404).json({ message: 'Pesan tidak ditemukan.' })
     return
   }
-  if (reply === false) {
-    res.status(409).json({ message: 'Pesan ini belum memiliki tautan percakapan privat. Minta pengirim mengirim pesan baru agar dapat membacanya melalui website.' })
-    return
-  }
-  res.status(201).json({ reply })
+  res.status(201).json({
+    reply: result.reply,
+    ...(result.trackingTokenCreated ? { trackingCode } : {}),
+  })
 })
 
 app.patch('/api/admin/contact-messages/:id', requireAdmin, sameOrigin, (req, res) => {

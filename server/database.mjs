@@ -853,21 +853,26 @@ export function findContactConversation(replyTokenHash) {
   return { message: publicMessage, replies: listRepliesForContactMessage(id) }
 }
 
-export function createContactMessageReply(messageId, body) {
-  const message = db.prepare('SELECT reply_token_hash FROM contact_messages WHERE id = ?').get(messageId)
-  if (!message) return null
-  if (!message.reply_token_hash) return false
-  const reply = {
-    id: `contact-reply-${randomUUID()}`,
-    body,
-    createdAt: new Date().toISOString(),
-  }
-  db.prepare(`
-    INSERT INTO contact_message_replies (id, message_id, body, created_at)
-    VALUES (?, ?, ?, ?)
-  `).run(reply.id, messageId, reply.body, reply.createdAt)
-  db.prepare("UPDATE contact_messages SET status = 'read' WHERE id = ?").run(messageId)
-  return reply
+export function createContactMessageReply(messageId, body, replyTokenHash) {
+  return runTransaction(() => {
+    const message = db.prepare('SELECT reply_token_hash FROM contact_messages WHERE id = ?').get(messageId)
+    if (!message) return null
+    const trackingTokenCreated = !message.reply_token_hash
+    if (trackingTokenCreated) {
+      db.prepare('UPDATE contact_messages SET reply_token_hash = ? WHERE id = ?').run(replyTokenHash, messageId)
+    }
+    const reply = {
+      id: `contact-reply-${randomUUID()}`,
+      body,
+      createdAt: new Date().toISOString(),
+    }
+    db.prepare(`
+      INSERT INTO contact_message_replies (id, message_id, body, created_at)
+      VALUES (?, ?, ?, ?)
+    `).run(reply.id, messageId, reply.body, reply.createdAt)
+    db.prepare("UPDATE contact_messages SET status = 'read' WHERE id = ?").run(messageId)
+    return { reply, trackingTokenCreated }
+  })
 }
 
 export function getContactMessageSummary() {

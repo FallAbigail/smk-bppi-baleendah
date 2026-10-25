@@ -68,6 +68,8 @@ export default function ContactMessagesManager() {
   const [replyBody, setReplyBody] = useState('')
   const [replyChannel, setReplyChannel] = useState<ReplyChannel>('website')
   const [copyNotice, setCopyNotice] = useState('')
+  const [privateReplyLink, setPrivateReplyLink] = useState('')
+  const [privateLinkCopied, setPrivateLinkCopied] = useState(false)
   const replyDialogRef = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -149,6 +151,8 @@ export default function ContactMessagesManager() {
     setReplyBody('')
     setReplyChannel('website')
     setCopyNotice('')
+    setPrivateReplyLink('')
+    setPrivateLinkCopied(false)
     setError('')
   }
 
@@ -158,11 +162,14 @@ export default function ContactMessagesManager() {
     setError('')
     setNotice('')
     try {
-      await apiRequest<{ reply: ContactMessageReply }>(`/admin/contact-messages/${encodeURIComponent(replyingTo.id)}/replies`, {
+      const response = await apiRequest<{ reply: ContactMessageReply; trackingCode?: string }>(`/admin/contact-messages/${encodeURIComponent(replyingTo.id)}/replies`, {
         method: 'POST',
         body: JSON.stringify({ body: replyBody }),
       })
-      setNotice(`Balasan untuk ${replyingTo.name} tersimpan dan dapat dibaca melalui tautan percakapan privat.`)
+      setNotice(response.trackingCode
+        ? `Balasan tersimpan untuk ${replyingTo.name}. Salin dan bagikan tautan privat ini agar pengirim dapat membacanya.`
+        : `Balasan untuk ${replyingTo.name} tersimpan di percakapan website.`)
+      if (response.trackingCode) setPrivateReplyLink(`${window.location.origin}/pesan/${response.trackingCode}`)
       setReplyingTo(null)
       setRefreshKey((current) => current + 1)
     } catch (requestError) {
@@ -181,6 +188,15 @@ export default function ContactMessagesManager() {
       setCopyNotice(replyChannel === 'email' ? 'Draf email disalin.' : 'Balasan disalin.')
     } catch {
       setCopyNotice('Teks belum dapat disalin dari browser ini. Pilih dan salin teks balasan secara manual.')
+    }
+  }
+
+  async function copyPrivateReplyLink() {
+    try {
+      await navigator.clipboard.writeText(privateReplyLink)
+      setPrivateLinkCopied(true)
+    } catch {
+      setPrivateLinkCopied(false)
     }
   }
 
@@ -209,9 +225,17 @@ export default function ContactMessagesManager() {
       </div>
 
       {notice && (
-        <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200">
-          {notice}
-        </p>
+        <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200">
+          <p>{notice}</p>
+          {privateReplyLink && (
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <a href={privateReplyLink} className="min-w-0 break-all font-medium underline underline-offset-2">{privateReplyLink}</a>
+              <button type="button" onClick={() => void copyPrivateReplyLink()} className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-emerald-300 px-3 py-2 text-xs font-semibold transition hover:bg-emerald-100 dark:border-emerald-800 dark:hover:bg-emerald-950">
+                <Copy className="h-3.5 w-3.5" aria-hidden="true" /> {privateLinkCopied ? 'Tautan disalin' : 'Salin tautan'}
+              </button>
+            </div>
+          )}
+        </div>
       )}
       {error && (
         <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">
@@ -363,7 +387,7 @@ export default function ContactMessagesManager() {
                 </p>
               ) : (
                 <p role="status" className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                  Pesan ini dikirim sebelum tautan privat tersedia. Pengirim perlu mengirim pesan baru melalui website agar bisa membuka balasan secara online.
+                  Pesan ini belum memiliki tautan privat. Tautan akan dibuat saat balasan pertama dikirim; salin dan bagikan ke pengirim agar ia bisa membuka percakapan.
                 </p>
               )
             ) : (
@@ -402,7 +426,7 @@ export default function ContactMessagesManager() {
                 <Copy className="h-4 w-4" aria-hidden="true" /> {replyChannel === 'website' ? 'Salin balasan' : 'Salin draf email'}
               </button>
               {replyChannel === 'website' ? (
-                <button type="button" disabled={!replyingTo.hasPrivateThread || !replyBody.trim() || pendingId === replyingTo.id} onClick={() => void sendWebsiteReply()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700">
+                <button type="button" disabled={!replyBody.trim() || pendingId === replyingTo.id} onClick={() => void sendWebsiteReply()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700">
                   <Send className="h-4 w-4" aria-hidden="true" /> {pendingId === replyingTo.id ? 'Menyimpan…' : 'Kirim balasan website'}
                 </button>
               ) : (
