@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, Check, Mail, Phone, Reply, RotateCcw, Trash2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { ChevronLeft, ChevronRight, Check, Copy, ExternalLink, Mail, Phone, Reply, RotateCcw, Trash2, X } from 'lucide-react'
 import { apiRequest } from '../../lib/api'
 import { useConfirmDialog } from '../../contexts/ConfirmDialogContext'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -44,6 +44,12 @@ function formatDate(value: string) {
     : new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
 }
 
+function emailAddressForLink(value: string) {
+  const at = value.lastIndexOf('@')
+  if (at < 0) return encodeURIComponent(value)
+  return `${encodeURIComponent(value.slice(0, at))}@${encodeURIComponent(value.slice(at + 1))}`
+}
+
 export default function ContactMessagesManager() {
   const confirm = useConfirmDialog()
   const { t } = useLanguage()
@@ -54,6 +60,19 @@ export default function ContactMessagesManager() {
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [replyingTo, setReplyingTo] = useState<ContactMessage | null>(null)
+  const [replySubject, setReplySubject] = useState('')
+  const [replyBody, setReplyBody] = useState('')
+  const [copyNotice, setCopyNotice] = useState('')
+  const replyDialogRef = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    const dialog = replyDialogRef.current
+    if (!dialog) return
+
+    if (replyingTo && !dialog.open) dialog.showModal()
+    if (!replyingTo && dialog.open) dialog.close()
+  }, [replyingTo])
 
   useEffect(() => {
     let active = true
@@ -119,6 +138,30 @@ export default function ContactMessagesManager() {
       setPendingId(null)
     }
   }
+
+  function openReply(message: ContactMessage) {
+    setReplyingTo(message)
+    setReplySubject(`Re: ${topicLabels[message.topic]}`)
+    setReplyBody(`Halo ${message.name},\n\nTerima kasih telah menghubungi SMK BPPI Baleendah terkait ${topicLabels[message.topic]}. Berikut tanggapan kami:\n\n[Tulis balasan di sini]\n\nHormat kami,\nSMK BPPI Baleendah`)
+    setCopyNotice('')
+    setError('')
+  }
+
+  async function copyReply() {
+    try {
+      await navigator.clipboard.writeText(replyBody)
+      setCopyNotice('Teks balasan disalin. Tempelkan di aplikasi email untuk mengirim.')
+    } catch {
+      setCopyNotice('Teks belum dapat disalin dari browser ini. Pilih dan salin teks balasan secara manual.')
+    }
+  }
+
+  const replyLinks = replyingTo
+    ? {
+        mailto: `mailto:${emailAddressForLink(replyingTo.email)}?subject=${encodeURIComponent(replySubject)}&body=${encodeURIComponent(replyBody)}`,
+        gmail: `https://mail.google.com/mail/?${new URLSearchParams({ view: 'cm', fs: '1', to: replyingTo.email, su: replySubject, body: replyBody }).toString()}`,
+      }
+    : null
 
   const pageCount = Math.max(1, data.pagination.pageCount)
 
@@ -193,12 +236,13 @@ export default function ContactMessagesManager() {
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-4 dark:border-gray-800">
-                <a
-                  href={`mailto:${encodeURIComponent(message.email)}?subject=${encodeURIComponent(`Tanggapan: ${topicLabels[message.topic]}`)}`}
+                <button
+                  type="button"
+                  onClick={() => openReply(message)}
                   className="inline-flex items-center gap-2 rounded-lg bg-brand-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700"
                 >
                   <Reply className="h-4 w-4" aria-hidden="true" /> Balas
-                </a>
+                </button>
                 <button
                   type="button"
                   disabled={pendingId === message.id}
@@ -240,6 +284,73 @@ export default function ContactMessagesManager() {
           </div>
         </nav>
       )}
+
+      <dialog
+        ref={replyDialogRef}
+        aria-labelledby="contact-reply-heading"
+        aria-describedby="contact-reply-description"
+        className="m-auto max-h-[calc(100dvh-2rem)] w-[min(92vw,38rem)] max-w-none overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 text-gray-900 shadow-2xl backdrop:bg-gray-950/50 backdrop:backdrop-blur-[2px] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+        onClose={() => setReplyingTo(null)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) event.currentTarget.close()
+        }}
+      >
+        {replyingTo && replyLinks && (
+          <div className="p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 id="contact-reply-heading" className="text-xl font-bold tracking-tight text-gray-950 dark:text-white">Balas pesan</h2>
+                <p id="contact-reply-description" className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                  Tulis balasan untuk {replyingTo.name}, lalu buka layanan email untuk mengirimnya.
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label="Tutup composer balasan"
+                onClick={() => replyDialogRef.current?.close()}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+              >
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="contact-reply-to" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Kepada</label>
+                <input id="contact-reply-to" readOnly value={replyingTo.email} className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200" />
+              </div>
+              <div>
+                <label htmlFor="contact-reply-subject" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Subjek</label>
+                <input id="contact-reply-subject" value={replySubject} onChange={(event) => setReplySubject(event.target.value)} className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-950" />
+              </div>
+              <div>
+                <label htmlFor="contact-reply-body" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Balasan</label>
+                <textarea id="contact-reply-body" rows={8} value={replyBody} onChange={(event) => { setReplyBody(event.target.value); setCopyNotice('') }} className="w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm leading-6 text-gray-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:ring-brand-950" />
+              </div>
+            </div>
+
+            <p className="mt-3 rounded-lg bg-gray-50 px-3 py-2.5 text-xs leading-5 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+              Pengiriman dilakukan melalui layanan email yang dipilih. Panel admin belum mengirim email secara langsung.
+            </p>
+            {copyNotice && <p role="status" className="mt-2 text-sm text-emerald-700 dark:text-emerald-300">{copyNotice}</p>}
+
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+              <button type="button" onClick={() => replyDialogRef.current?.close()} className="inline-flex min-h-10 items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+                Batal
+              </button>
+              <button type="button" onClick={() => void copyReply()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+                <Copy className="h-4 w-4" aria-hidden="true" /> Salin balasan
+              </button>
+              <a href={replyLinks.gmail} target="_blank" rel="noreferrer" onClick={() => replyDialogRef.current?.close()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-brand-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700">
+                <ExternalLink className="h-4 w-4" aria-hidden="true" /> Buka Gmail
+              </a>
+              <a href={replyLinks.mailto} onClick={() => replyDialogRef.current?.close()} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-brand-200 px-3 py-2 text-sm font-semibold text-brand-800 transition hover:bg-brand-50 dark:border-brand-800 dark:text-brand-200 dark:hover:bg-brand-950/50">
+                <Mail className="h-4 w-4" aria-hidden="true" /> Aplikasi email
+              </a>
+            </div>
+          </div>
+        )}
+      </dialog>
     </section>
   )
 }
