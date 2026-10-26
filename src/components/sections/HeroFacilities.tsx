@@ -275,6 +275,7 @@ export default function HeroFacilities() {
         tabIndex={0}
         role="region"
         aria-label={t('Galeri foto fasilitas sekolah')}
+        data-reveal-ignore
         data-lenis-prevent-horizontal
       >
         {cards.map((facility, index) => (
