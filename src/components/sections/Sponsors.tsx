@@ -5,6 +5,7 @@ import { useLanguage } from '../../contexts/LanguageContext'
 interface SchoolPartner {
   name: string
   logo: string
+  darkLogo?: string
   monochromeOnLight?: boolean
 }
 
@@ -22,7 +23,8 @@ const schoolPartners: SchoolPartner[] = [
   },
   {
     name: 'Axioo Class Program',
-    logo: '/images/bppi/programs/acp.png',
+    logo: '/images/sponsors/axioo.png',
+    darkLogo: '/images/sponsors/axioo-dark.png',
   },
   {
     name: 'BNET',
@@ -56,6 +58,8 @@ const schoolPartners: SchoolPartner[] = [
 ]
 
 function PartnerLogo({ partner, ariaHidden }: { partner: SchoolPartner; ariaHidden: boolean }) {
+  const imageClass = `h-16 w-44 shrink-0 object-contain transition-opacity duration-300 hover:opacity-75 ${partner.monochromeOnLight ? 'partner-logo-monochrome' : ''}`
+
   return (
     <li
       aria-hidden={ariaHidden}
@@ -68,8 +72,20 @@ function PartnerLogo({ partner, ariaHidden }: { partner: SchoolPartner; ariaHidd
         loading="lazy"
         decoding="async"
         draggable={false}
-        className={`max-h-12 max-w-40 object-contain transition-opacity duration-300 hover:opacity-75 sm:max-w-44 ${partner.monochromeOnLight ? 'partner-logo-monochrome' : ''}`}
+        className={`${imageClass} ${partner.darkLogo ? 'dark:hidden' : ''}`}
       />
+      {partner.darkLogo && (
+        <img
+          src={partner.darkLogo}
+          alt=""
+          title={ariaHidden ? undefined : partner.name}
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          className={`${imageClass} hidden dark:block`}
+        />
+      )}
     </li>
   )
 }
