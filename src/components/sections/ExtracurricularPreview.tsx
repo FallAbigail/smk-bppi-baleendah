@@ -16,7 +16,7 @@ export default function ExtracurricularPreview() {
   const featuredActivities = extracurriculars.filter((activity) => featuredIds.includes(activity.id))
 
   return (
-    <section className="bg-gray-50 py-20 dark:bg-gray-950" aria-labelledby="home-extracurricular-heading">
+    <section className="home-compact-section bg-gray-50 py-20 dark:bg-gray-950" aria-labelledby="home-extracurricular-heading">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <header className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -39,15 +39,15 @@ export default function ExtracurricularPreview() {
           </Link>
         </header>
 
-        <ul className="grid gap-5 md:grid-cols-3">
+        <ul className="home-mobile-rail extracurricular-rail grid gap-5 md:grid-cols-3" aria-label={t('Kegiatan ekstrakurikuler')} tabIndex={0}>
           {featuredActivities.map((activity) => (
-            <li key={activity.id} className="h-full">
+            <li key={activity.id} className="extracurricular-rail-card h-full">
               <Link
                 to={`/ekskul/${getExtracurricularSlug(activity)}`}
-                className="group flex h-full min-h-60 flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-brand-700"
+                className="extracurricular-preview-card group flex h-full min-h-60 flex-col rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-brand-700"
               >
                 <div className="relative flex justify-center">
-                  <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-full bg-gray-50 p-1.5 dark:bg-gray-950">
+                  <div className="extracurricular-logo flex h-32 w-32 shrink-0 items-center justify-center rounded-full bg-gray-50 p-1.5 dark:bg-gray-950">
                     <img
                       src={activity.logo}
                       alt={`Logo ${t(activity.name)}`}

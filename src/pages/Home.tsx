@@ -20,7 +20,7 @@ export default function Home() {
   )
 
   return (
-    <main id="main-content" tabIndex={-1}>
+    <main id="main-content" className="home-page" tabIndex={-1}>
       <Hero blank />
 
       <ScrollSection id="section-about">

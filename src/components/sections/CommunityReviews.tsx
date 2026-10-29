@@ -49,6 +49,9 @@ const reviewSlideVariants: Variants = {
 
 export default function CommunityReviews() {
   const { language, t } = useLanguage()
+  const [mobileReviewRail, setMobileReviewRail] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches,
+  )
   const [reviews, setReviews] = useState<Review[]>([])
   const [summary, setSummary] = useState(emptySummary)
   const [pagination, setPagination] = useState(emptyPagination)
@@ -67,6 +70,14 @@ export default function CommunityReviews() {
   const [submitError, setSubmitError] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [mapOpen, setMapOpen] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)')
+    const syncLayout = () => setMobileReviewRail(mediaQuery.matches)
+    syncLayout()
+    mediaQuery.addEventListener('change', syncLayout)
+    return () => mediaQuery.removeEventListener('change', syncLayout)
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -173,7 +184,7 @@ export default function CommunityReviews() {
     : '—'
 
   return (
-    <section className="bg-gray-50 py-16 dark:bg-gray-950 md:py-20">
+    <section className="home-compact-section bg-gray-50 py-16 dark:bg-gray-950 md:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
@@ -406,7 +417,7 @@ export default function CommunityReviews() {
             </div>
           ) : reviews.length ? (
             <div>
-              <div className="relative overflow-hidden">
+              <div className="review-cards-viewport relative overflow-hidden">
                 <AnimatePresence mode="wait" custom={slideDirection}>
                   <motion.div
                     key={pagination.page}
@@ -416,14 +427,15 @@ export default function CommunityReviews() {
                     animate="visible"
                     exit="exit"
                     transition={{ duration: 0.22, ease: 'easeOut' }}
-                    drag={pagination.pageCount > 1 ? 'x' : false}
+                    drag={!mobileReviewRail && pagination.pageCount > 1 ? 'x' : false}
                     dragConstraints={{ left: 0, right: 0 }}
                     dragElastic={0.18}
                     onDragEnd={(_event, info) => handleReviewSwipe(info.offset.x, info.velocity.x)}
-                    className={`grid gap-4 ${reviews.length === 1 ? 'grid-cols-1' : reviews.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'}`}
+                    className={`home-mobile-rail review-cards-rail grid gap-4 ${reviews.length === 1 ? 'grid-cols-1' : reviews.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'}`}
                     role="group"
                     aria-roledescription={t('slide')}
                     aria-label={`${t('Blok komentar')} ${pagination.page}`}
+                    tabIndex={mobileReviewRail ? 0 : undefined}
                   >
                     {reviews.map((review) => (
                       <article

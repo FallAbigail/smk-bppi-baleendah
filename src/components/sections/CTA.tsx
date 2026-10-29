@@ -33,9 +33,9 @@ export default function CTA() {
   const programs = content.programs.filter((program) => program.level === 'smk')
 
   return (
-    <section id="section-cta" className="bg-gray-50 py-20 dark:bg-gray-950 sm:py-24">
+    <section id="section-cta" className="home-compact-section bg-gray-50 py-20 dark:bg-gray-950 sm:py-24">
       <div className="mx-auto max-w-[86rem] px-5 xl:px-6">
-        <div className="rounded-[1.75rem] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6 xl:p-8">
+        <div className="home-cta-card rounded-[1.75rem] border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6 xl:p-8">
           <div className="grid items-center gap-6 sm:gap-8 xl:grid-cols-[0.88fr_1.12fr] xl:gap-10">
             <div className="flex flex-col justify-center px-2 py-3 sm:px-4 xl:py-6">
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-brand-700 dark:text-brand-300">
@@ -63,7 +63,7 @@ export default function CTA() {
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                 </Link>
               </div>
-              <div className="mt-8 border-t border-gray-200 pt-5 dark:border-gray-700">
+              <div className="home-cta-steps mt-8 border-t border-gray-200 pt-5 dark:border-gray-700">
                 <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
                   {t('Mulai dari sini')}
                 </p>
@@ -87,7 +87,7 @@ export default function CTA() {
               </div>
             </div>
 
-            <figure className="relative isolate aspect-square overflow-hidden rounded-[1.25rem] bg-gray-100 dark:bg-gray-800 sm:aspect-[16/10] xl:aspect-[1.45/1]">
+            <figure className="cta-campus-card relative isolate aspect-square overflow-hidden rounded-[1.25rem] bg-gray-100 dark:bg-gray-800 sm:aspect-[16/10] xl:aspect-[1.45/1]">
               <img
                 src={schoolPhoto}
                 alt="Tampak depan gedung dan gerbang SMK BPPI Baleendah"

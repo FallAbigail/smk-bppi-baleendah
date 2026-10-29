@@ -49,7 +49,7 @@ export default function Features() {
   const { t } = useLanguage()
 
   return (
-    <section className="bg-gray-50 py-20 dark:bg-gray-950" aria-labelledby="facilities-heading">
+    <section className="home-compact-section bg-gray-50 py-20 dark:bg-gray-950" aria-labelledby="facilities-heading">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <header className="mb-8 max-w-2xl">
           <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">
@@ -63,11 +63,11 @@ export default function Features() {
           </p>
         </header>
 
-        <ul className="mb-8 grid gap-3 sm:grid-cols-3">
+        <ul className="home-mobile-rail facility-facts-rail mb-8 grid gap-3 sm:grid-cols-3" aria-label={t('Fasilitas pendukung')} tabIndex={0}>
           {supportedFacilities.map(({ label, icon: Icon }) => (
             <li
               key={label}
-              className="flex min-h-[4.5rem] items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200"
+              className="facility-fact-card flex min-h-[4.5rem] items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-900/50 dark:text-brand-200">
                 <Icon aria-hidden="true" size={19} strokeWidth={1.9} />
@@ -77,7 +77,7 @@ export default function Features() {
           ))}
         </ul>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="home-mobile-rail facility-gallery-grid grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4" role="region" aria-label={t('Galeri fasilitas sekolah')} tabIndex={0}>
           {facilities.map((facility) => (
             <figure key={facility.title} className="group relative isolate aspect-[3/4] overflow-hidden rounded-3xl bg-gray-900 shadow-sm transition-shadow hover:shadow-xl">
               <img

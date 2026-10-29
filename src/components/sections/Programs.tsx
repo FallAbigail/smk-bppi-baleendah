@@ -55,9 +55,9 @@ export default function Programs({
     : Math.min(activeProgramIndex, programs.length - 1)
 
   return (
-    <section id="smk" className="scroll-mt-28 bg-gray-50 py-24 dark:bg-gray-950">
+    <section id="smk" className="home-compact-section scroll-mt-28 bg-gray-50 py-24 dark:bg-gray-950">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="relative z-20 mb-10">
+        <div className="programs-heading relative z-20 mb-10">
           <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">
             {schoolProfile.name}
           </p>
@@ -325,7 +325,7 @@ function ProgramCarousel({
           >
             <Link
               to={`/program/${encodeURIComponent(activeProgram.id)}`}
-              className="group grid h-full min-h-[17.5rem] grid-cols-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 sm:grid-cols-[12rem_minmax(0,1fr)] lg:grid-cols-[13.5rem_minmax(0,1fr)]"
+              className="program-carousel-card group grid h-full min-h-[17.5rem] grid-cols-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 sm:grid-cols-[12rem_minmax(0,1fr)] lg:grid-cols-[13.5rem_minmax(0,1fr)]"
             >
               <div className="flex min-h-48 items-center justify-center border-b border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800 sm:min-h-0 sm:border-b-0 sm:border-r">
                 {activeLogo ? (

@@ -63,7 +63,7 @@ function PartnerLogo({ partner, ariaHidden }: { partner: SchoolPartner; ariaHidd
   return (
     <li
       aria-hidden={ariaHidden}
-      className="flex h-20 w-48 shrink-0 items-center justify-center sm:w-52"
+      className="sponsor-partner-item flex h-20 w-48 shrink-0 items-center justify-center sm:w-52"
     >
       <img
         src={partner.logo}
@@ -107,7 +107,7 @@ function MarqueeRow({
 
   return (
     <div
-      className="overflow-hidden"
+      className="sponsor-marquee-row overflow-hidden"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -169,9 +169,9 @@ export default function Sponsors() {
       <section
         ref={ref}
         id="section-sponsors"
-        className="overflow-hidden bg-gray-50 py-12 dark:bg-gray-950 sm:py-14"
+        className="home-compact-section sponsor-section overflow-hidden bg-gray-50 py-12 dark:bg-gray-950 sm:py-14"
       >
-        <div className="mx-auto mb-7 max-w-7xl px-6 lg:px-8">
+        <div className="sponsor-heading mx-auto mb-7 max-w-7xl px-6 lg:px-8">
           <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">
             {t('Mitra SMK BPPI')}
           </p>

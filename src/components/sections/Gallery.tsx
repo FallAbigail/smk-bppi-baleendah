@@ -165,7 +165,7 @@ export default function Gallery({
   }, [lightbox])
 
   return (
-    <section className="py-24 bg-gray-50 dark:bg-gray-950">
+    <section className={`home-compact-section py-24 bg-gray-50 dark:bg-gray-950 ${preview ? 'gallery-preview-section' : ''}`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
@@ -216,7 +216,12 @@ export default function Gallery({
         {/* Grid */}
         <motion.div
           layout
-          className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-flow-dense xl:auto-rows-[14rem] xl:grid-cols-4"
+          className={preview
+            ? 'home-mobile-rail gallery-preview-rail'
+            : 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-flow-dense xl:auto-rows-[14rem] xl:grid-cols-4'}
+          role={preview ? 'region' : undefined}
+          aria-label={preview ? t('Galeri foto kegiatan siswa') : undefined}
+          tabIndex={preview ? 0 : undefined}
         >
           <AnimatePresence mode="popLayout">
             {visibleItems.map((item, idx) => (
@@ -233,6 +238,7 @@ export default function Gallery({
                 aria-haspopup="dialog"
                 className={[
                   'group relative aspect-[4/3] cursor-pointer overflow-hidden rounded-xl',
+                  preview ? 'gallery-preview-card' : '',
                   'p-0 text-left bg-gray-200 dark:bg-gray-800',
                   'xl:h-full xl:aspect-auto',
                   'focus-visible:outline',
