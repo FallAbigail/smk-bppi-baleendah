@@ -217,7 +217,7 @@ export default function Gallery({
         <motion.div
           layout
           className={preview
-            ? 'home-mobile-rail gallery-preview-rail'
+            ? 'home-mobile-rail gallery-preview-rail grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-flow-dense xl:auto-rows-[14rem] xl:grid-cols-4'
             : 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-flow-dense xl:auto-rows-[14rem] xl:grid-cols-4'}
           role={preview ? 'region' : undefined}
           aria-label={preview ? t('Galeri foto kegiatan siswa') : undefined}
