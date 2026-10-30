@@ -87,7 +87,7 @@ export default function About({ headingLevel = 'h2' }: { headingLevel?: 'h1' | '
 
           <article className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-7">
             <h3 className="font-semibold text-gray-900 dark:text-white">{t('Misi sekolah')}</h3>
-            <ul className="home-mobile-rail mission-rail mt-4 space-y-3" aria-label={t('Daftar misi sekolah')} tabIndex={0}>
+            <ul className="home-mobile-rail mission-rail mt-4 space-y-3" aria-label={t('Daftar misi sekolah')}>
               {missions.map((mission) => (
                 <li key={mission} className="mission-rail-card flex items-start gap-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-700 dark:text-brand-400" aria-hidden="true" />

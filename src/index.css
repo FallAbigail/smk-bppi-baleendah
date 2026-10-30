@@ -1703,10 +1703,20 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
     padding: 4.25rem 0.45rem 0.65rem;
   }
 
-  .home-page .mission-rail {
-    width: calc(100% + 2rem);
-    margin-inline: -1rem;
-    padding-inline: 1rem;
+  .home-page #visi-misi > article:last-child {
+    padding: 1rem;
+  }
+
+  .home-page .mission-rail.home-mobile-rail {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+    width: 100%;
+    margin: 0.65rem 0 0;
+    overflow: visible;
+    padding: 0;
+    scroll-snap-type: none;
+    touch-action: auto;
   }
 
   .home-page .mission-rail > * + * {
@@ -1714,13 +1724,22 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   }
 
   .home-page .mission-rail > .mission-rail-card {
-    flex-basis: min(82vw, 20rem);
-    min-height: 7.25rem;
+    min-width: 0;
+    min-height: 0;
     align-items: flex-start;
+    gap: 0.45rem;
     border: 1px solid rgb(var(--gray-200));
-    border-radius: 0.9rem;
+    border-radius: 0.75rem;
     background: rgb(var(--gray-50));
-    padding: 0.9rem;
+    padding: 0.55rem;
+    font-size: 0.67rem;
+    line-height: 1.35;
+    scroll-snap-align: none;
+  }
+
+  .home-page .mission-rail > .mission-rail-card > svg {
+    width: 0.8rem;
+    height: 0.8rem;
   }
 
   .dark .home-page .mission-rail > .mission-rail-card {
@@ -1799,11 +1818,41 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
     line-height: 1.45;
   }
 
+  .home-page .facility-facts-rail.home-mobile-rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+    width: 100%;
+    margin: 0 0 1.2rem;
+    overflow: visible;
+    padding: 0;
+    scroll-snap-type: none;
+    touch-action: auto;
+  }
+
   .home-page .facility-facts-rail > .facility-fact-card {
-    flex-basis: min(78vw, 18rem);
-    min-height: 4rem;
-    padding: 0.65rem 0.75rem;
-    font-size: 0.78rem;
+    min-width: 0;
+    min-height: 6rem;
+    flex-basis: auto;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 0.85rem;
+    padding: 0.55rem 0.35rem;
+    font-size: 0.64rem;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .home-page .facility-fact-card > span:first-child {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.65rem;
+  }
+
+  .home-page .facility-fact-card > span:first-child svg {
+    width: 1rem;
+    height: 1rem;
   }
 
   .home-page .facility-gallery-grid > figure {
@@ -2395,6 +2444,15 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
 
   .program-selector-mobile > .program-selector-tab {
     padding-inline: 0.55rem;
+  }
+
+  .home-page .facility-facts-rail > .facility-fact-card:last-child {
+    grid-column: 1 / -1;
+    min-height: 3.5rem;
+    flex-direction: row;
+    justify-content: center;
+    padding-inline: 0.75rem;
+    text-align: left;
   }
 }
 

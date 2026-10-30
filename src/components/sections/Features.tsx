@@ -63,7 +63,7 @@ export default function Features() {
           </p>
         </header>
 
-        <ul className="home-mobile-rail facility-facts-rail mb-8 grid gap-3 sm:grid-cols-3" aria-label={t('Fasilitas pendukung')} tabIndex={0}>
+        <ul className="home-mobile-rail facility-facts-rail mb-8 grid gap-3 sm:grid-cols-3" aria-label={t('Fasilitas pendukung')}>
           {supportedFacilities.map(({ label, icon: Icon }) => (
             <li
               key={label}
