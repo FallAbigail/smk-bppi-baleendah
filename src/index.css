@@ -2009,4 +2009,389 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   }
 }
 
+.program-selector-mobile {
+  display: none;
+}
+
+/* Phone layout follows the school's simpler, vertically flowing homepage. */
+@media (max-width: 767px) {
+  .home-page {
+    overflow-x: clip;
+  }
+
+  .home-page > div[id^='section-'] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .home-page .home-compact-section {
+    padding-block: 2.75rem;
+  }
+
+  .home-page .home-compact-section > div,
+  .home-page #section-cta > div,
+  .home-page #section-location > div {
+    padding-inline: 1.1rem;
+  }
+
+  .home-page .home-compact-section h2 {
+    font-size: clamp(1.55rem, 7vw, 1.9rem);
+    line-height: 1.15;
+  }
+
+  .home-page .home-compact-section header {
+    margin-bottom: 1.1rem;
+    gap: 0.65rem;
+  }
+
+  .navbar-frame {
+    padding: 0.6rem 0.75rem !important;
+  }
+
+  .navbar-layout {
+    gap: 0.25rem;
+    padding: 0.2rem 0.3rem;
+    border: 1px solid rgb(var(--gray-200) / 70%);
+    border-radius: 1rem;
+    background: rgb(var(--surface-rgb) / 88%);
+    box-shadow: 0 5px 20px rgb(var(--gray-950) / 9%);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+
+  .navbar-brand-panel {
+    width: auto;
+    min-height: 3.25rem;
+    gap: 0.45rem;
+    padding-inline: 0.3rem;
+  }
+
+  .navbar-brand-logo {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .navbar-brand-name {
+    font-size: 0.76rem;
+  }
+
+  .navbar-brand-city {
+    font-size: 0.68rem;
+  }
+
+  .navbar-controls {
+    height: 3.1rem;
+    gap: 0.1rem;
+  }
+
+  .navbar-controls > button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .navbar-mobile-nav {
+    top: calc(100% + 0.35rem);
+    padding: 0.55rem;
+    border-radius: 1rem;
+  }
+
+  .hero-intro-scroll,
+  .hero-intro-scroll:not(.hero-intro-static):not(.hero-intro-skip-opening),
+  .hero-intro-scroll.hero-intro-static,
+  .hero-intro-scroll.hero-intro-skip-opening {
+    --hero-scene-height: 100svh;
+    height: 100svh;
+  }
+
+  .hero-scene-sticky,
+  .hero-scene-sticky.hero-scene-empty {
+    position: relative;
+    top: auto;
+    height: 100svh;
+    min-height: 0;
+  }
+
+  .hero-scene-empty .hero-stage {
+    align-items: stretch;
+  }
+
+  .hero-scene-empty .hero-name-layout {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5.2rem 1.1rem 5rem;
+  }
+
+  .hero-scene-empty .hero-name-content {
+    width: 100%;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .hero-scene-empty .hero-school-name {
+    max-width: 22rem;
+    margin-inline: auto;
+    font-size: clamp(2.15rem, 9.2vw, 3rem);
+    line-height: 1;
+  }
+
+  .hero-scene-empty .hero-campaign-tag {
+    margin: 0.65rem auto 0;
+    font-size: 0.68rem;
+  }
+
+  .hero-scene-empty .hero-facilities {
+    margin-top: clamp(1.3rem, 3.5svh, 2rem);
+  }
+
+  .hero-scene-empty .hero-facilities-heading {
+    justify-content: center;
+    padding-inline: 1rem;
+    font-size: 0.86rem;
+  }
+
+  .hero-scene-empty .hero-facilities-track {
+    gap: 0.7rem;
+    padding: 0.8rem 0 0.65rem;
+  }
+
+  .hero-scene-empty .hero-facility-card {
+    flex-basis: 7.2rem;
+    height: clamp(8rem, 17svh, 9.75rem);
+  }
+
+  .hero-scene-empty .hero-facility-card figcaption {
+    padding: 1.4rem 0.55rem 0.55rem;
+    font-size: 0.68rem;
+  }
+
+  .hero-scene-empty .hero-quick-actions {
+    top: auto;
+    right: 0.9rem;
+    bottom: 0.8rem;
+    left: 0.9rem;
+    justify-content: center;
+    gap: 0.45rem;
+  }
+
+  .hero-scene-empty .hero-quick-actions .hero-button {
+    min-height: 2.65rem;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.76rem;
+  }
+
+  .hero-scene-empty .hero-reveal-curtains {
+    display: none;
+  }
+
+  .home-page > #section-about > section > div {
+    gap: 1.5rem;
+  }
+
+  .home-page > #section-about > section > div > div:first-child > p:nth-of-type(2) {
+    font-size: 0.94rem;
+    line-height: 1.65;
+  }
+
+  .home-page .programs-heading {
+    margin-bottom: 1.15rem;
+  }
+
+  .home-page .programs-heading > div:nth-child(2) {
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+
+  .program-selector {
+    width: 100%;
+  }
+
+  .program-selector-desktop {
+    display: none;
+  }
+
+  .home-page .program-selector-mobile {
+    display: flex;
+    width: calc(100vw - 2.2rem);
+    margin: 0;
+    padding: 0.2rem 0 0.45rem;
+    gap: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .program-selector-mobile > .program-selector-tab {
+    display: inline-flex;
+    flex: 0 0 auto;
+    min-height: 2.6rem;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid rgb(var(--gray-200));
+    border-radius: 999px;
+    background: rgb(var(--gray-50));
+    padding: 0.35rem 0.75rem 0.35rem 0.4rem;
+    color: rgb(var(--gray-700));
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .program-selector-mobile > .program-selector-tab.is-selected {
+    border-color: rgb(var(--brand-700));
+    background: rgb(var(--brand-700));
+    color: white;
+  }
+
+  .program-selector-tab > span:first-child {
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 0;
+  }
+
+  .home-page .program-carousel-card {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .home-page .program-carousel-card > div:first-child {
+    min-height: 8.5rem;
+    border-right: 0;
+    border-bottom: 1px solid rgb(var(--gray-200));
+    padding: 1rem;
+  }
+
+  .dark .home-page .program-carousel-card > div:first-child {
+    border-bottom-color: rgb(var(--gray-700));
+  }
+
+  .home-page .program-carousel-card > div:first-child img,
+  .home-page .program-carousel-card > div:first-child > span {
+    width: 6.25rem;
+    height: 6.25rem;
+  }
+
+  .home-page .program-carousel-card > div:last-child {
+    align-items: center;
+    padding: 1.1rem 1rem 1.25rem;
+    text-align: center;
+  }
+
+  .home-page .program-carousel-card > div:last-child > h3 {
+    font-size: 1.15rem;
+  }
+
+  .home-page .program-carousel-card > div:last-child > p {
+    margin-top: 0.55rem;
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+
+  .home-page .program-carousel-card > div:last-child > div {
+    margin-top: 0.85rem;
+  }
+
+  .home-page .program-carousel-card > div:last-child ul {
+    justify-content: center;
+  }
+
+  .home-page .program-carousel-card > div:last-child > span {
+    margin-top: 0.9rem;
+  }
+
+  .home-page .extracurricular-rail > .extracurricular-rail-card {
+    flex-basis: min(82vw, 20rem);
+  }
+
+  .home-page .extracurricular-preview-card {
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .home-page .facility-gallery-grid.home-mobile-rail,
+  .home-page .gallery-preview-rail.home-mobile-rail {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    margin: 0;
+    overflow: visible;
+    padding: 0.15rem 0 0.5rem;
+    gap: 0.6rem;
+  }
+
+  .home-page .facility-gallery-grid.home-mobile-rail > figure,
+  .home-page .gallery-preview-rail.home-mobile-rail > .gallery-preview-card {
+    flex: initial;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1.08;
+    border-radius: 0.9rem;
+  }
+
+  .home-page .facility-gallery-grid figcaption,
+  .home-page .gallery-preview-rail .gallery-preview-card > div:last-child {
+    padding: 0.65rem;
+  }
+
+  .home-page .facility-gallery-grid figcaption h3,
+  .home-page .gallery-preview-rail .gallery-preview-card p {
+    font-size: 0.72rem;
+    line-height: 1.3;
+  }
+
+  .home-page .facility-gallery-grid figcaption p {
+    font-size: 0.65rem;
+    line-height: 1.35;
+  }
+
+  .home-page .home-cta-card {
+    border-radius: 1.2rem;
+    padding: 0.9rem;
+  }
+
+  .home-page .home-cta-card > .grid {
+    gap: 0.8rem;
+  }
+
+  .home-page .home-cta-card > .grid > div:first-child {
+    padding: 0.35rem 0.15rem;
+  }
+
+  .home-page .home-cta-card h2 {
+    font-size: clamp(1.55rem, 7vw, 1.9rem);
+  }
+
+  .home-page .home-cta-card .cta-campus-card {
+    aspect-ratio: 4 / 3;
+  }
+
+  .home-page #section-location iframe {
+    height: 22rem;
+  }
+
+  .footer-main-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.4rem 1rem;
+    padding-block: 2.25rem;
+  }
+
+  .footer-main-grid > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-scene-empty .hero-school-name {
+    font-size: 2rem;
+  }
+
+  .hero-scene-empty .hero-quick-actions .hero-button {
+    padding-inline: 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .program-selector-mobile > .program-selector-tab {
+    padding-inline: 0.55rem;
+  }
+}
+
 

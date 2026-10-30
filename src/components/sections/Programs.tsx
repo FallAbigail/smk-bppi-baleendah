@@ -49,8 +49,22 @@ export default function Programs({
   const { content } = useSiteContent()
   const { t } = useLanguage()
   const programs = content.programs.filter((program) => program.level === 'smk')
-  const [activeProgramIndex, setActiveProgramIndex] = useState<number | null>(null)
-  const selectedProgramIndex = activeProgramIndex === null
+  const [activeProgramIndex, setActiveProgramIndex] = useState<number | null>(
+    () => carousel && window.matchMedia('(max-width: 767px)').matches ? 0 : null,
+  )
+
+  useEffect(() => {
+    if (!carousel) return
+    const mobileQuery = window.matchMedia('(max-width: 767px)')
+    const syncSelectedProgram = () => {
+      setActiveProgramIndex(mobileQuery.matches && programs.length > 0 ? 0 : null)
+    }
+    syncSelectedProgram()
+    mobileQuery.addEventListener('change', syncSelectedProgram)
+    return () => mobileQuery.removeEventListener('change', syncSelectedProgram)
+  }, [carousel, programs.length])
+
+  const selectedProgramIndex = activeProgramIndex === null || programs.length === 0
     ? null
     : Math.min(activeProgramIndex, programs.length - 1)
 
@@ -169,7 +183,8 @@ function ProgramSelect({
   }
 
   return (
-    <div ref={rootRef} className={`relative ${open ? 'z-50' : ''}`}>
+    <div ref={rootRef} className={`relative program-selector ${open ? 'z-50' : ''}`}>
+      <div className="program-selector-desktop">
       <label
         htmlFor="home-program-select"
         className="absolute left-2.5 top-0 z-10 -translate-y-1/2 bg-gray-50 px-1 text-[10px] font-medium text-gray-500 dark:bg-gray-950 dark:text-gray-400"
@@ -255,6 +270,25 @@ function ProgramSelect({
           </div>
         </div>
       )}
+      </div>
+
+      <div className="home-mobile-rail program-selector-mobile" role="group" aria-label={t('Pilih jurusan')}>
+        {programs.map((program, index) => {
+          const selected = selectedIndex === index
+          return (
+            <button
+              key={program.id}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => onSelect(index)}
+              className={`program-selector-tab ${selected ? 'is-selected' : ''}`}
+            >
+              <ProgramLogoMark program={program} />
+              <span>{programAbbreviations[program.id] ?? t(program.title)}</span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

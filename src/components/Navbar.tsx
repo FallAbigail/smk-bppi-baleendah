@@ -70,7 +70,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
   const location = useLocation()
   const [open, setOpen] = useState(false)
   const [heroWaveFinished, setHeroWaveFinished] = useState(
-    () => location.pathname !== '/' || hasHomeWaveOpeningSkip(),
+    () => location.pathname !== '/' || hasHomeWaveOpeningSkip() || window.matchMedia('(max-width: 767px)').matches,
   )
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const { isDark, toggleTheme } = useTheme()
@@ -166,6 +166,13 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
     }
 
     const updateWaveState = () => {
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        resumeWaveSettlePause()
+        waveSettled = true
+        setHeroWaveFinished(true)
+        return
+      }
+
       const hero = document.getElementById('section-hero')
       if (!hero) {
         resumeWaveSettlePause()

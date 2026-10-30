@@ -66,7 +66,7 @@ export default function Footer() {
     <footer className="relative isolate overflow-hidden border-t border-gray-200 bg-slate-100 text-gray-600 transition-colors dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400">
       <div className="footer-map-background" aria-hidden="true" />
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 py-14 border-b border-gray-200 dark:border-gray-800">
+        <div className="footer-main-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 py-14 border-b border-gray-200 dark:border-gray-800">
           <div className="lg:col-span-2">
             <Link
               to="/"
