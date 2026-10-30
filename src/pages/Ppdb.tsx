@@ -171,7 +171,7 @@ export default function Ppdb() {
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">{schoolProfile.name}</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">{t('Pendaftaran peserta didik baru')}</h1>
           <p className="mt-3 text-base leading-7 text-gray-600 dark:text-gray-300">{t('Daftarkan calon siswa secara online dan simpan kode pelacakan untuk memeriksa perkembangan pendaftaran.')}</p>
-          {settings?.academicYear && (
+          {settings?.isOpen && settings.academicYear && (
             <p className="mt-4 inline-flex rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-800 dark:border-brand-800 dark:bg-brand-950/50 dark:text-brand-200">
               {t('Tahun ajaran')} {settings.academicYear}
             </p>
@@ -184,7 +184,11 @@ export default function Ppdb() {
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span>
               <div>
                 <h2 id="application-heading" className="text-xl font-bold text-gray-900 dark:text-white">{t('Formulir pendaftaran')}</h2>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{settings?.publicMessage || t('Lengkapi data calon siswa dan orang tua atau wali.')}</p>
+                {settings?.isOpen && (
+                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    {settings.publicMessage || t('Lengkapi data calon siswa dan orang tua atau wali.')}
+                  </p>
+                )}
               </div>
             </div>
 
