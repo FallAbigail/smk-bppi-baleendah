@@ -8,6 +8,7 @@ import Gallery from '../components/sections/Gallery'
 import CommunityReviews from '../components/sections/CommunityReviews'
 import Sponsors from '../components/sections/Sponsors'
 import CTA from '../components/sections/CTA'
+import SchoolLocation from '../components/sections/SchoolLocation'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { schoolProfile } from '../data/schoolProfile'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -52,6 +53,7 @@ export default function Home() {
       </ScrollSection>
 
       <CTA />
+      <SchoolLocation />
     </main>
   )
 }

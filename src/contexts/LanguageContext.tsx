@@ -685,6 +685,7 @@ const englishTranslations: Record<string, string> = {
   'Komentar harus berisi 10–500 karakter.': 'Comment must be 10–500 characters long.',
   'Batas kiriman ulasan tercapai. Coba lagi satu jam kemudian.': 'Review limit reached. Try again in an hour.',
   'Lokasi SMK BPPI Baleendah': 'SMK BPPI Baleendah Location',
+  'Kunjungi kami': 'Visit us',
   'Buka di Google Maps': 'Open in Google Maps',
   'slide': 'slide',
   'Bagian': 'Page',

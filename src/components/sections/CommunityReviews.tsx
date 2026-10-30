@@ -1,9 +1,8 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { AnimatePresence, motion, type Variants } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ChevronDown, ExternalLink, Filter, MapPin, MessageSquareText, Star } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Filter, MessageSquareText, Star } from 'lucide-react'
 import { ApiError, apiRequest } from '../../lib/api'
 import { useLanguage } from '../../contexts/LanguageContext'
-import { schoolProfile } from '../../data/schoolProfile'
 
 type ReviewerRole = 'alumni' | 'student' | 'parent'
 
@@ -69,7 +68,6 @@ export default function CommunityReviews() {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  const [mapOpen, setMapOpen] = useState(false)
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 640px)')
@@ -548,49 +546,6 @@ export default function CommunityReviews() {
           )}
         </div>
 
-        <div className="mt-5 max-w-md overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <button
-            type="button"
-            aria-expanded={mapOpen}
-            aria-controls="community-map"
-            onClick={() => setMapOpen((open) => !open)}
-            className="flex w-full items-center gap-3 p-3 text-left outline-none transition hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500 dark:hover:bg-gray-800/70"
-          >
-            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
-              <MapPin className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-gray-900 dark:text-white">
-                {t('Lokasi SMK BPPI Baleendah')}
-              </span>
-            </span>
-            <ChevronDown
-              className={`h-4 w-4 shrink-0 text-gray-500 transition-transform ${mapOpen ? 'rotate-180' : ''}`}
-              aria-hidden="true"
-            />
-          </button>
-          <div
-            id="community-map"
-            className={mapOpen ? 'border-t border-gray-200 dark:border-gray-800' : 'hidden'}
-          >
-            <iframe
-              title={t('Lokasi SMK BPPI Baleendah')}
-              src={mapOpen ? schoolProfile.googleMapsEmbedUrl : undefined}
-              loading="eager"
-              referrerPolicy="strict-origin-when-cross-origin"
-              className="h-44 w-full border-0 bg-gray-100 dark:bg-gray-800"
-            />
-            <a
-              href={schoolProfile.googleMapsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center gap-2 px-3 py-2.5 text-xs font-semibold text-brand-700 hover:bg-gray-50 dark:text-brand-300 dark:hover:bg-gray-800/70"
-            >
-              {t('Buka di Google Maps')}
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            </a>
-          </div>
-        </div>
       </div>
     </section>
   )
