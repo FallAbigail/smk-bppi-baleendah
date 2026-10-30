@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MapPin, Phone, Mail } from 'lucide-react'
+import { MapPin, Phone, Mail, ChevronDown } from 'lucide-react'
 import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from 'react-icons/si'
 import { schoolProfile } from '../data/schoolProfile'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -67,32 +67,32 @@ export default function Footer() {
       <div className="footer-map-background" aria-hidden="true" />
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
         <div className="footer-main-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 py-14 border-b border-gray-200 dark:border-gray-800">
-          <div className="lg:col-span-2">
+          <div className="footer-brand-block lg:col-span-2">
             <Link
               to="/"
-              className="inline-flex items-center gap-2.5 mb-5"
+              className="footer-brand-link inline-flex items-center gap-2.5 mb-5"
               aria-label={`${schoolProfile.name} ${t(schoolProfile.city)}, ${t('Beranda').toLowerCase()}`}
             >
               <img
                 src="/images/logo-smk-bppi.png"
                 alt=""
                 aria-hidden="true"
-                className="h-14 w-14 shrink-0 object-contain"
+                className="footer-brand-logo h-14 w-14 shrink-0 object-contain"
               />
               <span>
                 <span className="block font-bold text-gray-900 text-sm dark:text-white">{schoolProfile.name}</span>
                 <span className="block text-gray-500 text-xs">{t(schoolProfile.city)}</span>
               </span>
             </Link>
-            <p className="text-sm leading-relaxed mb-6 max-w-xs">
+            <p className="footer-brand-description text-sm leading-relaxed mb-6 max-w-xs">
               {t('Informasi sekolah, program keahlian, fasilitas, dan kegiatan dalam satu tempat.')}
             </p>
-            <address className="not-italic space-y-2.5 text-sm mb-6">
-              <div className="flex items-start gap-2.5">
+            <address className="footer-contact-grid not-italic space-y-2.5 text-sm mb-6">
+              <div className="footer-contact-address flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-brand-700 mt-0.5 shrink-0 dark:text-brand-400" aria-hidden="true" />
                 <span>{schoolProfile.address}</span>
               </div>
-              <div className="flex items-center gap-2.5">
+              <div className="footer-contact-phone flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-brand-700 shrink-0 dark:text-brand-400" aria-hidden="true" />
                 <a
                   href={`tel:${schoolProfile.phoneHref}`}
@@ -101,7 +101,7 @@ export default function Footer() {
                   {schoolProfile.phoneDisplay}
                 </a>
               </div>
-              <div className="flex items-center gap-2.5">
+              <div className="footer-contact-email flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-brand-700 shrink-0 dark:text-brand-400" aria-hidden="true" />
                 <a
                   href={`mailto:${schoolProfile.email}`}
@@ -114,7 +114,7 @@ export default function Footer() {
           </div>
 
           {navGroups.map((group) => (
-            <nav key={group.title} aria-label={t(group.title)}>
+            <nav className="footer-nav-desktop" key={group.title} aria-label={t(group.title)}>
               <p className="mb-4 text-xs font-bold uppercase tracking-[0.12em] text-gray-900 dark:text-gray-100">{t(group.title)}</p>
               <ul className="space-y-2.5">
                 {group.links.map((link) => (
@@ -135,14 +135,34 @@ export default function Footer() {
               </ul>
             </nav>
           ))}
+
+          <div className="footer-nav-mobile">
+            {navGroups.map((group) => (
+              <details className="footer-mobile-nav-group" key={group.title}>
+                <summary>
+                  <span>{t(group.title)}</span>
+                  <ChevronDown className="footer-mobile-nav-chevron" size={17} aria-hidden="true" />
+                </summary>
+                <nav aria-label={t(group.title)}>
+                  <ul className="footer-mobile-nav-links">
+                    {group.links.map((link) => (
+                      <li key={link.label}>
+                        <Link to={link.href}>{t(link.label)}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </details>
+            ))}
+          </div>
         </div>
 
-        <div className="py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-500">
-          <p className="text-center sm:text-left">
+        <div className="footer-bottom py-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-500">
+          <p className="footer-copyright text-center sm:text-left">
             © {year} {schoolProfile.name} {t(schoolProfile.city)}.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            <div className="flex items-center gap-2.5" aria-label={t('Media sosial')}>
+          <div className="footer-bottom-actions flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+            <div className="footer-social-group flex items-center gap-2.5" aria-label={t('Media sosial')}>
               <span className="mr-1">{t('Media sosial')}</span>
               {socialLinks.map(({ label, href, Icon }) => (
                 <a
