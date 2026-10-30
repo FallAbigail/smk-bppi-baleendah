@@ -289,7 +289,9 @@ export default function HeroFacilities() {
               alt={`${t('Foto')} ${t(facility.name).toLowerCase()}`}
               width={600}
               height={450}
-              loading="eager"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
               draggable={false}
             />
             <figcaption>{t(facility.name)}</figcaption>

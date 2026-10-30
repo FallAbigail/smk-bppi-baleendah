@@ -11,6 +11,7 @@ interface GalleryItem {
   title: string
   category: Category
   image: string
+  lightboxImage: string
   summary: string
   sourceUrl: string
 }
@@ -20,7 +21,8 @@ const items: GalleryItem[] = [
     id: 1,
     title: 'Gema Literasi setiap Rabu',
     category: 'Literasi',
-    image: '/images/bppi/tingkatkan-minat-baca-smk-bppi-konsisten-laksanakan-kegiatan-gema-literasi-setiap-rabu.jpg',
+    image: '/images/bppi/optimized/gallery/01-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/01-large.webp',
     summary: 'Siswa membaca bersama sebelum kegiatan belajar mengajar dimulai untuk membangun kebiasaan literasi.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/articles/1',
   },
@@ -28,7 +30,8 @@ const items: GalleryItem[] = [
     id: 2,
     title: 'Jumat Bersih',
     category: 'Pembiasaan',
-    image: '/images/bppi/kelas-bersih-belajar-jadi-nyaman-rutinitas-jumat-pagi-di-smk-bppi.jpg',
+    image: '/images/bppi/optimized/gallery/02-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/02-large.webp',
     summary: 'Siswa bergotong royong membersihkan kelas sebelum kegiatan belajar mengajar.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/articles/4',
   },
@@ -36,7 +39,8 @@ const items: GalleryItem[] = [
     id: 3,
     title: 'Senam Jumat',
     category: 'Olahraga',
-    image: '/images/bppi/sehat-dan-produktif-dengan-rutinitas-senam-jumat.jpg',
+    image: '/images/bppi/optimized/gallery/03-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/03-large.webp',
     summary: 'Senam pagi menjadi kegiatan rutin untuk mengawali aktivitas sekolah dengan gerak bersama.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/articles/3',
   },
@@ -44,7 +48,8 @@ const items: GalleryItem[] = [
     id: 4,
     title: 'Jumat Berkah',
     category: 'Pembiasaan',
-    image: '/images/bppi/jumat-berkah-membangun-karakter-melalui-siraman-rohani.jpg',
+    image: '/images/bppi/optimized/gallery/04-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/04-large.webp',
     summary: 'Ibadah bersama dan siraman rohani membahas karakter, akhlak, etika kerja, serta integritas.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/articles/2',
   },
@@ -52,7 +57,8 @@ const items: GalleryItem[] = [
     id: 5,
     title: 'Sekolah Pasar Modal',
     category: 'Literasi',
-    image: '/images/bppi/tingkatkan-literasi-finansial-smk-bppi-baleendah-gelar-sekolah-pasar-modal-level-1-2-dan-lanjutan.webp',
+    image: '/images/bppi/optimized/gallery/05-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/05-large.webp',
     summary: 'Kegiatan literasi finansial Level 1, 2, dan lanjutan berlangsung di aula sekolah pada 20 Oktober 2025.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/news/6',
   },
@@ -60,7 +66,8 @@ const items: GalleryItem[] = [
     id: 6,
     title: 'Prestasi Lomba Kompetensi Siswa',
     category: 'Prestasi',
-    image: '/images/bppi/harumkan-nama-sekolah-siswa-smk-bppi-baleendah-raih-juara-di-lks-tingkat-kabupaten-bandung.jpg',
+    image: '/images/bppi/optimized/gallery/06-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/06-large.webp',
     summary: 'SMK BPPI meraih Juara 1 Web Technology dan Juara 3 IT Software Solution for Business di tingkat Kabupaten Bandung.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/news/4',
   },
@@ -68,7 +75,8 @@ const items: GalleryItem[] = [
     id: 7,
     title: 'Sertifikasi perakitan laptop Axioo',
     category: 'Industri',
-    image: '/images/bppi/cetak-tenaga-terampil-siswa-kelas-industri-axioo-smk-bppi-baleendah-laksanakan-sertifikasi-perakitan-laptop.jpg',
+    image: '/images/bppi/optimized/gallery/07-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/07-large.webp',
     summary: 'Siswa kelas X Industri Axioo mengikuti sertifikasi perakitan laptop pada 22 Oktober 2024.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/news/3',
   },
@@ -76,7 +84,8 @@ const items: GalleryItem[] = [
     id: 8,
     title: 'Kunjungan industri ke Otsuka dan BNET',
     category: 'Industri',
-    image: '/images/bppi/perluas-wawasan-dunia-kerja-siswa-smk-bppi-baleendah-laksanakan-kunjungan-industri-ke-pt-amerta-indah-otsuka-dan-bnet.jpeg',
+    image: '/images/bppi/optimized/gallery/08-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/08-large.webp',
     summary: 'Siswa mengamati proses kerja dan budaya industri secara langsung di PT Amerta Indah Otsuka dan BNET.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/news/2',
   },
@@ -84,7 +93,8 @@ const items: GalleryItem[] = [
     id: 9,
     title: 'Teaching Factory bersama Cyberlabs',
     category: 'Industri',
-    image: '/images/bppi/perkuat-pendidikan-vokasi-smk-bppi-baleendah-jalin-kerja-sama-strategis-dengan-cyberlabs-untuk-pembentukan-teaching-factory.jpg',
+    image: '/images/bppi/optimized/gallery/09-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/09-large.webp',
     summary: 'SMK BPPI dan Cyberlabs menyepakati tahapan pembentukan Teaching Factory berbasis kebutuhan industri.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/news/7',
   },
@@ -92,7 +102,8 @@ const items: GalleryItem[] = [
     id: 10,
     title: 'Siswa PPLG terserap industri setelah PKL',
     category: 'Prestasi',
-    image: '/images/bppi/bukti-kualitas-unggul-siswa-pplg-smk-bppi-baleendah-berhasil-terserap-industri-pasca-pkl.webp',
+    image: '/images/bppi/optimized/gallery/10-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/10-large.webp',
     summary: 'Sejumlah siswa PPLG melanjutkan ke pekerjaan profesional, proyek freelance, dan magang setelah PKL.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/news/5',
   },
@@ -100,7 +111,8 @@ const items: GalleryItem[] = [
     id: 11,
     title: 'Future-X Vol. 1: Job Fair & Expo University',
     category: 'Industri',
-    image: '/images/bppi/perkuat-sinergi-industri-dan-pendidikan-smk-bppi-baleendah-gelar-future-x-2024.jpg',
+    image: '/images/bppi/optimized/gallery/11-card.webp',
+    lightboxImage: '/images/bppi/optimized/gallery/11-large.webp',
     summary: 'Gelaran 2024 mempertemukan siswa dengan perusahaan dan kampus melalui job fair dan expo pendidikan.',
     sourceUrl: 'https://smk.sekolahbppi.sch.id/news/1',
   },
@@ -252,6 +264,7 @@ export default function Gallery({
                   alt={t(item.title)}
                   loading="lazy"
                   decoding="async"
+                  fetchPriority="low"
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
@@ -293,8 +306,10 @@ export default function Gallery({
             >
               <div className="aspect-video bg-gray-200 dark:bg-gray-900">
                 <img
-                  src={lightbox.image}
+                  src={lightbox.lightboxImage}
                   alt={t(lightbox.title)}
+                  decoding="async"
+                  fetchPriority="high"
                   className="h-full w-full object-cover"
                 />
               </div>

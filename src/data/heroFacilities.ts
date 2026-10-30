@@ -1,10 +1,10 @@
 // Fasilitas yang tercantum pada galeri resmi SMK BPPI Baleendah.
 export const heroFacilities = [
-  { name: 'Laboratorium komputer', image: '/images/bppi/lab-komputer.jpg' },
-  { name: 'Perpustakaan', image: '/images/bppi/perpustakaan.jpg' },
-  { name: 'Lapangan', image: '/images/bppi/lapangan.jpg' },
-  { name: 'Masjid', image: '/images/bppi/masjid.jpg' },
-  { name: 'Bank Mini SMK BPPI', image: '/images/bppi/bank-mini-smk-bppi.jpeg' },
-  { name: 'Rooftop', image: '/images/bppi/rooftop.jpg' },
-  { name: 'Absensi fingerprint', image: '/images/bppi/absensi-fingerprint.jpg' },
+  { name: 'Laboratorium komputer', image: '/images/bppi/optimized/facilities/lab-komputer.webp' },
+  { name: 'Perpustakaan', image: '/images/bppi/optimized/facilities/perpustakaan.webp' },
+  { name: 'Lapangan', image: '/images/bppi/optimized/facilities/lapangan.webp' },
+  { name: 'Masjid', image: '/images/bppi/optimized/facilities/masjid.webp' },
+  { name: 'Bank Mini SMK BPPI', image: '/images/bppi/optimized/facilities/bank-mini-smk-bppi.webp' },
+  { name: 'Rooftop', image: '/images/bppi/optimized/facilities/rooftop.webp' },
+  { name: 'Absensi fingerprint', image: '/images/bppi/optimized/facilities/absensi-fingerprint.webp' },
 ]

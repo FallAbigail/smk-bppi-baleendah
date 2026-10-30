@@ -5,37 +5,37 @@ const facilities = [
   {
     title: 'Laboratorium komputer',
     description: 'Ruang praktik komputer sekolah.',
-    image: '/images/bppi/lab-komputer.jpg',
+    image: '/images/bppi/optimized/facilities/lab-komputer.webp',
   },
   {
     title: 'Perpustakaan',
     description: 'Koleksi bacaan dan referensi belajar.',
-    image: '/images/bppi/perpustakaan.jpg',
+    image: '/images/bppi/optimized/facilities/perpustakaan.webp',
   },
   {
     title: 'Lapangan',
     description: 'Area kegiatan luar ruang dan olahraga.',
-    image: '/images/bppi/lapangan.jpg',
+    image: '/images/bppi/optimized/facilities/lapangan.webp',
   },
   {
     title: 'Masjid',
     description: 'Fasilitas ibadah di lingkungan sekolah.',
-    image: '/images/bppi/masjid.jpg',
+    image: '/images/bppi/optimized/facilities/masjid.webp',
   },
   {
     title: 'Bank Mini SMK BPPI',
     description: 'Fasilitas praktik yang tercantum di galeri sekolah.',
-    image: '/images/bppi/bank-mini-smk-bppi.jpeg',
+    image: '/images/bppi/optimized/facilities/bank-mini-smk-bppi.webp',
   },
   {
     title: 'Rooftop',
     description: 'Area rooftop sekolah.',
-    image: '/images/bppi/rooftop.jpg',
+    image: '/images/bppi/optimized/facilities/rooftop.webp',
   },
   {
     title: 'Absensi fingerprint',
     description: 'Sistem kehadiran berbasis sidik jari.',
-    image: '/images/bppi/absensi-fingerprint.jpg',
+    image: '/images/bppi/optimized/facilities/absensi-fingerprint.webp',
   },
 ]
 
@@ -85,6 +85,7 @@ export default function Features() {
                 alt={t(facility.title)}
                 loading="lazy"
                 decoding="async"
+                fetchPriority="low"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/5" aria-hidden="true" />
