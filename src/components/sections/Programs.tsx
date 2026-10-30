@@ -298,7 +298,7 @@ function ProgramCarousel({
   const reduceMotion = useReducedMotion()
   if (activeIndex === null) {
     return (
-      <div className="flex min-h-[17.5rem] items-center justify-center rounded-2xl border border-gray-200 bg-gray-100 p-6 dark:border-gray-700 dark:bg-gray-800">
+      <div className="program-carousel-empty flex min-h-[17.5rem] items-center justify-center rounded-2xl border border-gray-200 bg-gray-100 p-6 dark:border-gray-700 dark:bg-gray-800">
         <p className="max-w-sm text-center text-sm font-medium leading-relaxed text-gray-600 dark:text-gray-300">
           {t('Pilih salah satu jurusan dari menu di atas untuk melihat informasinya.')}
         </p>

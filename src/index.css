@@ -1622,6 +1622,20 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
 
 /* Home page mobile layout: compact sections with touch-friendly horizontal rails. */
 @media (max-width: 640px) {
+  /* Keep each section readable while passing between the tall mobile sections.
+     The scroll handoff may make adjacent sections fully transparent on phones. */
+  .home-page > div[id^='section-'] {
+    opacity: 1 !important;
+  }
+
+  .home-page > #section-about > section > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-page > #section-about > section > div > * {
+    min-width: 0;
+  }
+
   .home-page .home-compact-section {
     padding-block: 3rem;
   }
@@ -1713,6 +1727,11 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   .home-page .program-carousel-card {
     grid-template-columns: 5.5rem minmax(0, 1fr);
     min-height: 0;
+  }
+
+  .home-page .program-carousel-empty {
+    min-height: 6rem;
+    padding: 1rem;
   }
 
   .home-page .program-carousel-card > div:first-child {
