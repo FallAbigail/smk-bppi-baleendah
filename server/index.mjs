@@ -82,7 +82,8 @@ app.use(
             frameSrc: ['https://www.google.com'],
             formAction: ["'self'"],
             frameAncestors: ["'none'"],
-            imgSrc: ["'self'", 'data:', 'https://images.unsplash.com'],
+            // Logo uploads are decoded from a temporary object URL before resizing.
+            imgSrc: ["'self'", 'data:', 'blob:', 'https://images.unsplash.com'],
             objectSrc: ["'none'"],
             scriptSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],

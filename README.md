@@ -11,6 +11,23 @@ npm run dev
 
 Frontend berjalan di `http://127.0.0.1:5173` dan API berjalan di `http://127.0.0.1:3001`. Perintah `npm run dev` menyalakan keduanya.
 
+## Membaca dan mengubah kode
+
+- `src/pages/` berisi halaman yang didaftarkan oleh router di `src/App.tsx`.
+- `src/components/sections/` berisi bagian halaman publik, seperti hero, program, dan galeri.
+- `src/pages/Admin.tsx` memeriksa sesi, menangani login/logout, lalu membuka workspace admin.
+- `src/components/admin/AdminWorkspace.tsx` mengatur navigasi dan perubahan konten. Tampilan login, ringkasan, program, dan informasi berada di komponen terpisah dalam folder yang sama.
+- `src/components/admin/types.ts` menyimpan tipe draft formulir dan navigasi. `adminHelpers.ts` menyimpan format tanggal, pengolahan logo, dan unduhan backup yang dipakai bersama.
+- `src/hooks/useHeroFacilities.ts` mengatur animasi, scroll, drag, serta pelepasan event listener kartu fasilitas. `HeroFacilities.tsx` menyiapkan daftar kartu dan markup tampilannya.
+- `src/contexts/SiteContentContext.tsx` menghubungkan konten halaman dengan API melalui `src/lib/api.ts`.
+- `server/index.mjs` mendaftarkan endpoint dan pemeriksaan akses. `validation.mjs` memvalidasi input, sedangkan `database.mjs` menjalankan penyimpanan SQLite.
+
+Untuk mengubah satu fitur admin, mulai dari komponen pengelolanya. Callback penyimpanan konten berada di workspace, sedangkan pengelola PPDB, ulasan, pesan, dan akun memiliki alurnya masing-masing.
+
+Kartu fasilitas mengatur transformasinya sendiri. Pertahankan `data-reveal-ignore` pada track agar animasi kemunculan halaman tidak menyembunyikan kartu saat scroll atau kembali ke beranda. Saat mengubah hook animasi, periksa gerakan otomatis, scroll turun lalu naik, dan navigasi keluar lalu kembali ke beranda.
+
+Setelah perubahan kode, jalankan `npm run build` untuk memeriksa tipe TypeScript dan bundle produksi. Untuk perubahan server, jalankan juga `node --check` pada file `.mjs` yang diubah, lalu cek alur terkait melalui aplikasi.
+
 ## Membuat akses admin
 
 Tidak ada akun bawaan dan tidak ada pendaftaran dari halaman web. Buat akun dari terminal di komputer yang menjalankan server:
