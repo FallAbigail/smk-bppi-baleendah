@@ -52,7 +52,7 @@ function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
           aria-label={option === 'id' ? t('Bahasa Indonesia') : t('Bahasa Inggris')}
           aria-pressed={language === option}
           className={cn(
-            'min-w-8 rounded-md px-2 py-1 text-xs font-semibold transition-colors',
+            'min-h-11 min-w-11 rounded-md px-2 py-1 text-xs font-semibold transition-colors lg:min-h-8 lg:min-w-8',
             'focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-700',
             language === option
               ? 'bg-brand-700 text-white shadow-sm'
@@ -345,7 +345,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   type="button"
                   onClick={toggleTheme}
                   className={[
-                    'w-10 h-10 rounded-lg flex items-center justify-center',
+                    'w-11 h-11 rounded-lg flex items-center justify-center',
                     'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}
@@ -392,7 +392,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   type="button"
                   onClick={toggleTheme}
                   className={[
-                    'w-10 h-10 rounded-lg flex items-center justify-center',
+                    'w-11 h-11 rounded-lg flex items-center justify-center',
                     'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}
@@ -409,7 +409,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   type="button"
                   onClick={() => setOpen((value) => !value)}
                   className={[
-                    'w-10 h-10 rounded-lg flex items-center justify-center',
+                    'w-11 h-11 rounded-lg flex items-center justify-center',
                     'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}
@@ -447,7 +447,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                     }}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'navbar-link block px-4 py-2.5 text-sm font-medium transition-colors',
+                      'navbar-link flex min-h-11 items-center px-4 py-2.5 text-sm font-medium transition-colors',
                       active
                         ? 'text-brand-900 dark:text-brand-200'
                         : 'text-gray-900 dark:text-gray-100 hover:text-brand-700 dark:hover:text-brand-200',
@@ -464,7 +464,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   onClick={() => setOpen(false)}
                   aria-current={isNavLinkActive(location.pathname, '/ppdb') ? 'page' : undefined}
                   className={cn(
-                    'inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border px-4 py-2',
+                    'inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border px-4 py-2',
                     'border-brand-300 bg-white text-center text-sm font-semibold text-brand-900',
                     'transition-colors hover:bg-brand-50 dark:border-brand-700 dark:bg-gray-900',
                     'dark:text-brand-200 dark:hover:bg-gray-800',
@@ -478,7 +478,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   to="/kontak"
                   onClick={() => setOpen(false)}
                   className={[
-                    'inline-flex min-h-10 flex-1 items-center justify-center rounded-lg bg-brand-700 px-3 py-2',
+                    'inline-flex min-h-11 flex-1 items-center justify-center rounded-lg bg-brand-700 px-3 py-2',
                     'text-center text-sm font-semibold text-white transition-colors hover:bg-brand-800',
                   ].join(' ')}
                 >

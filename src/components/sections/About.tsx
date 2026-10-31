@@ -20,13 +20,13 @@ const missions = [
   'Mewujudkan lingkungan sekolah yang hijau, indah, aman, dan nyaman.',
 ]
 
-export default function About({ headingLevel = 'h2' }: { headingLevel?: 'h1' | 'h2' }) {
+export default function About({ headingLevel = 'h2', compact = false }: { headingLevel?: 'h1' | 'h2'; compact?: boolean }) {
   const { t } = useLanguage()
   const Heading = headingLevel
 
   return (
     <section className="home-compact-section bg-gray-50 py-20 dark:bg-gray-950" aria-labelledby="about-heading">
-      <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:px-8">
+      <div className={`mx-auto grid max-w-7xl gap-10 px-6 lg:px-8 ${compact ? 'lg:max-w-4xl' : 'lg:grid-cols-[0.9fr_1.1fr] lg:gap-16'}`}>
         <div className="flex flex-col">
           <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">
             {t('Tentang SMK BPPI')}
@@ -38,6 +38,11 @@ export default function About({ headingLevel = 'h2' }: { headingLevel?: 'h1' | '
             {t('SMK BPPI Baleendah berdiri pada tahun 2008 dengan fokus pendidikan kejuruan informatika. Lulusan disiapkan untuk bekerja, berwirausaha, atau melanjutkan pendidikan ke perguruan tinggi.')}
           </p>
 
+          {compact ? (
+            <Link to="/tentang" className="mt-4 inline-flex min-h-11 w-fit items-center gap-2 text-sm font-semibold text-brand-700 dark:text-brand-300">
+              {t('Kenali sekolah lebih dekat')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          ) : <>
           <div className="mt-6 border-y border-gray-200 py-4 dark:border-gray-800">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               {t('Program keahlian')}
@@ -57,10 +62,10 @@ export default function About({ headingLevel = 'h2' }: { headingLevel?: 'h1' | '
                     className="teacher-rail-photo absolute left-1/2 top-0 z-10 h-36 w-28 -translate-x-1/2 object-contain object-bottom"
                   />
                   <div className="teacher-rail-info flex min-h-[148px] w-full flex-1 flex-col items-center rounded-xl border border-gray-200 bg-white px-2 pb-3 pt-[100px] shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <h3 className="text-[11px] font-semibold leading-tight text-gray-900 dark:text-white sm:text-xs">
+                    <h3 className="text-sm font-semibold leading-snug text-gray-900 dark:text-white">
                       {teacher.name}
                     </h3>
-                    <p className="mt-auto pt-1 text-[10px] font-medium text-brand-800 dark:text-brand-300">
+                    <p className="mt-auto pt-1 text-xs font-medium text-brand-800 dark:text-brand-300">
                       {t(teacher.subject)}
                     </p>
                   </div>
@@ -75,9 +80,10 @@ export default function About({ headingLevel = 'h2' }: { headingLevel?: 'h1' | '
               {t('Kenali guru pengajar')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
+          </>}
         </div>
 
-        <div id="visi-misi" className="flex flex-col justify-end space-y-4 scroll-mt-24">
+        {!compact && <div id="visi-misi" className="flex flex-col justify-end space-y-4 scroll-mt-24">
           <article className="rounded-xl border border-gray-200 bg-white p-6 text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white sm:p-7">
             <p className="text-xs font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">{t('Visi sekolah')}</p>
             <p className="mt-3 text-lg font-semibold leading-relaxed text-gray-900 dark:text-white sm:text-xl">
@@ -96,7 +102,7 @@ export default function About({ headingLevel = 'h2' }: { headingLevel?: 'h1' | '
               ))}
             </ul>
           </article>
-        </div>
+        </div>}
       </div>
     </section>
   )

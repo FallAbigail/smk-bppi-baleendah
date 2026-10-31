@@ -25,12 +25,14 @@ export default function Home() {
       <Hero blank />
 
       <ScrollSection id="section-about">
-        <About />
+        <About compact />
       </ScrollSection>
 
       <ScrollSection id="section-programs">
         <Programs carousel />
       </ScrollSection>
+
+      <CTA />
 
       <ScrollSection id="section-extracurriculars">
         <ExtracurricularPreview />
@@ -52,7 +54,6 @@ export default function Home() {
         <Sponsors />
       </ScrollSection>
 
-      <CTA />
       <SchoolLocation />
     </main>
   )

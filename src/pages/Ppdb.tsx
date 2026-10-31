@@ -113,6 +113,16 @@ export default function Ppdb() {
     }
   }, [t])
 
+  useEffect(() => {
+    if (!result) return
+    const frame = requestAnimationFrame(() => {
+      const confirmation = document.getElementById('ppdb-application-result')
+      confirmation?.scrollIntoView({ block: 'start' })
+      confirmation?.focus({ preventScroll: true })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [result])
+
   async function submitApplication(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitting(true)
@@ -170,8 +180,8 @@ export default function Ppdb() {
         <header className="mb-8 max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">{schoolProfile.name}</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">{t('Pendaftaran peserta didik baru')}</h1>
-          <p className="mt-3 text-base leading-7 text-gray-600 dark:text-gray-300">{t('Daftarkan calon siswa secara online dan simpan kode pelacakan untuk memeriksa perkembangan pendaftaran.')}</p>
-          {settings?.isOpen && settings.academicYear && (
+          <p className="mt-3 text-base leading-7 text-gray-600 dark:text-gray-300">{settings?.isOpen ? t('Daftarkan calon siswa secara online dan simpan kode pelacakan untuk memeriksa perkembangan pendaftaran.') : t('Lihat informasi penerimaan siswa baru, persiapkan data pendaftaran, atau periksa status pendaftaran sebelumnya.')}</p>
+          {settings?.academicYear && (
             <p className="mt-4 inline-flex rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-800 dark:border-brand-800 dark:bg-brand-950/50 dark:text-brand-200">
               {t('Tahun ajaran')} {settings.academicYear}
             </p>
@@ -183,7 +193,7 @@ export default function Ppdb() {
             <div className="mb-6 flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span>
               <div>
-                <h2 id="application-heading" className="text-xl font-bold text-gray-900 dark:text-white">{t('Formulir pendaftaran')}</h2>
+                <h2 id="application-heading" className="text-xl font-bold text-gray-900 dark:text-white">{settings?.isOpen ? t('Formulir pendaftaran') : t('Informasi pendaftaran')}</h2>
                 {settings?.isOpen && (
                   <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     {settings.publicMessage || t('Lengkapi data calon siswa dan orang tua atau wali.')}
@@ -202,7 +212,7 @@ export default function Ppdb() {
               </div>
             ) : settings?.isOpen ? (
               result ? (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-900 dark:bg-emerald-950/30">
+                <div id="ppdb-application-result" tabIndex={-1} role="status" className="scroll-mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5 outline-none dark:border-emerald-900 dark:bg-emerald-950/30">
                   <div className="flex items-start gap-3">
                     <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" aria-hidden="true" />
                     <div className="min-w-0">
@@ -222,7 +232,7 @@ export default function Ppdb() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={submitApplication} className="space-y-6">
+                <form onSubmit={submitApplication} className="public-form space-y-6">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Field label={t('Nama lengkap calon siswa')}><input className={controlClass} autoComplete="name" maxLength={100} required value={form.studentName} onChange={(event) => input('studentName', event.target.value)} /></Field>
                     <Field label={t('Tanggal lahir')}><input className={controlClass} type="date" required value={form.birthDate} onChange={(event) => input('birthDate', event.target.value)} /></Field>
@@ -259,8 +269,16 @@ export default function Ppdb() {
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-800 dark:bg-gray-950">
                 <LockKeyhole className="h-5 w-5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
                 <h3 className="mt-3 font-semibold text-gray-900 dark:text-white">{t('Pendaftaran online belum dibuka')}</h3>
-                <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">{t('Sekolah belum membuka periode pendaftaran online. Silakan cek kembali nanti atau hubungi sekolah untuk informasi PPDB.')}</p>
-                <a href={`tel:${schoolProfile.phoneHref}`} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 dark:text-brand-300">{schoolProfile.phoneDisplay} <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
+                <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">{settings.publicMessage || t('Jadwal pembukaan belum dicantumkan di halaman ini. Hubungi sekolah untuk informasi periode berikutnya.')}</p>
+                <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-gray-700 dark:text-gray-300">
+                  <li>{t('Kenali program keahlian sebelum menentukan pilihan.')}</li>
+                  <li>{t('Siapkan data diri calon siswa, asal sekolah, dan kontak orang tua atau wali.')}</li>
+                  <li>{t('Sudah pernah mendaftar? Gunakan nomor dan kode pelacakan pada bagian cek status.')}</li>
+                </ul>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Link to="/program" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-brand-200 px-3 text-sm font-semibold text-brand-700 dark:border-brand-800 dark:text-brand-300">{t('Lihat program keahlian')} <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                  <a href={`tel:${schoolProfile.phoneHref}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 dark:text-brand-300">{t('Tanya PPDB ke sekolah')}</a>
+                </div>
               </div>
             ) : null}
           </section>
@@ -271,7 +289,7 @@ export default function Ppdb() {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200"><ClipboardCheck className="h-5 w-5" aria-hidden="true" /></span>
                 <div><h2 id="status-heading" className="text-lg font-bold text-gray-900 dark:text-white">{t('Cek status pendaftaran')}</h2><p className="mt-1 text-sm leading-5 text-gray-600 dark:text-gray-400">{t('Gunakan nomor pendaftaran dan kode pelacakan yang diterima setelah mengirim formulir.')}</p></div>
               </div>
-              <form onSubmit={checkStatus} className="space-y-4">
+              <form onSubmit={checkStatus} className="public-form space-y-4">
                 <Field label={t('Nomor pendaftaran')}><input className={controlClass} autoComplete="off" placeholder="BPPI-2026-XXXXXXXX" required value={applicationNumber} onChange={(event) => setApplicationNumber(event.target.value.toUpperCase())} /></Field>
                 <Field label={t('Kode pelacakan')}><input className={`${controlClass} font-mono tracking-[0.12em]`} autoComplete="off" maxLength={16} placeholder="XXXXXXXXXXXXXXXX" required value={trackingCode} onChange={(event) => setTrackingCode(event.target.value.toUpperCase())} /></Field>
                 {statusError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{statusError}</p>}

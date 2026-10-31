@@ -79,14 +79,36 @@ export function RouteScrollManager({ lenisRef }: { lenisRef: RefObject<Lenis | n
 
 export function ScrollToTopButton({ lenisRef }: { lenisRef: RefObject<Lenis | null> }) {
   const [visible, setVisible] = useState(false)
+  const { pathname } = useLocation()
   const { t } = useLanguage()
 
   useEffect(() => {
-    const updateVisibility = () => setVisible(window.scrollY > 480)
+    let focusFrame = 0
+    const updateVisibility = () => {
+      // Keep floating controls out of the way while a form is being read or filled.
+      const formVisible = Array.from(document.querySelectorAll('main form')).some((form) => {
+        const bounds = form.getBoundingClientRect()
+        return bounds.height > 0 && bounds.bottom > 100 && bounds.top < window.innerHeight
+      })
+      setVisible(window.scrollY > 480 && !formVisible)
+    }
+    const updateAfterFocus = () => {
+      cancelAnimationFrame(focusFrame)
+      focusFrame = requestAnimationFrame(updateVisibility)
+    }
     updateVisibility()
     window.addEventListener('scroll', updateVisibility, { passive: true })
-    return () => window.removeEventListener('scroll', updateVisibility)
-  }, [])
+    window.addEventListener('resize', updateVisibility)
+    document.addEventListener('focusin', updateAfterFocus)
+    document.addEventListener('focusout', updateAfterFocus)
+    return () => {
+      cancelAnimationFrame(focusFrame)
+      window.removeEventListener('scroll', updateVisibility)
+      window.removeEventListener('resize', updateVisibility)
+      document.removeEventListener('focusin', updateAfterFocus)
+      document.removeEventListener('focusout', updateAfterFocus)
+    }
+  }, [pathname])
 
   if (!visible) return null
 

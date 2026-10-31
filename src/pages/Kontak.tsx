@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { AlertCircle, ArrowLeft, CheckCircle2, Clipboard, LoaderCircle, Mail, MapPin, MessageSquareText, Phone, Send } from 'lucide-react'
+import { AlertCircle, ArrowLeft, CheckCircle2, Clipboard, LoaderCircle, Mail, MapPin, Phone, Send } from 'lucide-react'
 import { schoolProfile } from '../data/schoolProfile'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -9,8 +9,6 @@ import { apiRequest } from '../lib/api'
 
 const privateThreadStoragePrefix = 'smk-bppi-private-thread:'
 const activePrivateThreadStorageKey = 'smk-bppi-private-thread:active'
-type ContactReplyChannel = 'website' | 'email'
-
 function getStoredPrivateThread(email: string) {
   try {
     return window.localStorage.getItem(`${privateThreadStoragePrefix}${email}`)
@@ -34,9 +32,7 @@ export default function Kontak() {
   const [isSending, setIsSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [conversationPath, setConversationPath] = useState('')
-  const [submittedEmail, setSubmittedEmail] = useState('')
   const [continuedPreviousConversation, setContinuedPreviousConversation] = useState(false)
-  const [replyChannel, setReplyChannel] = useState<ContactReplyChannel>('website')
   const [linkCopied, setLinkCopied] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const { t } = useLanguage()
@@ -44,6 +40,16 @@ export default function Kontak() {
     t('Kontak'),
     `${t('Hubungi')} ${schoolProfile.name} ${schoolProfile.city} ${t('untuk informasi sekolah dan PPDB SMK.')}`,
   )
+
+  useEffect(() => {
+    if (!sent) return
+    const frame = requestAnimationFrame(() => {
+      const confirmation = document.getElementById('contact-result')
+      confirmation?.scrollIntoView({ block: 'start' })
+      confirmation?.focus({ preventScroll: true })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [sent])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -63,11 +69,10 @@ export default function Kontak() {
       const continuationTrackingCode = getStoredPrivateThread(contactMessage.email)
       const response = await apiRequest<{ ok: boolean; trackingCode: string; reusedConversation: boolean }>('/contact/messages', {
         method: 'POST',
-        body: JSON.stringify({ ...contactMessage, continuationTrackingCode, replyChannel }),
+        body: JSON.stringify({ ...contactMessage, continuationTrackingCode, replyChannel: 'website' }),
       })
       formElement.reset()
       savePrivateThread(contactMessage.email, response.trackingCode)
-      setSubmittedEmail(contactMessage.email)
       setConversationPath(`/pesan/${response.trackingCode}`)
       setContinuedPreviousConversation(response.reusedConversation)
       setLinkCopied(false)
@@ -206,7 +211,7 @@ export default function Kontak() {
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 border border-gray-100 dark:border-gray-700">
             {sent ? (
-              <div className="text-center py-8" role="status" aria-live="polite">
+              <div id="contact-result" tabIndex={-1} className="scroll-mt-4 py-8 text-center outline-none" role="status" aria-live="polite">
                 <div
                   className={[
                     'w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-950',
@@ -217,33 +222,23 @@ export default function Kontak() {
                   <CheckCircle2 className="w-7 h-7" aria-hidden="true" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  {continuedPreviousConversation ? 'Pesan lanjutan terkirim' : t('Pesan berhasil dikirim')}
+                  {continuedPreviousConversation ? t('Pesan lanjutan terkirim') : t('Pesan berhasil dikirim')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-5">
-                  {replyChannel === 'email'
-                    ? continuedPreviousConversation
-                      ? 'Pesan masuk ke percakapan email sebelumnya. Balasan akan ditujukan ke email Anda; pengiriman otomatis belum aktif sampai layanan email dikonfigurasi.'
-                      : 'Pilihan percakapan via email tersimpan. Pengiriman otomatis belum aktif sampai layanan email dikonfigurasi.'
-                    : continuedPreviousConversation
-                      ? 'Email ini cocok dengan percakapan privat yang tersimpan di browser ini, jadi pesan masuk ke percakapan yang sama dan tautannya tetap sama.'
-                      : 'Pesan tersimpan di website. Balasan admin akan muncul di percakapan privat ini. Simpan tautannya agar Anda bisa membukanya kembali.'}
+                  {continuedPreviousConversation
+                    ? t('Pesan ditambahkan ke percakapan privat sebelumnya. Gunakan tautan yang sama untuk membaca balasan sekolah.')
+                    : t('Pesan tersimpan di website. Balasan sekolah akan muncul di percakapan privat ini. Simpan tautannya agar Anda bisa membukanya kembali.')}
                 </p>
-                {replyChannel === 'email' ? (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-left dark:border-amber-900 dark:bg-amber-950/30">
-                    <p className="text-sm font-semibold text-amber-950 dark:text-amber-100">Pilihan balasan: Email</p>
-                    <p className="mt-1 break-all text-sm text-amber-900 dark:text-amber-200">{submittedEmail}</p>
-                    <p className="mt-2 text-xs leading-5 text-amber-900 dark:text-amber-200">Admin dapat menyiapkan draf balasan. Email belum dapat dikirim otomatis dari website.</p>
-                  </div>
-                ) : conversationPath && (
+                {conversationPath && (
                   <div className="rounded-xl border border-emerald-200 bg-white p-4 text-left dark:border-emerald-900 dark:bg-gray-900">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Tautan percakapan privat</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{t('Tautan percakapan privat')}</p>
                     <Link to={conversationPath} className="mt-2 block break-all text-sm font-medium text-brand-700 underline underline-offset-2 dark:text-brand-300">
                       {window.location.origin}{conversationPath}
                     </Link>
                     <button type="button" onClick={() => void copyConversationLink()} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-                      <Clipboard className="h-4 w-4" aria-hidden="true" /> {linkCopied ? 'Tautan disalin' : 'Salin tautan privat'}
+                      <Clipboard className="h-4 w-4" aria-hidden="true" /> {linkCopied ? t('Tautan disalin') : t('Salin tautan privat')}
                     </button>
-                    <p className="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400">Siapa pun yang memiliki tautan ini dapat melihat pesan dan balasannya. Jangan bagikan ke orang lain.</p>
+                    <p className="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400">{t('Siapa pun yang memiliki tautan ini dapat melihat pesan dan balasannya. Jangan bagikan ke orang lain.')}</p>
                   </div>
                 )}
                 <button
@@ -255,7 +250,7 @@ export default function Kontak() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="public-form space-y-5">
                 {submitError && (
                   <p role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
@@ -348,34 +343,9 @@ export default function Kontak() {
                     ].join(' ')}
                   />
                 </div>
-                <div>
-                  <p className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Cara menerima balasan</p>
-                  <div role="group" aria-label="Pilih cara menerima balasan" className="grid grid-cols-2 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-900">
-                    <button
-                      type="button"
-                      aria-pressed={replyChannel === 'website'}
-                      onClick={() => setReplyChannel('website')}
-                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${replyChannel === 'website' ? 'bg-white text-brand-800 shadow-sm dark:bg-gray-700 dark:text-brand-200' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'}`}
-                    >
-                      <MessageSquareText className="h-4 w-4" aria-hidden="true" /> Tautan website
-                    </button>
-                    <button
-                      type="button"
-                      aria-pressed={replyChannel === 'email'}
-                      onClick={() => setReplyChannel('email')}
-                      className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition ${replyChannel === 'email' ? 'bg-white text-brand-800 shadow-sm dark:bg-gray-700 dark:text-brand-200' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'}`}
-                    >
-                      <Mail className="h-4 w-4" aria-hidden="true" /> Email
-                      <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gray-600 dark:bg-gray-600 dark:text-gray-200">Disiapkan</span>
-                    </button>
-                  </div>
-                  {replyChannel === 'email' ? (
-                    <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                      Balasan akan ditujukan ke email di atas. Pengiriman otomatis belum aktif; admin dapat menyiapkan draf sampai layanan email dikonfigurasi.
-                    </p>
-                  ) : (
-                    <p className="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400">Balasan admin akan muncul di tautan percakapan privat.</p>
-                  )}
+                <div className="rounded-xl bg-brand-50 p-4 text-sm leading-6 text-brand-900 dark:bg-brand-950/40 dark:text-brand-200">
+                  <p className="font-semibold">{t('Balasan melalui percakapan privat')}</p>
+                  <p className="mt-1">{t('Setelah mengirim pesan, simpan tautan percakapan yang muncul. Buka kembali tautan itu untuk membaca dan membalas pesan sekolah.')}</p>
                 </div>
                 <div>
                   <label

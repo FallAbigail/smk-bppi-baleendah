@@ -1,6 +1,6 @@
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, type Variants } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Filter, MessageSquareText, Star } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Filter, MessageSquareText, Star, X } from 'lucide-react'
 import { ApiError, apiRequest } from '../../lib/api'
 import { useLanguage } from '../../contexts/LanguageContext'
 
@@ -57,6 +57,10 @@ export default function CommunityReviews() {
   const [page, setPage] = useState(1)
   const [ratingFilter, setRatingFilter] = useState<number | null>(null)
   const [filterOpen, setFilterOpen] = useState(false)
+  const [writingReview, setWritingReview] = useState(false)
+  const reviewNameRef = useRef<HTMLInputElement>(null)
+  const writeButtonRef = useRef<HTMLButtonElement>(null)
+  const filterRef = useRef<HTMLDivElement>(null)
   const [slideDirection, setSlideDirection] = useState(1)
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -106,6 +110,40 @@ export default function CommunityReviews() {
     const timeoutId = window.setTimeout(() => setSubmitted(false), 5000)
     return () => window.clearTimeout(timeoutId)
   }, [submitted])
+
+  useEffect(() => {
+    if (!writingReview) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById('review-form')?.scrollIntoView({ block: 'start' })
+      reviewNameRef.current?.focus({ preventScroll: true })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [writingReview])
+
+  useEffect(() => {
+    if (!filterOpen) return
+    const dismissOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !filterRef.current?.contains(event.target)) {
+        setFilterOpen(false)
+      }
+    }
+    const dismissOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      setFilterOpen(false)
+      filterRef.current?.querySelector('button')?.focus()
+    }
+    document.addEventListener('pointerdown', dismissOutside)
+    document.addEventListener('keydown', dismissOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', dismissOutside)
+      document.removeEventListener('keydown', dismissOnEscape)
+    }
+  }, [filterOpen])
+
+  function closeReviewForm() {
+    setWritingReview(false)
+    writeButtonRef.current?.focus({ preventScroll: true })
+  }
 
   function goToPage(nextPage: number) {
     if (nextPage < 1 || nextPage > pagination.pageCount || nextPage === page) return
@@ -182,7 +220,7 @@ export default function CommunityReviews() {
     : '—'
 
   return (
-    <section className="home-compact-section bg-gray-50 py-16 dark:bg-gray-950 md:py-20">
+    <section className="community-reviews home-compact-section bg-gray-50 py-16 dark:bg-gray-950 md:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
@@ -218,20 +256,23 @@ export default function CommunityReviews() {
           </div>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="mb-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5"
-        >
-          <div className="mb-4 flex items-start justify-between gap-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {t('Tulis ulasan')}
-              </h3>
-              <p className="mt-1 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('Ulasan dan nama yang ditampilkan dapat dibaca publik.')}
-              </p>
-            </div>
-            <div className="relative shrink-0">
+        <div className="relative z-20 mb-4 flex flex-wrap items-center justify-between gap-3">
+          <button
+            ref={writeButtonRef}
+            type="button"
+            aria-expanded={writingReview}
+            aria-controls="review-form"
+            onClick={() => {
+              setFilterOpen(false)
+              if (writingReview) closeReviewForm()
+              else setWritingReview(true)
+            }}
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-brand-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700"
+          >
+            <MessageSquareText className="h-4 w-4" aria-hidden="true" />
+            {writingReview ? t('Tutup formulir') : t('Tulis ulasan')}
+          </button>
+            <div ref={filterRef} className="relative shrink-0">
               <button
                 type="button"
                 aria-label={ratingFilter === null ? t('Filter ulasan') : `${t('Filter ulasan')}: ${ratingFilter} ${t('bintang')}`}
@@ -239,13 +280,14 @@ export default function CommunityReviews() {
                 aria-controls="review-rating-filter"
                 title={t('Filter ulasan')}
                 onClick={() => setFilterOpen((open) => !open)}
-                className={`relative inline-flex h-9 w-9 items-center justify-center rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                className={`relative inline-flex h-11 items-center justify-center gap-2 px-3 rounded-lg border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                   ratingFilter !== null
                     ? 'border-brand-500 bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300'
                     : 'border-gray-300 bg-white text-gray-600 hover:border-brand-500 hover:text-brand-700 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-300 dark:hover:text-brand-300'
                 }`}
               >
                 <Filter className="h-4 w-4" aria-hidden="true" />
+                <span className="text-sm font-semibold">{t('Filter ulasan')}</span>
                 {ratingFilter !== null && (
                   <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold leading-none text-white">
                     {ratingFilter}
@@ -266,7 +308,7 @@ export default function CommunityReviews() {
                     type="button"
                     aria-pressed={ratingFilter === null}
                     onClick={() => selectRatingFilter(null)}
-                    className={`flex w-full items-center justify-between rounded-lg px-2 py-2 text-left text-sm transition ${
+                    className={`flex w-full items-center justify-between min-h-11 rounded-lg px-2 py-2 text-left text-sm transition ${
                       ratingFilter === null
                         ? 'bg-brand-50 font-semibold text-brand-700 dark:bg-brand-950 dark:text-brand-300'
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'
@@ -281,7 +323,7 @@ export default function CommunityReviews() {
                       aria-label={`${value} ${t('bintang')}`}
                       aria-pressed={ratingFilter === value}
                       onClick={() => selectRatingFilter(value)}
-                      className={`flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm transition ${
+                      className={`flex w-full items-center justify-between min-h-11 rounded-lg px-2 py-2 text-sm transition ${
                         ratingFilter === value
                           ? 'bg-brand-50 font-semibold text-brand-700 dark:bg-brand-950 dark:text-brand-300'
                           : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'
@@ -298,111 +340,7 @@ export default function CommunityReviews() {
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-12">
-            <div className="lg:col-span-3">
-              <label htmlFor="review-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('Nama yang ditampilkan')}
-              </label>
-              <input
-                id="review-name"
-                name="name"
-                autoComplete="name"
-                required
-                minLength={2}
-                maxLength={60}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-              />
-            </div>
-
-            <div className="lg:col-span-2">
-              <label htmlFor="review-role" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('Saya adalah')}
-              </label>
-              <select
-                id="review-role"
-                name="role"
-                value={role}
-                onChange={(event) => setRole(event.target.value as ReviewerRole)}
-                className="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-              >
-                {(Object.keys(roleLabels) as ReviewerRole[]).map((value) => (
-                  <option key={value} value={value}>{t(roleLabels[value])}</option>
-                ))}
-              </select>
-            </div>
-
-            <fieldset className="sm:col-span-2 lg:col-span-3">
-              <legend className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('Rating Anda')}
-              </legend>
-              <div className="mt-2 flex flex-wrap items-center gap-1">
-                {[1, 2, 3, 4, 5].map((value) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-label={`${value} ${t('bintang')}`}
-                    aria-pressed={rating === value}
-                    onClick={() => setRating(value)}
-                    className="rounded p-1 text-amber-500 outline-none transition hover:scale-110 focus-visible:ring-2 focus-visible:ring-brand-500"
-                  >
-                    <Star className={`h-6 w-6 ${value <= rating ? 'fill-current' : ''}`} aria-hidden="true" />
-                  </button>
-                ))}
-                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                  {rating ? `${rating}/5` : t('Pilih bintang')}
-                </span>
-              </div>
-            </fieldset>
-
-            <div className="sm:col-span-2 lg:col-span-4">
-              <label htmlFor="review-comment" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('Komentar')}
-              </label>
-              <textarea
-                id="review-comment"
-                name="comment"
-                required
-                minLength={10}
-                maxLength={500}
-                rows={2}
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                placeholder={t('Ceritakan pengalaman Anda…')}
-                className="mt-1.5 w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm leading-relaxed text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-500"
-              />
-              <p className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">
-                {comment.length}/500
-              </p>
-            </div>
-
-            {(submitError || submitted) && (
-              <div className="space-y-2 sm:col-span-2 lg:col-span-9">
-                {submitError && (
-                  <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
-                    {submitError}
-                  </p>
-                )}
-                {submitted && (
-                  <p role="status" className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-300">
-                    {t('Terima kasih, ulasan Anda sudah ditampilkan.')}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={submitting || rating < 1}
-              className="sm:col-span-2 lg:col-span-3 inline-flex w-full items-center justify-center self-end rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-gray-900"
-            >
-              {submitting ? t('Mengirim…') : t('Kirim ulasan')}
-            </button>
-          </div>
-        </form>
+        </div>
 
         <div className="space-y-4" aria-live="polite">
           {loading ? (
@@ -486,7 +424,7 @@ export default function CommunityReviews() {
                     onClick={() => goToPage(page - 1)}
                     disabled={page <= 1}
                     aria-label={t('Blok sebelumnya')}
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 transition hover:border-brand-500 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:text-brand-300"
+                    className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 transition hover:border-brand-500 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:text-brand-300"
                   >
                     <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -498,7 +436,7 @@ export default function CommunityReviews() {
                       onClick={() => goToPage(block)}
                       aria-label={`${t('Blok komentar')} ${block}`}
                       aria-current={page === block ? 'page' : undefined}
-                      className={`h-10 w-10 shrink-0 rounded-md border text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                      className={`h-11 w-11 shrink-0 rounded-md border text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
                         page === block
                           ? 'border-brand-600 bg-brand-600 text-white'
                           : 'border-gray-300 bg-white text-gray-700 hover:border-brand-500 hover:text-brand-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:text-brand-300'
@@ -513,7 +451,7 @@ export default function CommunityReviews() {
                     onClick={() => goToPage(page + 1)}
                     disabled={page >= pagination.pageCount}
                     aria-label={t('Blok selanjutnya')}
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 transition hover:border-brand-500 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:text-brand-300"
+                    className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 transition hover:border-brand-500 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:text-brand-300"
                   >
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </button>
@@ -545,6 +483,132 @@ export default function CommunityReviews() {
             </div>
           )}
         </div>
+
+        {writingReview && (
+        <form
+          id="review-form"
+          onSubmit={handleSubmit}
+          className="public-form mt-6 scroll-mt-32 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5"
+        >
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {t('Tulis ulasan')}
+              </h3>
+              <p className="mt-1 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                {t('Ulasan dan nama yang ditampilkan dapat dibaca publik.')}
+              </p>
+            </div>
+            <button type="button" onClick={closeReviewForm} aria-label={t('Tutup formulir')} className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="grid gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-12">
+            <div className="lg:col-span-3">
+              <label htmlFor="review-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('Nama yang ditampilkan')}
+              </label>
+              <input
+                ref={reviewNameRef}
+                id="review-name"
+                name="name"
+                autoComplete="name"
+                required
+                minLength={2}
+                maxLength={60}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+              />
+            </div>
+
+            <div className="lg:col-span-2">
+              <label htmlFor="review-role" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('Saya adalah')}
+              </label>
+              <select
+                id="review-role"
+                name="role"
+                value={role}
+                onChange={(event) => setRole(event.target.value as ReviewerRole)}
+                className="mt-1.5 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+              >
+                {(Object.keys(roleLabels) as ReviewerRole[]).map((value) => (
+                  <option key={value} value={value}>{t(roleLabels[value])}</option>
+                ))}
+              </select>
+            </div>
+
+            <fieldset className="sm:col-span-2 lg:col-span-3">
+              <legend className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('Rating Anda')}
+              </legend>
+              <div className="mt-2 flex flex-wrap items-center gap-1">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-label={`${value} ${t('bintang')}`}
+                    aria-pressed={rating === value}
+                    onClick={() => setRating(value)}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded text-amber-500 outline-none transition hover:scale-110 focus-visible:ring-2 focus-visible:ring-brand-500"
+                  >
+                    <Star className={`h-6 w-6 ${value <= rating ? 'fill-current' : ''}`} aria-hidden="true" />
+                  </button>
+                ))}
+                <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+                  {rating ? `${rating}/5` : t('Pilih bintang')}
+                </span>
+              </div>
+            </fieldset>
+
+            <div className="sm:col-span-2 lg:col-span-4">
+              <label htmlFor="review-comment" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t('Komentar')}
+              </label>
+              <textarea
+                id="review-comment"
+                name="comment"
+                required
+                minLength={10}
+                maxLength={500}
+                rows={2}
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                placeholder={t('Ceritakan pengalaman Anda…')}
+                className="mt-1.5 w-full resize-y rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm leading-relaxed text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-gray-500"
+              />
+              <p className="mt-1 text-right text-xs text-gray-500 dark:text-gray-400">
+                {comment.length}/500
+              </p>
+            </div>
+
+            {(submitError || submitted) && (
+              <div className="space-y-2 sm:col-span-2 lg:col-span-9">
+                {submitError && (
+                  <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
+                    {submitError}
+                  </p>
+                )}
+                {submitted && (
+                  <p role="status" className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-800 dark:bg-green-950/40 dark:text-green-300">
+                    {t('Terima kasih, ulasan Anda sudah ditampilkan.')}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting || rating < 1}
+              className="sm:col-span-2 lg:col-span-3 inline-flex w-full items-center justify-center self-end rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-gray-900"
+            >
+              {submitting ? t('Mengirim…') : t('Kirim ulasan')}
+            </button>
+          </div>
+        </form>
+        )}
 
       </div>
     </section>

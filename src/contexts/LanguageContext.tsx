@@ -698,6 +698,23 @@ const englishTranslations: Record<string, string> = {
   'Ulasan berikutnya': 'Next review',
   'Baca selengkapnya': 'Read more',
   'Tampilkan lebih sedikit': 'Show less',
+  'Kenali sekolah lebih dekat': 'Get to know our school',
+  'Balasan melalui percakapan privat': 'Replies through a private conversation',
+  'Setelah mengirim pesan, simpan tautan percakapan yang muncul. Buka kembali tautan itu untuk membaca dan membalas pesan sekolah.': 'After sending your message, save the conversation link shown. Reopen it to read and reply to messages from the school.',
+  'Pesan ditambahkan ke percakapan privat sebelumnya. Gunakan tautan yang sama untuk membaca balasan sekolah.': 'Your message was added to your previous private conversation. Use the same link to read replies from the school.',
+  'Pesan tersimpan di website. Balasan sekolah akan muncul di percakapan privat ini. Simpan tautannya agar Anda bisa membukanya kembali.': 'Your message is saved on the website. Replies from the school will appear in this private conversation. Save the link so you can return to it.',
+  'Lihat informasi penerimaan siswa baru, persiapkan data pendaftaran, atau periksa status pendaftaran sebelumnya.': 'View admissions information, prepare your application details, or check an existing application.',
+  'Informasi pendaftaran': 'Admissions information',
+  'Jadwal pembukaan belum dicantumkan di halaman ini. Hubungi sekolah untuk informasi periode berikutnya.': 'Opening dates are not listed on this page yet. Contact the school for information about the next admissions period.',
+  'Kenali program keahlian sebelum menentukan pilihan.': 'Explore the study programs before making your choice.',
+  'Siapkan data diri calon siswa, asal sekolah, dan kontak orang tua atau wali.': 'Prepare personal details, previous school, and parent or guardian contact information.',
+  'Sudah pernah mendaftar? Gunakan nomor dan kode pelacakan pada bagian cek status.': 'Already applied? Use your application number and tracking code in the status checker.',
+  'Tanya PPDB ke sekolah': 'Ask the school about admissions',
+  'Pesan lanjutan terkirim': 'Follow-up message sent',
+  'Tautan percakapan privat': 'Private conversation link',
+  'Tautan disalin': 'Link copied',
+  'Salin tautan privat': 'Copy private link',
+  'Siapa pun yang memiliki tautan ini dapat melihat pesan dan balasannya. Jangan bagikan ke orang lain.': 'Anyone with this link can read the messages and replies. Keep it private.',
 }
 
 interface LanguageContextValue {
