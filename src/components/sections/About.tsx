@@ -62,10 +62,10 @@ export default function About({ headingLevel = 'h2', compact = false }: { headin
                     className="teacher-rail-photo absolute left-1/2 top-0 z-10 h-36 w-28 -translate-x-1/2 object-contain object-bottom"
                   />
                   <div className="teacher-rail-info flex min-h-[148px] w-full flex-1 flex-col items-center rounded-xl border border-gray-200 bg-white px-2 pb-3 pt-[100px] shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <h3 className="text-sm font-semibold leading-snug text-gray-900 dark:text-white">
+                    <h3 className="text-sm font-semibold leading-snug text-gray-900 dark:text-white lg:text-xs">
                       {teacher.name}
                     </h3>
-                    <p className="mt-auto pt-1 text-xs font-medium text-brand-800 dark:text-brand-300">
+                    <p className="mt-auto pt-1 text-xs font-medium lg:text-[10px] lg:leading-normal text-brand-800 dark:text-brand-300">
                       {t(teacher.subject)}
                     </p>
                   </div>

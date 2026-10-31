@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { ArrowRight, Check, ClipboardCheck, GraduationCap, LockKeyhole } from 'lucide-react'
+import { useMobileLayout } from '../hooks/useMobileLayout'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useSiteContent } from '../contexts/SiteContentContext'
@@ -65,6 +66,7 @@ function Field({
 const controlClass = 'w-full rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-brand-400 dark:focus:ring-brand-950'
 
 export default function Ppdb() {
+  const mobile = useMobileLayout()
   const { t } = useLanguage()
   const { content } = useSiteContent()
   usePageMeta(t('Pendaftaran PPDB Online'), `${t('Formulir pendaftaran peserta didik baru')} · ${schoolProfile.name}`)
@@ -114,14 +116,14 @@ export default function Ppdb() {
   }, [t])
 
   useEffect(() => {
-    if (!result) return
+    if (!result || !mobile) return
     const frame = requestAnimationFrame(() => {
       const confirmation = document.getElementById('ppdb-application-result')
       confirmation?.scrollIntoView({ block: 'start' })
       confirmation?.focus({ preventScroll: true })
     })
     return () => cancelAnimationFrame(frame)
-  }, [result])
+  }, [result, mobile])
 
   async function submitApplication(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -180,8 +182,8 @@ export default function Ppdb() {
         <header className="mb-8 max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">{schoolProfile.name}</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">{t('Pendaftaran peserta didik baru')}</h1>
-          <p className="mt-3 text-base leading-7 text-gray-600 dark:text-gray-300">{settings?.isOpen ? t('Daftarkan calon siswa secara online dan simpan kode pelacakan untuk memeriksa perkembangan pendaftaran.') : t('Lihat informasi penerimaan siswa baru, persiapkan data pendaftaran, atau periksa status pendaftaran sebelumnya.')}</p>
-          {settings?.academicYear && (
+          <p className="mt-3 text-base leading-7 text-gray-600 dark:text-gray-300">{!mobile || settings?.isOpen ? t('Daftarkan calon siswa secara online dan simpan kode pelacakan untuk memeriksa perkembangan pendaftaran.') : t('Lihat informasi penerimaan siswa baru, persiapkan data pendaftaran, atau periksa status pendaftaran sebelumnya.')}</p>
+          {settings?.academicYear && (mobile || settings.isOpen) && (
             <p className="mt-4 inline-flex rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-800 dark:border-brand-800 dark:bg-brand-950/50 dark:text-brand-200">
               {t('Tahun ajaran')} {settings.academicYear}
             </p>
@@ -193,7 +195,7 @@ export default function Ppdb() {
             <div className="mb-6 flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span>
               <div>
-                <h2 id="application-heading" className="text-xl font-bold text-gray-900 dark:text-white">{settings?.isOpen ? t('Formulir pendaftaran') : t('Informasi pendaftaran')}</h2>
+                <h2 id="application-heading" className="text-xl font-bold text-gray-900 dark:text-white">{!mobile || settings?.isOpen ? t('Formulir pendaftaran') : t('Informasi pendaftaran')}</h2>
                 {settings?.isOpen && (
                   <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     {settings.publicMessage || t('Lengkapi data calon siswa dan orang tua atau wali.')}
@@ -212,7 +214,7 @@ export default function Ppdb() {
               </div>
             ) : settings?.isOpen ? (
               result ? (
-                <div id="ppdb-application-result" tabIndex={-1} role="status" className="scroll-mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5 outline-none dark:border-emerald-900 dark:bg-emerald-950/30">
+                <div id="ppdb-application-result" tabIndex={-1} role={mobile ? 'status' : undefined} className="scroll-mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-5 outline-none dark:border-emerald-900 dark:bg-emerald-950/30">
                   <div className="flex items-start gap-3">
                     <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700 dark:text-emerald-300" aria-hidden="true" />
                     <div className="min-w-0">
@@ -266,6 +268,7 @@ export default function Ppdb() {
                 </form>
               )
             ) : settings ? (
+              mobile ? (
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-800 dark:bg-gray-950">
                 <LockKeyhole className="h-5 w-5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
                 <h3 className="mt-3 font-semibold text-gray-900 dark:text-white">{t('Pendaftaran online belum dibuka')}</h3>
@@ -280,6 +283,14 @@ export default function Ppdb() {
                   <a href={`tel:${schoolProfile.phoneHref}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-700 dark:text-brand-300">{t('Tanya PPDB ke sekolah')}</a>
                 </div>
               </div>
+              ) : (
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 dark:border-gray-800 dark:bg-gray-950">
+                <LockKeyhole className="h-5 w-5 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+                <h3 className="mt-3 font-semibold text-gray-900 dark:text-white">{t('Pendaftaran online belum dibuka')}</h3>
+                <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">{t('Sekolah belum membuka periode pendaftaran online. Silakan cek kembali nanti atau hubungi sekolah untuk informasi PPDB.')}</p>
+                <a href={`tel:${schoolProfile.phoneHref}`} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 dark:text-brand-300">{schoolProfile.phoneDisplay} <ArrowRight className="h-4 w-4" aria-hidden="true" /></a>
+              </div>
+              )
             ) : null}
           </section>
 

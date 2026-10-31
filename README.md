@@ -24,6 +24,8 @@ Frontend berjalan di `http://127.0.0.1:5173` dan API berjalan di `http://127.0.0
 
 Untuk mengubah satu fitur admin, mulai dari komponen pengelolanya. Callback penyimpanan konten berada di workspace, sedangkan pengelola PPDB, ulasan, pesan, dan akun memiliki alurnya masing-masing.
 
+Perbaikan tampilan mobile harus dibatasi di bawah breakpoint desktop 1024 px. Gunakan media query atau `useMobileLayout` untuk perubahan susunan konten; pertahankan tampilan desktop kecuali pengguna secara khusus meminta perubahannya.
+
 Kartu fasilitas mengatur transformasinya sendiri. Pertahankan `data-reveal-ignore` pada track agar animasi kemunculan halaman tidak menyembunyikan kartu saat scroll atau kembali ke beranda. Saat mengubah hook animasi, periksa gerakan otomatis, scroll turun lalu naik, dan navigasi keluar lalu kembali ke beranda.
 
 Setelah perubahan kode, jalankan `npm run build` untuk memeriksa tipe TypeScript dan bundle produksi. Untuk perubahan server, jalankan juga `node --check` pada file `.mjs` yang diubah, lalu cek alur terkait melalui aplikasi.

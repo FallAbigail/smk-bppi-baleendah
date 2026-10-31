@@ -879,7 +879,7 @@ html::-webkit-scrollbar-button {
   html {
     position: relative;
     scroll-behavior: auto;
-    scroll-padding-top: 7rem;
+    scroll-padding-top: 5rem;
   }
 
   body {
@@ -1125,11 +1125,10 @@ html::-webkit-scrollbar-button {
 .hero-facility-card figcaption {
   position: absolute;
   inset: auto 0 0;
-  padding: 0.55rem 0.7rem;
-  background: rgb(4 14 24 / 94%);
+  padding: 2rem 0.85rem 0.85rem;
+  background: linear-gradient(transparent, rgb(0 0 0 / 75%));
   color: #fff;
-  font-size: 0.875rem;
-  line-height: 1.35;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
@@ -1520,7 +1519,7 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   }
 
   .hero-quick-actions .hero-button {
-    min-height: 2.75rem;
+    min-height: 2.65rem;
     padding-inline: 0.8rem;
     font-size: 0.78rem;
   }
@@ -2663,22 +2662,30 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
 
 
 
-/* Form labels stay visible when browser validation focuses an invalid field. */
-main :is(input, textarea, select) {
-  scroll-margin-top: 9rem;
-  scroll-margin-bottom: 6rem;
-}
+@media (max-width: 1023px) {
+  html { scroll-padding-top: 7rem; }
 
-.public-form :is(input, textarea)::placeholder {
-  color: #586875;
-  opacity: 1;
-}
+  .hero-facility-card figcaption {
+    padding: 0.55rem 0.7rem;
+    background: rgb(4 14 24 / 94%);
+    line-height: 1.35;
+  }
 
-.dark .public-form :is(input, textarea)::placeholder {
-  color: #aab9c7;
-}
+  /* Form labels stay visible when browser validation focuses an invalid field. */
+  main :is(input, textarea, select) {
+    scroll-margin-top: 9rem;
+    scroll-margin-bottom: 6rem;
+  }
 
-@media (max-width: 767px) {
+  .public-form :is(input, textarea)::placeholder {
+    color: #586875;
+    opacity: 1;
+  }
+
+  .dark .public-form :is(input, textarea)::placeholder {
+    color: #aab9c7;
+  }
+
   .public-form :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select) {
     min-height: 2.75rem;
     font-size: 1rem;

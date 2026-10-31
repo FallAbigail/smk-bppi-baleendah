@@ -2,6 +2,8 @@
 
 Menindaklanjuti lima prioritas pada `2026-10-31T16-50-22Z__src-pages-home-tsx.md`.
 
+Koreksi cakupan atas permintaan pengguna: perbaikan di bawah berlaku pada layar di bawah 1024 px. Desktop dipulihkan ke tampilan sebelum implementasi mobile (`a496f08`). Detail pembandingan ada di `desktop-restore-2026-11-01.md`.
+
 ## Perubahan
 
 1. Nama guru menjadi 14 px dan mata pelajaran 12 px. Caption fasilitas memakai alas gelap yang stabil, dengan ukuran mobile 16 px sebelum transformasi carousel. Placeholder form publik dipergelap di tema terang dan diperjelas di tema gelap. Input mobile menjadi 16 px.

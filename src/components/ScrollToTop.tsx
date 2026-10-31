@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useState, type RefObject } from 'react'
 import { useLocation } from 'react-router-dom'
 import { ArrowUp } from 'lucide-react'
 import type Lenis from 'lenis'
+import { useMobileLayout } from '../hooks/useMobileLayout'
 import { HOME_NAVIGATION_EVENT } from './sections/heroMotion'
 import { useLanguage } from '../contexts/LanguageContext'
 
@@ -80,13 +81,14 @@ export function RouteScrollManager({ lenisRef }: { lenisRef: RefObject<Lenis | n
 export function ScrollToTopButton({ lenisRef }: { lenisRef: RefObject<Lenis | null> }) {
   const [visible, setVisible] = useState(false)
   const { pathname } = useLocation()
+  const mobile = useMobileLayout()
   const { t } = useLanguage()
 
   useEffect(() => {
     let focusFrame = 0
     const updateVisibility = () => {
       // Keep floating controls out of the way while a form is being read or filled.
-      const formVisible = Array.from(document.querySelectorAll('main form')).some((form) => {
+      const formVisible = mobile && Array.from(document.querySelectorAll('main form')).some((form) => {
         const bounds = form.getBoundingClientRect()
         return bounds.height > 0 && bounds.bottom > 100 && bounds.top < window.innerHeight
       })
@@ -108,7 +110,7 @@ export function ScrollToTopButton({ lenisRef }: { lenisRef: RefObject<Lenis | nu
       document.removeEventListener('focusin', updateAfterFocus)
       document.removeEventListener('focusout', updateAfterFocus)
     }
-  }, [pathname])
+  }, [pathname, mobile])
 
   if (!visible) return null
 

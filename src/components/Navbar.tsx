@@ -52,7 +52,8 @@ function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
           aria-label={option === 'id' ? t('Bahasa Indonesia') : t('Bahasa Inggris')}
           aria-pressed={language === option}
           className={cn(
-            'min-h-11 min-w-11 rounded-md px-2 py-1 text-xs font-semibold transition-colors lg:min-h-8 lg:min-w-8',
+            'rounded-md px-2 py-1 text-xs font-semibold transition-colors',
+            mobile ? 'min-h-11 min-w-11' : 'min-w-8',
             'focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-700',
             language === option
               ? 'bg-brand-700 text-white shadow-sm'
@@ -345,7 +346,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   type="button"
                   onClick={toggleTheme}
                   className={[
-                    'w-11 h-11 rounded-lg flex items-center justify-center',
+                    'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
                     'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}
@@ -392,7 +393,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   type="button"
                   onClick={toggleTheme}
                   className={[
-                    'w-11 h-11 rounded-lg flex items-center justify-center',
+                    'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
                     'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}
@@ -409,7 +410,7 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
                   type="button"
                   onClick={() => setOpen((value) => !value)}
                   className={[
-                    'w-11 h-11 rounded-lg flex items-center justify-center',
+                    'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
                     'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
                     'dark:hover:bg-gray-800 transition-colors',
                   ].join(' ')}

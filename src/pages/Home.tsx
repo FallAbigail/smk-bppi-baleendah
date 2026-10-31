@@ -1,3 +1,4 @@
+import { useMobileLayout } from '../hooks/useMobileLayout'
 import ScrollSection from '../components/scroll/ScrollSection'
 import Hero from '../components/sections/Hero'
 import About from '../components/sections/About'
@@ -15,6 +16,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 
 export default function Home() {
   const { t } = useLanguage()
+  const mobile = useMobileLayout()
   usePageMeta(
     t('Profil Sekolah'),
     `${t('Kenali profil, program keahlian, fasilitas, dan kegiatan')} ${schoolProfile.name} ${schoolProfile.city}.`,
@@ -25,14 +27,14 @@ export default function Home() {
       <Hero blank />
 
       <ScrollSection id="section-about">
-        <About compact />
+        <About compact={mobile} />
       </ScrollSection>
 
       <ScrollSection id="section-programs">
         <Programs carousel />
       </ScrollSection>
 
-      <CTA />
+      {mobile && <CTA />}
 
       <ScrollSection id="section-extracurriculars">
         <ExtracurricularPreview />
@@ -54,6 +56,7 @@ export default function Home() {
         <Sponsors />
       </ScrollSection>
 
+      {!mobile && <CTA />}
       <SchoolLocation />
     </main>
   )
