@@ -2895,3 +2895,171 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
     outline-color: rgb(var(--brand-300));
   }
 }
+/* The homepage's mobile introduction keeps its vision, mission and people visible. */
+@media (max-width: 1023px) {
+  .mobile-about-details {
+    min-width: 0;
+    margin-top: 1.5rem;
+  }
+
+  .mobile-about-values {
+    scroll-margin-top: 7rem;
+  }
+
+  .mobile-about-vision {
+    border-radius: 1rem;
+    padding: 1.25rem;
+    background: rgb(var(--brand-50));
+    color: rgb(var(--brand-900));
+  }
+
+  .mobile-about-vision h3 {
+    color: rgb(var(--brand-700));
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .mobile-about-vision p {
+    margin-top: 0.65rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+
+  .mobile-about-mission,
+  .mobile-about-staff {
+    margin-top: 1.75rem;
+  }
+
+  .mobile-about-mission h3,
+  .mobile-about-staff > h3 {
+    color: rgb(var(--ink-rgb));
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .mobile-about-mission ul {
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1rem;
+  }
+
+  .mobile-about-mission li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    color: rgb(var(--gray-700));
+    font-size: 0.9375rem;
+    line-height: 1.65;
+  }
+
+  .mobile-about-mission svg {
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+    color: rgb(var(--brand-700));
+  }
+
+  .mobile-about-staff {
+    border-top: 1px solid rgb(var(--gray-200));
+    padding-top: 1.5rem;
+  }
+
+  .mobile-about-staff ul {
+    margin-top: 1rem;
+    overflow: hidden;
+    border: 1px solid rgb(var(--gray-200));
+    border-radius: 1rem;
+    background: #fff;
+  }
+
+  .mobile-about-staff li {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.9rem;
+  }
+
+  .mobile-about-staff li + li {
+    border-top: 1px solid rgb(var(--gray-200));
+  }
+
+  .mobile-about-portrait {
+    height: 5.5rem;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: rgb(var(--brand-50));
+  }
+
+  .mobile-about-portrait img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+
+  .mobile-about-teacher-copy h4 {
+    overflow-wrap: anywhere;
+    color: rgb(var(--ink-rgb));
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.55;
+  }
+
+  .mobile-about-teacher-copy p {
+    margin-top: 0.35rem;
+    color: rgb(var(--brand-700));
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .mobile-about-staff-link {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    color: rgb(var(--brand-700));
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .mobile-about-staff-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  .mobile-about-staff-link:focus-visible {
+    border-radius: 0.25rem;
+    outline: 2px solid rgb(var(--accent-rgb));
+    outline-offset: 3px;
+  }
+
+  .dark .mobile-about-vision {
+    color: rgb(var(--brand-200));
+  }
+
+  .dark .mobile-about-vision h3,
+  .dark .mobile-about-mission svg,
+  .dark .mobile-about-teacher-copy p,
+  .dark .mobile-about-staff-link {
+    color: rgb(var(--brand-300));
+  }
+
+  .dark .mobile-about-mission li {
+    color: rgb(var(--gray-300));
+  }
+
+  .dark .mobile-about-staff,
+  .dark .mobile-about-staff ul,
+  .dark .mobile-about-staff li + li {
+    border-color: rgb(var(--gray-700));
+  }
+
+  .dark .mobile-about-staff ul {
+    background: rgb(var(--gray-900));
+  }
+}

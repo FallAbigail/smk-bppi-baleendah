@@ -115,3 +115,10 @@ Real Chrome checks passed at 320, 360, 390, 430, 768, 1024 and 1440 widths in li
 TypeScript/Vite build and diff whitespace checks passed. Detector reports only the existing six Inter warnings and unrelated admin accent advisory; those user-established styles were retained.
 
 final result: passed
+
+
+# Mobile About content and design — 2026-11-01
+
+Implemented visible school vision, seven missions and three teacher previews in the mobile homepage while retaining desktop appearance. Research, four scoped acceptance checks, measured contrast, screenshots and verification details: `.impeccable/critique/mobile-about-2026-11-01.md`. All four acceptance checks, browser flows, TypeScript/Vite build and diff check passed.
+
+final result: passed

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { teachingStaff } from '../../data/schoolStaff'
 import { teacherPhotoByName } from '../../data/staffPhotoAssets'
+import MobileAboutDetails from './MobileAboutDetails'
 
 const featuredTeachers = [
   teachingStaff[0],
@@ -19,6 +20,8 @@ const missions = [
   'Menyiapkan lulusan untuk bekerja, berwirausaha, atau melanjutkan studi.',
   'Mewujudkan lingkungan sekolah yang hijau, indah, aman, dan nyaman.',
 ]
+
+const vision = 'Menciptakan lulusan yang kompeten sesuai kebutuhan industri serta berkarakter, religius, profesional, dan berwawasan lingkungan.'
 
 export default function About({ headingLevel = 'h2', compact = false }: { headingLevel?: 'h1' | 'h2'; compact?: boolean }) {
   const { t } = useLanguage()
@@ -38,11 +41,12 @@ export default function About({ headingLevel = 'h2', compact = false }: { headin
             {t('SMK BPPI Baleendah berdiri pada tahun 2008 dengan fokus pendidikan kejuruan informatika. Lulusan disiapkan untuk bekerja, berwirausaha, atau melanjutkan pendidikan ke perguruan tinggi.')}
           </p>
 
-          {compact ? (
+          {compact ? <>
             <Link to="/tentang" className="mt-4 inline-flex min-h-11 w-fit items-center gap-2 text-sm font-semibold text-brand-700 dark:text-brand-300">
               {t('Kenali sekolah lebih dekat')} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-          ) : <>
+            <MobileAboutDetails vision={vision} missions={missions} teachers={featuredTeachers} />
+          </> : <>
           <div className="mt-6 border-y border-gray-200 py-4 dark:border-gray-800">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               {t('Program keahlian')}
@@ -87,7 +91,7 @@ export default function About({ headingLevel = 'h2', compact = false }: { headin
           <article className="rounded-xl border border-gray-200 bg-white p-6 text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white sm:p-7">
             <p className="text-xs font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-400">{t('Visi sekolah')}</p>
             <p className="mt-3 text-lg font-semibold leading-relaxed text-gray-900 dark:text-white sm:text-xl">
-              {t('Menciptakan lulusan yang kompeten sesuai kebutuhan industri serta berkarakter, religius, profesional, dan berwawasan lingkungan.')}
+              {t(vision)}
             </p>
           </article>
 
