@@ -102,3 +102,16 @@ Opened before/after browser captures together: `.impeccable/critique/evidence/re
 Browser verification passed at widths 390, 768, 1024 and 1440, each in light and dark themes with normal motion enabled. Clicked 1 star and verified the real GET /api/reviews?rating=1 request returned HTTP 200, the panel closed and reopening showed the selected rating. Reset to all ratings, Escape with restored trigger focus, and outside-click dismissal passed. No review data was written; no page errors occurred. TypeScript/Vite build, diff whitespace check and scoped Impeccable detector passed.
 
 final result: passed
+
+
+# Align mobile footer with school visual theme — 2026-11-01
+
+The user approved the footer structure and requested visual consistency with the school website. Preserved the four open link groups, two-column grid, copy, destinations and desktop layout. Reused existing school design tokens and the existing desktop world-map asset: pale blue-gray footer canvas, a quiet map behind the identity block, circular blue social controls, a white rounded announcements surface, a blue rounded action with the shared arrow icon, blue group headings and a subtle copyright divider. Dark mode uses the existing navy surfaces and lighter blue text. All CSS changes are inside the below-1024px footer rules; the only JSX change adds a decorative arrow inside the mobile CTA.
+
+Opened actual before/after light/dark captures together and reviewed the final renders. Evidence: `.impeccable/critique/evidence/footer-theme-2026-11-01/`. Captures are 390px wide using a tall viewport to avoid fixed-header overlap during footer element screenshots. The secondary city label was darkened after checking contrast over the faint map. Body/heading colors and the white-on-blue action remain readable in both themes.
+
+Real Chrome checks passed at 320, 360, 390, 430, 768, 1024 and 1440 widths in light/dark modes: no horizontal overflow, four visible mobile groups in two columns, four social links, minimum 44px link targets, correct desktop/mobile visibility. Program, PPDB status and announcements links navigate to their actual routes/anchors; English labels render. No page errors. Final 1440px footer snapshots exactly match before-change dimensions, visible text and every visible link's destination, accessible label, dimensions, font and color in both themes (saved desktop snapshot JSON). Desktop appearance is preserved.
+
+TypeScript/Vite build and diff whitespace checks passed. Detector reports only the existing six Inter warnings and unrelated admin accent advisory; those user-established styles were retained.
+
+final result: passed

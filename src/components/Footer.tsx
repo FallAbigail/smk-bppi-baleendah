@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MapPin, Phone, Mail } from 'lucide-react'
+import { ArrowRight, MapPin, Phone, Mail } from 'lucide-react'
 import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from 'react-icons/si'
 import { schoolProfile } from '../data/schoolProfile'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -123,7 +123,10 @@ export default function Footer() {
         <section className="footer-mobile-cta" aria-labelledby="footer-updates-heading">
           <h2 id="footer-updates-heading">{t('Kabar dan pengumuman sekolah')}</h2>
           <p>{t('Baca kabar terbaru dan pengumuman resmi dari sekolah.')}</p>
-          <Link to="/informasi#pengumuman">{t('Lihat pengumuman')}</Link>
+          <Link to="/informasi#pengumuman">
+            {t('Lihat pengumuman')}
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
         </section>
 
         <div className="footer-mobile-columns">
