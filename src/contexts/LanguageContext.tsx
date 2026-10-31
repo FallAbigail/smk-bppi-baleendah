@@ -715,6 +715,12 @@ const englishTranslations: Record<string, string> = {
   'Tautan disalin': 'Link copied',
   'Salin tautan privat': 'Copy private link',
   'Siapa pun yang memiliki tautan ini dapat melihat pesan dan balasannya. Jangan bagikan ke orang lain.': 'Anyone with this link can read the messages and replies. Keep it private.',
+  'Sekolah': 'School',
+  'Guru dan staf': 'Teachers and staff',
+  'Alamat sekolah': 'School address',
+  'Kabar dan pengumuman sekolah': 'School news and announcements',
+  'Baca kabar terbaru dan pengumuman resmi dari sekolah.': 'Read the latest news and official announcements from the school.',
+  'Lihat pengumuman': 'View announcements',
 }
 
 interface LanguageContextValue {
