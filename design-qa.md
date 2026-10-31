@@ -58,3 +58,36 @@ Evidence: `.impeccable/critique/evidence/location-order-2026-11-01/`. Opened act
 Validation: TypeScript/Vite build passed; diff whitespace check passed; scoped Impeccable layout detector returned no findings. No map loading logic was changed.
 
 final result: passed (requested order and height changes)
+
+
+# Mobile navigation redesign — 2026-11-01
+
+Preview: http://127.0.0.1:5173/kontak — open the hamburger below 1024px.
+Reference and implementation screenshots: `.impeccable/critique/evidence/mobile-navbar-2026-11-01/`.
+
+## Visual comparison
+
+Opened the user reference and actual light/dark renders together in the same comparison input. The reference composition is retained: brand and close at the top, open vertical navigation with right chevrons, one full-width CTA, generous remaining space, and social links at the bottom. School identity replaces the reference brand: the real logo/name, existing Inter font, navy/blue colors and existing school destinations. Seven real routes replace the reference's four generic links, and the CTA opens online admissions. Theme and language controls remain available. The light panel is white; dark mode uses the existing school surface. There are no invented submenus or placeholder destinations.
+
+Actual viewport checks: 320 × 568, 390 × 844, 768 × 1024, 1024 × 844 and 1440 × 844 in light and dark themes. The supplied reference is a narrow raster; typography and touch targets are adapted to the real school content rather than copied as literal pixels. At 390px the social row sits at the panel bottom. At shorter heights the full panel scrolls, keeping every control reachable. Also checked landscape 568 × 320.
+
+## Interaction checks
+
+Passed in installed Chrome through Playwright against the real local app:
+- Hamburger opens a native modal dialog covering the viewport, with seven visible primary routes and minimum 44px targets. No horizontal dialog overflow.
+- Close button receives initial focus; Tab and Shift+Tab wrap inside the menu. Native modal behavior makes the underlying page inert.
+- Escape and close button dismiss the menu and restore the opener's focus; body scrolling and Lenis resume afterward.
+- Short-screen menu scroll reaches the social links while the page behind retains its scroll position. After closing, mouse wheel scrolling moves the page again.
+- Program and PPDB links navigate to the actual pages and close the menu; returning home and selecting the current home route also closes it.
+- Switching to English updates labels; changing theme keeps the menu open and updates the colors.
+- Resizing an open mobile menu to desktop closes it and releases scroll locking.
+- At 1024px and 1440px the desktop header exactly matches the before-change visible text, height and visible links/buttons' labels, destinations, sizes, fonts and colors in both themes. No desktop CSS was changed.
+- No page errors occurred during the viewport matrix. The dev server stopped before a supplementary scroll check; restarted API on 3001 and web on 5173, then completed that check successfully.
+
+## Source and build checks
+
+The mobile dialog is portaled to the document body so the closed navbar's blur/positioning cannot clip it. Native top-layer semantics plus explicit keyboard wrapping keep the panel accessible. Effects restore previous body overflow and Lenis state and close on desktop resize. Static routes and social links stay outside render, keys are stable, icons are decorative, controls have accessible names, and no data writes or backend behavior were introduced. Desktop markup/styles and closed navbar presentation are retained.
+
+`npm run build` and `git diff --check` passed. Impeccable detector reported only seven existing advisories: six for the user-requested Inter font and one unrelated admin accent. No change was made to those established styles.
+
+final result: passed

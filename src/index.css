@@ -2640,3 +2640,196 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
     line-height: 1.6;
   }
 }
+/* Full-screen school navigation below the desktop navbar breakpoint. */
+@media (max-width: 1023px) {
+  .mobile-navigation-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #fff;
+    color: rgb(var(--ink-rgb));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .mobile-navigation-dialog::backdrop {
+    background: transparent;
+  }
+
+  .dark .mobile-navigation-dialog {
+    background: rgb(var(--surface-rgb));
+  }
+
+  .mobile-navigation-panel {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    padding: max(1.25rem, env(safe-area-inset-top)) clamp(1.5rem, 8vw, 3rem) max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .mobile-navigation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .mobile-navigation-brand {
+    display: inline-flex;
+    min-height: 2.75rem;
+    min-width: 0;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .mobile-navigation-brand img {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+
+  .mobile-navigation-brand strong,
+  .mobile-navigation-brand > span > span {
+    display: block;
+  }
+
+  .mobile-navigation-brand strong {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .mobile-navigation-brand > span > span {
+    margin-top: 0.15rem;
+    color: rgb(var(--gray-600));
+    font-size: 0.75rem;
+  }
+
+  .mobile-navigation-close,
+  .mobile-navigation-preferences > button {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 0.5rem;
+  }
+
+  .mobile-navigation-links {
+    display: flex;
+    flex-direction: column;
+    margin-top: 1.75rem;
+  }
+
+  .mobile-navigation-links a {
+    display: flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.65rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .mobile-navigation-links a[aria-current='page'] {
+    color: rgb(var(--brand-700));
+    font-weight: 700;
+  }
+
+  .mobile-navigation-links svg {
+    flex-shrink: 0;
+    color: rgb(var(--gray-500));
+  }
+
+  .mobile-navigation-ppdb {
+    display: flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgb(var(--brand-700));
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .mobile-navigation-preferences {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .mobile-navigation-preferences [role='group'] {
+    align-self: auto;
+    margin: 0;
+  }
+
+  .mobile-navigation-socials {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    margin-top: auto;
+    padding-top: 2.5rem;
+    color: rgb(var(--gray-600));
+  }
+
+  .mobile-navigation-socials a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    font-size: 0.75rem;
+  }
+
+  .mobile-navigation-dialog :is(a, button):focus-visible {
+    outline: 2px solid rgb(var(--brand-700));
+    outline-offset: 3px;
+  }
+
+  .mobile-navigation-links a:hover,
+  .mobile-navigation-socials a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  .mobile-navigation-ppdb:hover {
+    background: rgb(var(--brand-800));
+  }
+
+  .mobile-navigation-close:hover,
+  .mobile-navigation-preferences > button:hover {
+    background: rgb(var(--gray-100));
+  }
+
+  .dark .mobile-navigation-brand > span > span,
+  .dark .mobile-navigation-socials {
+    color: rgb(var(--gray-300));
+  }
+
+  .dark .mobile-navigation-links a[aria-current='page'] {
+    color: rgb(var(--brand-300));
+  }
+
+  .dark .mobile-navigation-close:hover,
+  .dark .mobile-navigation-preferences > button:hover {
+    background: rgb(var(--gray-800));
+  }
+
+  .dark .mobile-navigation-dialog :is(a, button):focus-visible {
+    outline-color: rgb(var(--brand-300));
+  }
+}

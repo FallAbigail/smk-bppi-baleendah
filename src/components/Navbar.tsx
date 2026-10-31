@@ -6,6 +6,7 @@ import { cn } from '../utils/cn'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { schoolProfile } from '../data/schoolProfile'
+import MobileNavigation from './MobileNavigation'
 import {
   clearHomeWaveOpeningSkip,
   hasHomeWaveOpeningSkip,
@@ -242,18 +243,6 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
     setOpen(false)
   }, [location.pathname])
 
-  useEffect(() => {
-    if (!open) return
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setOpen(false)
-        menuButtonRef.current?.focus()
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [open])
-
   const themeLabel = t(isDark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap')
 
   const handleHomeClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -280,216 +269,167 @@ export default function Navbar({ lenisRef }: { lenisRef: RefObject<Lenis | null>
   }
 
   return (
-    <header
-      aria-hidden={location.pathname === '/' && !heroWaveFinished}
-      className={cn(
-        'navbar-frame fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4 lg:px-6',
-        location.pathname === '/' && !heroWaveFinished && 'is-hero-hidden',
-      )}
-    >
-      <div className="navbar-layout">
-        <Link
-          to="/"
-          onClick={handleHomeClick}
-          className="navbar-brand-panel"
-          aria-label={`${schoolProfile.name} ${t(schoolProfile.city)}, ${t('Beranda').toLowerCase()}`}
-        >
-          <img
-            src="/images/logo-smk-bppi.png"
-            alt=""
-            aria-hidden="true"
-            className="navbar-brand-logo"
-          />
-          <span className="navbar-brand-copy leading-tight">
-            <span className="navbar-brand-name block font-bold text-sm">
-              {schoolProfile.name}
+    <>
+      <header
+        aria-hidden={location.pathname === '/' && !heroWaveFinished}
+        className={cn(
+          'navbar-frame fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4 lg:px-6',
+          location.pathname === '/' && !heroWaveFinished && 'is-hero-hidden',
+        )}
+      >
+        <div className="navbar-layout">
+          <Link
+            to="/"
+            onClick={handleHomeClick}
+            className="navbar-brand-panel"
+            aria-label={`${schoolProfile.name} ${t(schoolProfile.city)}, ${t('Beranda').toLowerCase()}`}
+          >
+            <img
+              src="/images/logo-smk-bppi.png"
+              alt=""
+              aria-hidden="true"
+              className="navbar-brand-logo"
+            />
+            <span className="navbar-brand-copy leading-tight">
+              <span className="navbar-brand-name block font-bold text-sm">
+                {schoolProfile.name}
+              </span>
+              <span className="navbar-brand-city block text-xs">
+                {t(schoolProfile.city)}
+              </span>
             </span>
-            <span className="navbar-brand-city block text-xs">
-              {t(schoolProfile.city)}
-            </span>
-          </span>
-        </Link>
+          </Link>
 
-        <div className="navbar-menu">
-          <div className="navbar-content px-2 sm:px-4 lg:px-4 xl:px-6">
-            <div className="navbar-controls flex items-center justify-between h-14 md:h-16">
-              <nav className="hidden lg:flex items-center gap-0.5" aria-label={t('Navigasi utama')}>
-                {navLinks.map((link) => {
-                  const active = isNavLinkActive(location.pathname, link.href)
-                  return (
-                    <Link
-                      key={link.href}
-                      to={link.href}
-                      onClick={link.href === '/' ? handleHomeClick : undefined}
-                      aria-current={active ? 'page' : undefined}
-                      className={cn(
-                        'navbar-link px-1.5 py-2 text-sm font-medium transition-colors xl:px-3',
-                        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
-                        'focus-visible:outline-brand-700',
-                        active
-                          ? 'text-brand-900 dark:text-brand-200'
-                          : [
-                              'text-gray-900 dark:text-gray-100 hover:text-brand-700',
-                              'dark:hover:text-brand-200',
-                            ].join(' '),
-                      )}
-                    >
-                      {t(link.label)}
-                    </Link>
-                  )
-                })}
-                <LanguageSwitcher />
-              </nav>
+          <div className="navbar-menu">
+            <div className="navbar-content px-2 sm:px-4 lg:px-4 xl:px-6">
+              <div className="navbar-controls flex items-center justify-between h-14 md:h-16">
+                <nav className="hidden lg:flex items-center gap-0.5" aria-label={t('Navigasi utama')}>
+                  {navLinks.map((link) => {
+                    const active = isNavLinkActive(location.pathname, link.href)
+                    return (
+                      <Link
+                        key={link.href}
+                        to={link.href}
+                        onClick={link.href === '/' ? handleHomeClick : undefined}
+                        aria-current={active ? 'page' : undefined}
+                        className={cn(
+                          'navbar-link px-1.5 py-2 text-sm font-medium transition-colors xl:px-3',
+                          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+                          'focus-visible:outline-brand-700',
+                          active
+                            ? 'text-brand-900 dark:text-brand-200'
+                            : [
+                                'text-gray-900 dark:text-gray-100 hover:text-brand-700',
+                                'dark:hover:text-brand-200',
+                              ].join(' '),
+                        )}
+                      >
+                        {t(link.label)}
+                      </Link>
+                    )
+                  })}
+                  <LanguageSwitcher />
+                </nav>
 
-              <div className="hidden lg:flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className={[
-                    'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
-                    'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
-                    'dark:hover:bg-gray-800 transition-colors',
-                  ].join(' ')}
-                  aria-label={themeLabel}
-                >
-                  {isDark ? (
-                    <Sun className="w-4 h-4" aria-hidden="true" />
-                  ) : (
-                    <Moon className="w-4 h-4" aria-hidden="true" />
-                  )}
-                </button>
-                <Link
-                  to="/ppdb"
-                  aria-current={isNavLinkActive(location.pathname, '/ppdb') ? 'page' : undefined}
-                  className={cn(
-                    'inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-semibold',
-                    'border-brand-300 bg-white text-brand-900 transition-colors',
-                    'hover:bg-brand-50 focus-visible:outline focus-visible:outline-2',
-                    'focus-visible:outline-offset-2 focus-visible:outline-brand-700',
-                    'dark:border-brand-700 dark:bg-gray-900 dark:text-brand-200 dark:hover:bg-gray-800',
-                    isNavLinkActive(location.pathname, '/ppdb') &&
-                      'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-950/70',
-                  )}
-                >
-                  {t('PPDB')}
-                </Link>
-                <Link
-                  to="/kontak"
-                  aria-current={isNavLinkActive(location.pathname, '/kontak') ? 'page' : undefined}
-                  className={[
-                    'inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm',
-                    'font-semibold text-white transition-colors hover:bg-brand-800',
-                    'focus-visible:outline focus-visible:outline-2',
-                    'focus-visible:outline-offset-2',
-                    'focus-visible:outline-brand-700',
-                  ].join(' ')}
-                >
-                  {t('Hubungi Sekolah')}
-                </Link>
-              </div>
-
-              <div className="lg:hidden flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className={[
-                    'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
-                    'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
-                    'dark:hover:bg-gray-800 transition-colors',
-                  ].join(' ')}
-                  aria-label={themeLabel}
-                >
-                  {isDark ? (
-                    <Sun className="w-4 h-4" aria-hidden="true" />
-                  ) : (
-                    <Moon className="w-4 h-4" aria-hidden="true" />
-                  )}
-                </button>
-                <button
-                  ref={menuButtonRef}
-                  type="button"
-                  onClick={() => setOpen((value) => !value)}
-                  className={[
-                    'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
-                    'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
-                    'dark:hover:bg-gray-800 transition-colors',
-                  ].join(' ')}
-                  aria-label={t(open ? 'Tutup menu navigasi' : 'Buka menu navigasi')}
-                  aria-expanded={open}
-                  aria-controls="mobile-navigation"
-                >
-                  {open ? (
-                    <X className="w-5 h-5" aria-hidden="true" />
-                  ) : (
-                    <Menu className="w-5 h-5" aria-hidden="true" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <nav
-              id="mobile-navigation"
-              className={cn(
-                'navbar-mobile-nav lg:hidden border-t border-gray-100 dark:border-gray-800 py-3 flex-col gap-1',
-                open ? 'flex' : 'hidden',
-              )}
-              aria-label={t('Navigasi utama')}
-              hidden={!open}
-            >
-              {navLinks.map((link) => {
-                const active = isNavLinkActive(location.pathname, link.href)
-                return (
+                <div className="hidden lg:flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className={[
+                      'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
+                      'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
+                      'dark:hover:bg-gray-800 transition-colors',
+                    ].join(' ')}
+                    aria-label={themeLabel}
+                  >
+                    {isDark ? (
+                      <Sun className="w-4 h-4" aria-hidden="true" />
+                    ) : (
+                      <Moon className="w-4 h-4" aria-hidden="true" />
+                    )}
+                  </button>
                   <Link
-                    key={link.href}
-                    to={link.href}
-                    onClick={(event) => {
-                      if (link.href === '/') handleHomeClick(event)
-                      setOpen(false)
-                    }}
-                    aria-current={active ? 'page' : undefined}
+                    to="/ppdb"
+                    aria-current={isNavLinkActive(location.pathname, '/ppdb') ? 'page' : undefined}
                     className={cn(
-                      'navbar-link flex min-h-11 items-center px-4 py-2.5 text-sm font-medium transition-colors',
-                      active
-                        ? 'text-brand-900 dark:text-brand-200'
-                        : 'text-gray-900 dark:text-gray-100 hover:text-brand-700 dark:hover:text-brand-200',
+                      'inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-semibold',
+                      'border-brand-300 bg-white text-brand-900 transition-colors',
+                      'hover:bg-brand-50 focus-visible:outline focus-visible:outline-2',
+                      'focus-visible:outline-offset-2 focus-visible:outline-brand-700',
+                      'dark:border-brand-700 dark:bg-gray-900 dark:text-brand-200 dark:hover:bg-gray-800',
+                      isNavLinkActive(location.pathname, '/ppdb') &&
+                        'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-950/70',
                     )}
                   >
-                    {t(link.label)}
+                    {t('PPDB')}
                   </Link>
-                )
-              })}
-              <LanguageSwitcher mobile />
-              <div className="flex gap-2 px-4 pt-2">
-                <Link
-                  to="/ppdb"
-                  onClick={() => setOpen(false)}
-                  aria-current={isNavLinkActive(location.pathname, '/ppdb') ? 'page' : undefined}
-                  className={cn(
-                    'inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border px-4 py-2',
-                    'border-brand-300 bg-white text-center text-sm font-semibold text-brand-900',
-                    'transition-colors hover:bg-brand-50 dark:border-brand-700 dark:bg-gray-900',
-                    'dark:text-brand-200 dark:hover:bg-gray-800',
-                    isNavLinkActive(location.pathname, '/ppdb') &&
-                      'border-brand-500 bg-brand-50 dark:border-brand-500 dark:bg-brand-950/70',
-                  )}
-                >
-                  {t('PPDB')}
-                </Link>
-                <Link
-                  to="/kontak"
-                  onClick={() => setOpen(false)}
-                  className={[
-                    'inline-flex min-h-11 flex-1 items-center justify-center rounded-lg bg-brand-700 px-3 py-2',
-                    'text-center text-sm font-semibold text-white transition-colors hover:bg-brand-800',
-                  ].join(' ')}
-                >
-                  {t('Hubungi Sekolah')}
-                </Link>
+                  <Link
+                    to="/kontak"
+                    aria-current={isNavLinkActive(location.pathname, '/kontak') ? 'page' : undefined}
+                    className={[
+                      'inline-flex h-10 items-center justify-center rounded-lg bg-brand-700 px-4 text-sm',
+                      'font-semibold text-white transition-colors hover:bg-brand-800',
+                      'focus-visible:outline focus-visible:outline-2',
+                      'focus-visible:outline-offset-2',
+                      'focus-visible:outline-brand-700',
+                    ].join(' ')}
+                  >
+                    {t('Hubungi Sekolah')}
+                  </Link>
+                </div>
+
+                <div className="lg:hidden flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className={[
+                      'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
+                      'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
+                      'dark:hover:bg-gray-800 transition-colors',
+                    ].join(' ')}
+                    aria-label={themeLabel}
+                  >
+                    {isDark ? (
+                      <Sun className="w-4 h-4" aria-hidden="true" />
+                    ) : (
+                      <Moon className="w-4 h-4" aria-hidden="true" />
+                    )}
+                  </button>
+                  <button
+                    ref={menuButtonRef}
+                    type="button"
+                    onClick={() => setOpen((value) => !value)}
+                    className={[
+                      'w-11 h-11 rounded-lg lg:w-10 lg:h-10 flex items-center justify-center',
+                      'text-brand-900 dark:text-brand-200 hover:bg-gray-100',
+                      'dark:hover:bg-gray-800 transition-colors',
+                    ].join(' ')}
+                    aria-label={t(open ? 'Tutup menu navigasi' : 'Buka menu navigasi')}
+                    aria-expanded={open}
+                    aria-controls="mobile-navigation"
+                  >
+                    {open ? (
+                      <X className="w-5 h-5" aria-hidden="true" />
+                    ) : (
+                      <Menu className="w-5 h-5" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </nav>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+      <MobileNavigation
+        open={open}
+        onClose={() => setOpen(false)}
+        onNavigate={(event, href) => {
+          if (href === '/') handleHomeClick(event)
+          setOpen(false)
+        }}
+        lenisRef={lenisRef}
+        languageControl={<LanguageSwitcher mobile />}
+      />
+    </>
   )
 }
