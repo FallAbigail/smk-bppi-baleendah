@@ -3,7 +3,7 @@ interface Props {
   id?: string
 }
 
-/** Keep navigation anchors stable while their semantic sections move. */
+/** Keep section anchors and layout stable during content entrances. */
 export default function ScrollSection({ children, id }: Props) {
   return <div id={id}>{children}</div>
 }

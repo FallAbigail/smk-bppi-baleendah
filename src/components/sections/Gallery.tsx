@@ -241,8 +241,9 @@ export default function Gallery({
               <motion.button
                 key={item.id}
                 type="button"
+                data-scroll-reveal-block
                 layout
-                initial={{ opacity: 0 }}
+                initial={false}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2, delay: idx * 0.015 }}

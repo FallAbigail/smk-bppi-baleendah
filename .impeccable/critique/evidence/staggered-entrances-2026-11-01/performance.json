@@ -1,0 +1,82 @@
+[
+  {
+    "w": 390,
+    "cpuRate": 4,
+    "gesture": "CDP touch",
+    "scrollY": 405,
+    "tasks": [],
+    "visible": [
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "pending",
+        "opacity": "1",
+        "translate": "none"
+      }
+    ],
+    "idleWrites": 0
+  },
+  {
+    "w": 1440,
+    "cpuRate": 4,
+    "gesture": "mouse wheel",
+    "scrollY": 630,
+    "tasks": [],
+    "visible": [
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      },
+      {
+        "state": "done",
+        "opacity": "1",
+        "translate": "none"
+      }
+    ],
+    "idleWrites": 0
+  }
+]

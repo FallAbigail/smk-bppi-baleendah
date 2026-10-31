@@ -143,3 +143,10 @@ final result: passed
 Moved responsive scroll motion from photography to whole informational sections per user clarification. Mobile entrance/progress and bounded desktop section parallax passed three actual Chrome verification rounds, plus campus-image invariance and a paired throttled performance experiment. Gallery overlays escape transformed sections; closed/open PPDB operational cards remain static. Supersedes the earlier photo-motion behavior. Evidence and limits: `.impeccable/critique/section-scroll-2026-11-01.md`.
 
 final result: passed
+
+
+# Fade-up and staggered navigation — 2026-11-01
+
+Replaced section parallax with once-only fade-up/stagger, including incoming navbar routes. Kept section layout, image crop and hero carousel intact; interactive content settles on focus and retains stable hit targets. Three final Chrome verification rounds, pre-paint frame sampling, unsupported-API/reduced-motion checks and warm 4x CPU touch/wheel checks passed. Evidence and limits: `.impeccable/critique/staggered-entrances-2026-11-01.md`.
+
+final result: passed

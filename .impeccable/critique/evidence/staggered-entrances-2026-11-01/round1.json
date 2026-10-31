@@ -1,0 +1,1712 @@
+[
+  {
+    "w": 390,
+    "path": "/tentang",
+    "entrances": [
+      {
+        "path": "/tentang",
+        "tag": "P",
+        "text": "Tentang SMK BPPI",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2106.2999999523163
+      },
+      {
+        "path": "/tentang",
+        "tag": "H1",
+        "text": "Sekolah kejuruan informatika sejak 2008",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2106.2999999523163
+      },
+      {
+        "path": "/tentang",
+        "tag": "P",
+        "text": "SMK BPPI Baleendah berdiri pada tahun 2008 dengan fokus pendidikan kej",
+        "delay": 120,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2106.4000000953674
+      },
+      {
+        "path": "/tentang",
+        "tag": "P",
+        "text": "Program keahlian",
+        "delay": 180,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2106.5
+      },
+      {
+        "path": "/tentang",
+        "tag": "P",
+        "text": "AKL · PPLG · TJKT · ACP",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2106.5
+      },
+      {
+        "path": "/tentang",
+        "tag": "LI",
+        "text": "Asep Dimyati Yusup, S.T., Gr.Produktif",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2114.4000000953674
+      },
+      {
+        "path": "/tentang",
+        "tag": "LI",
+        "text": "Wahyudi, S.Pd., Gr.Matematika",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2114.4000000953674
+      },
+      {
+        "path": "/tentang",
+        "tag": "LI",
+        "text": "Kisan Ramadhan, S.Kom.Produktif",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2114.5
+      }
+    ]
+  },
+  {
+    "w": 390,
+    "path": "/program",
+    "entrances": [
+      {
+        "path": "/program",
+        "tag": "P",
+        "text": "SMK BPPI Baleendah",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3311
+      },
+      {
+        "path": "/program",
+        "tag": "H1",
+        "text": "Program Keahlian",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3311
+      },
+      {
+        "path": "/program",
+        "tag": "P",
+        "text": "Pilih salah satu jurusan untuk melihat gambaran dan fokus pembelajaran",
+        "delay": 120,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3311
+      },
+      {
+        "path": "/program",
+        "tag": "ARTICLE",
+        "text": "Akuntansi dan Keuangan Lembaga (AKL)Mempelajari pencatatan, pengelolaa",
+        "delay": 180,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3311
+      },
+      {
+        "path": "/program",
+        "tag": "ARTICLE",
+        "text": "Pengembangan Perangkat Lunak dan Gim (PPLG)Mempelajari pembuatan, peng",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3311
+      }
+    ]
+  },
+  {
+    "w": 390,
+    "path": "/ekskul",
+    "entrances": [
+      {
+        "path": "/ekskul",
+        "tag": "P",
+        "text": "Ekstrakurikuler",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4458.5
+      },
+      {
+        "path": "/ekskul",
+        "tag": "H1",
+        "text": "Kegiatan di luar kelas",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4458.5
+      },
+      {
+        "path": "/ekskul",
+        "tag": "P",
+        "text": "17 kegiatan yang tercantum pada daftar ekstrakurikuler resmi SMK BPPI ",
+        "delay": 120,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4458.5
+      },
+      {
+        "path": "/ekskul",
+        "tag": "A",
+        "text": "Lihat daftar resmi",
+        "delay": 180,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4458.5
+      },
+      {
+        "path": "/ekskul",
+        "tag": "H3",
+        "text": "Teknologi",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4458.5
+      },
+      {
+        "path": "/ekskul",
+        "tag": "LI",
+        "text": "ANDRO-ITAndro-IT berfokus pada pengembangan keterampilan teknologi dan",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4458.5
+      },
+      {
+        "path": "/ekskul",
+        "tag": "H3",
+        "text": "Seni",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4458.599999904633
+      },
+      {
+        "path": "/ekskul",
+        "tag": "LI",
+        "text": "Band-SMK BPPIBand berfokus pada pengembangan kemampuan bermusik anggot",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4458.599999904633
+      }
+    ]
+  },
+  {
+    "w": 390,
+    "path": "/galeri",
+    "entrances": [
+      {
+        "path": "/galeri",
+        "tag": "P",
+        "text": "Galeri",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5597.200000047684
+      },
+      {
+        "path": "/galeri",
+        "tag": "H1",
+        "text": "Kegiatan Siswa",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5597.299999952316
+      },
+      {
+        "path": "/galeri",
+        "tag": "P",
+        "text": "Dokumentasi kegiatan yang dipublikasikan di situs resmi SMK BPPI Balee",
+        "delay": 120,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5597.299999952316
+      },
+      {
+        "path": "/galeri",
+        "tag": "A",
+        "text": "Lihat semua",
+        "delay": 180,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5597.299999952316
+      },
+      {
+        "path": "/galeri",
+        "tag": "BUTTON",
+        "text": "LiterasiGema Literasi setiap Rabu",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5597.299999952316
+      },
+      {
+        "path": "/galeri",
+        "tag": "BUTTON",
+        "text": "PembiasaanJumat Bersih",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5597.299999952316
+      }
+    ]
+  },
+  {
+    "w": 390,
+    "path": "/informasi",
+    "entrances": [
+      {
+        "path": "/informasi",
+        "tag": "P",
+        "text": "Pusat Informasi",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6722.5
+      },
+      {
+        "path": "/informasi",
+        "tag": "H1",
+        "text": "Informasi Sekolah",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6722.5
+      },
+      {
+        "path": "/informasi",
+        "tag": "P",
+        "text": "Pilih bagian untuk membuka berita dan informasi sekolah.",
+        "delay": 120,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6722.5
+      },
+      {
+        "path": "/informasi",
+        "tag": "H2",
+        "text": "Berita Sekolah7 informasi tersedia",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6722.5
+      },
+      {
+        "path": "/informasi",
+        "tag": "ARTICLE",
+        "text": "28 Januari 2026SMK BPPI dan Cyberlabs siapkan Teaching FactorySekolah ",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6722.5
+      }
+    ]
+  },
+  {
+    "w": 390,
+    "path": "/kontak",
+    "entrances": [
+      {
+        "path": "/kontak",
+        "tag": "SPAN",
+        "text": "Hubungi Kami",
+        "delay": 0,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7817.700000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "H1",
+        "text": "Ada Pertanyaan? Kami Siap Membantu",
+        "delay": 60,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7817.700000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "P",
+        "text": "Kirim pertanyaan langsung melalui formulir ini. Pesan akan masuk ke si",
+        "delay": 120,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 12px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7817.700000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "A",
+        "text": "AlamatJl. Adipati Agung No. 23, Baleendah, Kec. Baleendah, Kabupaten B",
+        "delay": 180,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7817.700000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "A",
+        "text": "Telepon(022) 594-3350",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7817.700000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "A",
+        "text": "Emailsmk@bppi.sch.id",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7817.700000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "A",
+        "text": "Lihat informasi sekolah",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7817.700000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "FORM",
+        "text": "Nama Lengkap *Nomor TeleponEmail *Balasan melalui percakapan privatSet",
+        "delay": 220,
+        "duration": 420,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7817.799999952316
+      }
+    ]
+  },
+  {
+    "w": 1440,
+    "path": "/tentang",
+    "entrances": [
+      {
+        "path": "/tentang",
+        "tag": "P",
+        "text": "Tentang SMK BPPI",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2174
+      },
+      {
+        "path": "/tentang",
+        "tag": "H1",
+        "text": "Sekolah kejuruan informatika sejak 2008",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2174
+      },
+      {
+        "path": "/tentang",
+        "tag": "P",
+        "text": "SMK BPPI Baleendah berdiri pada tahun 2008 dengan fokus pendidikan kej",
+        "delay": 120,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2174
+      },
+      {
+        "path": "/tentang",
+        "tag": "P",
+        "text": "Program keahlian",
+        "delay": 180,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2174
+      },
+      {
+        "path": "/tentang",
+        "tag": "P",
+        "text": "AKL · PPLG · TJKT · ACP",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2174
+      },
+      {
+        "path": "/tentang",
+        "tag": "A",
+        "text": "Kenali guru pengajar",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2174.100000143051
+      },
+      {
+        "path": "/tentang",
+        "tag": "ARTICLE",
+        "text": "Visi sekolahMenciptakan lulusan yang kompeten sesuai kebutuhan industr",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2174.100000143051
+      },
+      {
+        "path": "/tentang",
+        "tag": "ARTICLE",
+        "text": "Misi sekolahMewujudkan budaya religius melalui pendidikan yang memuat ",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2174.100000143051
+      },
+      {
+        "path": "/tentang",
+        "tag": "LI",
+        "text": "Asep Dimyati Yusup, S.T., Gr.Produktif",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2182.100000143051
+      },
+      {
+        "path": "/tentang",
+        "tag": "LI",
+        "text": "Wahyudi, S.Pd., Gr.Matematika",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2182.2000000476837
+      },
+      {
+        "path": "/tentang",
+        "tag": "LI",
+        "text": "Kisan Ramadhan, S.Kom.Produktif",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 2182.2000000476837
+      }
+    ]
+  },
+  {
+    "w": 1440,
+    "path": "/program",
+    "entrances": [
+      {
+        "path": "/program",
+        "tag": "P",
+        "text": "SMK BPPI Baleendah",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3343.4000000953674
+      },
+      {
+        "path": "/program",
+        "tag": "H1",
+        "text": "Program Keahlian",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3343.5
+      },
+      {
+        "path": "/program",
+        "tag": "P",
+        "text": "Pilih salah satu jurusan untuk melihat gambaran dan fokus pembelajaran",
+        "delay": 120,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3343.5
+      },
+      {
+        "path": "/program",
+        "tag": "ARTICLE",
+        "text": "Akuntansi dan Keuangan Lembaga (AKL)Mempelajari pencatatan, pengelolaa",
+        "delay": 180,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3343.5
+      },
+      {
+        "path": "/program",
+        "tag": "ARTICLE",
+        "text": "Pengembangan Perangkat Lunak dan Gim (PPLG)Mempelajari pembuatan, peng",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3343.5
+      },
+      {
+        "path": "/program",
+        "tag": "ARTICLE",
+        "text": "Teknik Jaringan Komputer dan Telekomunikasi (TJKT)Mempelajari perancan",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3343.600000143051
+      },
+      {
+        "path": "/program",
+        "tag": "ARTICLE",
+        "text": "Axioo Class Program (ACP)Kelas industri yang membekali siswa dengan ke",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 3343.600000143051
+      }
+    ]
+  },
+  {
+    "w": 1440,
+    "path": "/ekskul",
+    "entrances": [
+      {
+        "path": "/ekskul",
+        "tag": "P",
+        "text": "Ekstrakurikuler",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.799999952316
+      },
+      {
+        "path": "/ekskul",
+        "tag": "H1",
+        "text": "Kegiatan di luar kelas",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.799999952316
+      },
+      {
+        "path": "/ekskul",
+        "tag": "P",
+        "text": "17 kegiatan yang tercantum pada daftar ekstrakurikuler resmi SMK BPPI ",
+        "delay": 120,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.799999952316
+      },
+      {
+        "path": "/ekskul",
+        "tag": "A",
+        "text": "Lihat daftar resmi",
+        "delay": 180,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.799999952316
+      },
+      {
+        "path": "/ekskul",
+        "tag": "H3",
+        "text": "Teknologi",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.799999952316
+      },
+      {
+        "path": "/ekskul",
+        "tag": "LI",
+        "text": "ANDRO-ITAndro-IT berfokus pada pengembangan keterampilan teknologi dan",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.900000095367
+      },
+      {
+        "path": "/ekskul",
+        "tag": "H3",
+        "text": "Seni",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.900000095367
+      },
+      {
+        "path": "/ekskul",
+        "tag": "LI",
+        "text": "Band-SMK BPPIBand berfokus pada pengembangan kemampuan bermusik anggot",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.900000095367
+      },
+      {
+        "path": "/ekskul",
+        "tag": "LI",
+        "text": "PadusPaduan suara membina minat dan bakat siswa di bidang seni musik v",
+        "delay": 120,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.900000095367
+      },
+      {
+        "path": "/ekskul",
+        "tag": "LI",
+        "text": "Seni TariSeni Tari berfokus pada pengembangan kemampuan gerak dan eksp",
+        "delay": 180,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 4431.900000095367
+      }
+    ]
+  },
+  {
+    "w": 1440,
+    "path": "/galeri",
+    "entrances": [
+      {
+        "path": "/galeri",
+        "tag": "P",
+        "text": "Galeri",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5535.400000095367
+      },
+      {
+        "path": "/galeri",
+        "tag": "H1",
+        "text": "Kegiatan Siswa",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5535.400000095367
+      },
+      {
+        "path": "/galeri",
+        "tag": "P",
+        "text": "Dokumentasi kegiatan yang dipublikasikan di situs resmi SMK BPPI Balee",
+        "delay": 120,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5535.400000095367
+      },
+      {
+        "path": "/galeri",
+        "tag": "A",
+        "text": "Lihat semua",
+        "delay": 180,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5535.400000095367
+      },
+      {
+        "path": "/galeri",
+        "tag": "BUTTON",
+        "text": "LiterasiGema Literasi setiap Rabu",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5535.5
+      },
+      {
+        "path": "/galeri",
+        "tag": "BUTTON",
+        "text": "PembiasaanJumat Bersih",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5535.5
+      },
+      {
+        "path": "/galeri",
+        "tag": "BUTTON",
+        "text": "OlahragaSenam Jumat",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5535.5
+      },
+      {
+        "path": "/galeri",
+        "tag": "BUTTON",
+        "text": "PembiasaanJumat Berkah",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 5535.600000143051
+      }
+    ]
+  },
+  {
+    "w": 1440,
+    "path": "/informasi",
+    "entrances": [
+      {
+        "path": "/informasi",
+        "tag": "P",
+        "text": "Pusat Informasi",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6611.200000047684
+      },
+      {
+        "path": "/informasi",
+        "tag": "H1",
+        "text": "Informasi Sekolah",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6611.299999952316
+      },
+      {
+        "path": "/informasi",
+        "tag": "P",
+        "text": "Pilih bagian untuk membuka berita dan informasi sekolah.",
+        "delay": 120,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6611.299999952316
+      },
+      {
+        "path": "/informasi",
+        "tag": "H2",
+        "text": "Berita Sekolah7 informasi tersedia",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6611.299999952316
+      },
+      {
+        "path": "/informasi",
+        "tag": "ARTICLE",
+        "text": "28 Januari 2026SMK BPPI dan Cyberlabs siapkan Teaching FactorySekolah ",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6611.299999952316
+      },
+      {
+        "path": "/informasi",
+        "tag": "ARTICLE",
+        "text": "28 Januari 2026Sekolah Pasar Modal tingkatkan literasi finansialProgra",
+        "delay": 120,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6611.299999952316
+      },
+      {
+        "path": "/informasi",
+        "tag": "ARTICLE",
+        "text": "28 Januari 2026Siswa SMK BPPI raih juara LKS Kabupaten BandungDelegasi",
+        "delay": 180,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 6611.400000095367
+      }
+    ]
+  },
+  {
+    "w": 1440,
+    "path": "/kontak",
+    "entrances": [
+      {
+        "path": "/kontak",
+        "tag": "SPAN",
+        "text": "Hubungi Kami",
+        "delay": 0,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7663.100000143051
+      },
+      {
+        "path": "/kontak",
+        "tag": "H1",
+        "text": "Ada Pertanyaan? Kami Siap Membantu",
+        "delay": 60,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7663.100000143051
+      },
+      {
+        "path": "/kontak",
+        "tag": "P",
+        "text": "Kirim pertanyaan langsung melalui formulir ini. Pesan akan masuk ke si",
+        "delay": 120,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "0px 18px"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7663.200000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "A",
+        "text": "AlamatJl. Adipati Agung No. 23, Baleendah, Kec. Baleendah, Kabupaten B",
+        "delay": 180,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7663.200000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "A",
+        "text": "Telepon(022) 594-3350",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7663.200000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "A",
+        "text": "Emailsmk@bppi.sch.id",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7663.200000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "A",
+        "text": "Lihat informasi sekolah",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7663.200000047684
+      },
+      {
+        "path": "/kontak",
+        "tag": "FORM",
+        "text": "Nama Lengkap *Nomor TeleponEmail *Cara menerima balasan Tautan website",
+        "delay": 220,
+        "duration": 500,
+        "frames": [
+          {
+            "opacity": "0.18",
+            "translate": "none"
+          },
+          {
+            "opacity": "1",
+            "translate": "none"
+          }
+        ],
+        "time": 7663.200000047684
+      }
+    ]
+  }
+]

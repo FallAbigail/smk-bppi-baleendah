@@ -1,0 +1,54 @@
+[
+  {
+    "runtimeReducedMotion": true,
+    "resizes": 4,
+    "fastReverse": 3,
+    "reloadBack": true,
+    "adminExcluded": true
+  },
+  {
+    "fallback": "IntersectionObserver",
+    "visible": true
+  },
+  {
+    "fallback": "animate",
+    "visible": true
+  },
+  {
+    "noFirstFrameFlash": true,
+    "firstFrames": [
+      {
+        "opacity": 0.18,
+        "state": "running"
+      },
+      {
+        "opacity": 0.18,
+        "state": "running"
+      },
+      {
+        "opacity": 0.18,
+        "state": "running"
+      },
+      {
+        "opacity": 0.18,
+        "state": "running"
+      },
+      {
+        "opacity": 0.18,
+        "state": "running"
+      },
+      {
+        "opacity": 0.18,
+        "state": "running"
+      },
+      {
+        "opacity": 0.18,
+        "state": "running"
+      },
+      {
+        "opacity": 0.18,
+        "state": "running"
+      }
+    ]
+  }
+]
