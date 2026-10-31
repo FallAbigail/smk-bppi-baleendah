@@ -1,0 +1,30 @@
+[
+  {
+    "source": "01-alur-umum.mmd",
+    "status": 0
+  },
+  {
+    "source": "02-alur-ppdb.mmd",
+    "status": 0
+  },
+  {
+    "source": "03-alur-admin.mmd",
+    "status": 0
+  },
+  {
+    "source": "04-arsitektur.mmd",
+    "status": 0
+  },
+  {
+    "source": "05-relasi-database.mmd",
+    "status": 0
+  },
+  {
+    "source": "06-pesan-dan-balasan.mmd",
+    "status": 0
+  },
+  {
+    "source": "07-pemeriksaan-status.mmd",
+    "status": 0
+  }
+]

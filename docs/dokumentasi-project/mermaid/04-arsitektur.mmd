@@ -1,0 +1,10 @@
+flowchart TB
+ U[Browser desktop dan mobile] --> F[React, Router dan komponen halaman]
+ F -->|JSON| A[Express API]
+ A --> V[Validasi input, origin, sesi dan role]
+ V --> D[(SQLite)]
+ D -->|Data publik atau privat| A
+ A --> F
+ P[Aset lokal public] --> F
+ X[CDN foto dan Google Maps] -.-> F
+ B[Build Vite dalam dist] --> A

@@ -1,0 +1,10 @@
+flowchart TB
+ A([Pendaftaran tersimpan]) --> B[Admin memeriksa data]
+ B --> C[Admin memilih status dan pesan]
+ C --> D[Simpan pembaruan]
+ D --> E[User memasukkan nomor dan kode]
+ E --> F{Cocok?}
+ F -->|Tidak| G[Periksa nomor dan kode]
+ G --> E
+ F -->|Ya| H[Tampilkan status dan pesan publik]
+ H --> I([Ikuti arahan panitia])

@@ -1,0 +1,10 @@
+flowchart TB
+ A([Buka PPDB]) --> B{Dibuka?}
+ B -->|Tidak| C([Info penutupan])
+ B -->|Ya| D[Isi data siswa dan wali]
+ D --> E{Valid?}
+ E -->|Tidak| F[Perbaiki data]
+ F --> D
+ E -->|Ya| G[Simpan status baru]
+ G --> H[Terima nomor dan kode]
+ H --> I([Menunggu tinjauan admin])
