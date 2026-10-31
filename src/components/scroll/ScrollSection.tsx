@@ -3,7 +3,7 @@ interface Props {
   id?: string
 }
 
-/** Keep section anchors stable; scroll effects belong to the photo within them. */
+/** Keep navigation anchors stable while their semantic sections move. */
 export default function ScrollSection({ children, id }: Props) {
   return <div id={id}>{children}</div>
 }

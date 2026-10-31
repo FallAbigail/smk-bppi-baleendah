@@ -87,9 +87,8 @@ export default function CTA() {
               </div>
             </div>
 
-            <figure data-scroll-photo className="cta-campus-card relative isolate aspect-square overflow-hidden rounded-[1.25rem] bg-gray-100 dark:bg-gray-800 sm:aspect-[16/10] xl:aspect-[1.45/1]">
+            <figure className="cta-campus-card relative isolate aspect-square overflow-hidden rounded-[1.25rem] bg-gray-100 dark:bg-gray-800 sm:aspect-[16/10] xl:aspect-[1.45/1]">
               <img
-                data-scroll-photo-image
                 src={schoolPhoto}
                 alt="Tampak depan gedung dan gerbang SMK BPPI Baleendah"
                 className="absolute inset-0 h-full w-full object-cover object-center"
@@ -109,7 +108,6 @@ export default function CTA() {
                         className={`absolute w-[calc(50%-0.375rem)] ${programCardPositions[index]}`}
                       >
                         <Link
-                          data-scroll-photo-overlay
                           to={`/program/${program.id}`}
                           className="group relative block overflow-hidden rounded-2xl border border-white/90 bg-white/90 p-2.5 shadow-lg shadow-gray-950/10 backdrop-blur-xl transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 dark:border-gray-700/90 dark:bg-gray-950/90 dark:hover:bg-gray-900 sm:p-3.5"
                         >

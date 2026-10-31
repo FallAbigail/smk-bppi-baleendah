@@ -136,3 +136,10 @@ final result: passed
 Desktop photo displacement is about 3.7× larger in the measured range, with adaptive bounded overscan. Style writes are image-local and offscreen compositor hints are released. Before/after browser measurements, normal/4× CPU checks and mobile/desktop regression suites passed. Scope, metrics and limitations: `.impeccable/critique/stronger-parallax-2026-11-01.md`.
 
 final result: passed
+
+
+# Section-level scroll correction — 2026-11-01
+
+Moved responsive scroll motion from photography to whole informational sections per user clarification. Mobile entrance/progress and bounded desktop section parallax passed three actual Chrome verification rounds, plus campus-image invariance and a paired throttled performance experiment. Gallery overlays escape transformed sections; closed/open PPDB operational cards remain static. Supersedes the earlier photo-motion behavior. Evidence and limits: `.impeccable/critique/section-scroll-2026-11-01.md`.
+
+final result: passed

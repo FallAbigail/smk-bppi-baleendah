@@ -1,0 +1,62 @@
+[
+  {
+    "reducedMotion": true,
+    "keyboardLightbox": true,
+    "resizes": 4,
+    "fastReverseCycles": 3,
+    "reloadBack": true,
+    "adminExcluded": true
+  },
+  {
+    "width": 390,
+    "actualGesture": "CDP touch",
+    "cpuThrottle": 4,
+    "before": {
+      "mode": "reveal",
+      "translate": "0px 2px",
+      "shift": 2,
+      "opacity": 0.969842,
+      "top": 741.671875
+    },
+    "after": {
+      "mode": "reveal",
+      "translate": "none",
+      "shift": 0,
+      "opacity": 1,
+      "top": 334.671875
+    },
+    "metrics": {
+      "scrollY": 4558,
+      "styleWrites": 9,
+      "longTasks": [],
+      "idleSectionWrites": 0
+    }
+  },
+  {
+    "width": 1440,
+    "actualGesture": "mouse wheel",
+    "cpuThrottle": 4,
+    "before": {
+      "mode": "parallax",
+      "translate": "0px -64px",
+      "shift": -64,
+      "opacity": 1,
+      "top": 675.65625
+    },
+    "after": {
+      "mode": "parallax",
+      "translate": "0px 45px",
+      "shift": 45,
+      "opacity": 1,
+      "top": 154.65625
+    },
+    "metrics": {
+      "scrollY": 4040,
+      "styleWrites": 80,
+      "longTasks": [
+        98
+      ],
+      "idleSectionWrites": 0
+    }
+  }
+]

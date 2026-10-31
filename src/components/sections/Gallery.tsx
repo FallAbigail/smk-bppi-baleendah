@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { ArrowRight, X } from 'lucide-react'
@@ -240,7 +241,6 @@ export default function Gallery({
               <motion.button
                 key={item.id}
                 type="button"
-                data-scroll-photo
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -261,7 +261,6 @@ export default function Gallery({
                 ].join(' ')}
               >
                 <img
-                  data-scroll-photo-image
                   src={item.image}
                   alt={t(item.title)}
                   loading="lazy"
@@ -271,7 +270,7 @@ export default function Gallery({
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                  <span data-scroll-photo-overlay className="mb-1.5 inline-flex rounded-full border border-white/30 bg-black/25 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-sm">
+                  <span className="mb-1.5 inline-flex rounded-full border border-white/30 bg-black/25 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-sm">
                     {t(item.category)}
                   </span>
                   <p className="text-sm font-semibold leading-snug text-white sm:text-base">
@@ -284,76 +283,79 @@ export default function Gallery({
         </motion.div>
       </div>
 
-      {/* Lightbox */}
-      <AnimatePresence>
-        {lightbox && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setLightbox(null)}
-            className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
-            role="presentation"
-          >
+      {/* Keep viewport overlays outside the moving section. */}
+      {createPortal(
+        <AnimatePresence>
+          {lightbox && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden max-w-sm w-full"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="gallery-lightbox-title"
-              tabIndex={-1}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setLightbox(null)}
+              className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+              role="presentation"
             >
-              <div className="aspect-video bg-gray-200 dark:bg-gray-900">
-                <img
-                  src={lightbox.lightboxImage}
-                  alt={t(lightbox.title)}
-                  decoding="async"
-                  fetchPriority="high"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="p-5">
-                <span className="text-xs font-semibold text-brand-700 dark:text-brand-400">
-                  {t(lightbox.category)}
-                </span>
-                <h3
-                  id="gallery-lightbox-title"
-                  className="font-semibold text-gray-900 dark:text-white mt-1"
-                >
-                  {t(lightbox.title)}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-                  {t(lightbox.summary)}
-                </p>
-                <a
-                  href={lightbox.sourceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-4 inline-flex text-sm font-semibold text-brand-700 underline-offset-4 hover:underline dark:text-brand-400"
-                >
-                  {t('Lihat sumber resmi')}
-                </a>
-              </div>
-              <button
-                ref={closeButtonRef}
-                onClick={() => setLightbox(null)}
-                type="button"
-                className={[
-                  'absolute top-3 right-3 w-8 h-8 bg-black/20 rounded-full',
-                  'flex items-center justify-center text-white',
-                  'hover:bg-black/40 transition-colors',
-                ].join(' ')}
-                aria-label={t('Tutup')}
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden max-w-sm w-full"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="gallery-lightbox-title"
+                tabIndex={-1}
               >
-                <X className="w-4 h-4" aria-hidden="true" />
-              </button>
+                <div className="aspect-video bg-gray-200 dark:bg-gray-900">
+                  <img
+                    src={lightbox.lightboxImage}
+                    alt={t(lightbox.title)}
+                    decoding="async"
+                    fetchPriority="high"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="p-5">
+                  <span className="text-xs font-semibold text-brand-700 dark:text-brand-400">
+                    {t(lightbox.category)}
+                  </span>
+                  <h3
+                    id="gallery-lightbox-title"
+                    className="font-semibold text-gray-900 dark:text-white mt-1"
+                  >
+                    {t(lightbox.title)}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                    {t(lightbox.summary)}
+                  </p>
+                  <a
+                    href={lightbox.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-4 inline-flex text-sm font-semibold text-brand-700 underline-offset-4 hover:underline dark:text-brand-400"
+                  >
+                    {t('Lihat sumber resmi')}
+                  </a>
+                </div>
+                <button
+                  ref={closeButtonRef}
+                  onClick={() => setLightbox(null)}
+                  type="button"
+                  className={[
+                    'absolute top-3 right-3 w-8 h-8 bg-black/20 rounded-full',
+                    'flex items-center justify-center text-white',
+                    'hover:bg-black/40 transition-colors',
+                  ].join(' ')}
+                  aria-label={t('Tutup')}
+                >
+                  <X className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </section>
   )
 }

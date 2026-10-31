@@ -1,90 +1,96 @@
 import { useLayoutEffect, type RefObject } from 'react'
 
-type Photo = { image: HTMLImageElement; mode?: string; value?: string; bleed?: string; active?: boolean }
+type Section = {
+  originalTranslate: string
+  originalOpacity: string
+  shift: number
+  revealed: boolean
+  mode?: string
+  opacity?: string
+  maxShift: number
+}
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value))
-const PARALLAX_RATE = 0.22
-const MIN_PARALLAX_SHIFT = 56
-const MAX_PARALLAX_SHIFT = 112
 
-/** Opt-in photography only: no animation styles on text, controls or section wrappers. */
+/** Move complete informational sections; never crop or transform their images. */
 export function usePageScrollEffects(pathname: string, enabled: boolean, progressRef: RefObject<HTMLDivElement>) {
   useLayoutEffect(() => {
     if (!enabled) return
     const mobile = window.matchMedia('(max-width: 1023px)')
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const photos = new Map<HTMLElement, Photo>()
+    const sections = new Map<HTMLElement, Section>()
     const progress = progressRef.current
     let main: HTMLElement | null = null
     let frame = 0
     let disposed = false
     let previousProgress = '0'
 
-    const reset = (host: HTMLElement, photo: Photo) => {
-      host.removeAttribute('data-scroll-photo-mode')
-      host.removeAttribute('data-scroll-photo-active')
-      host.style.removeProperty('--photo-inset')
-      photo.image.style.removeProperty('--photo-shift')
-      photo.image.style.removeProperty('--photo-bleed')
-      photo.mode = undefined
-      photo.value = undefined
-      photo.bleed = undefined
-      photo.active = false
+    const reset = (host: HTMLElement, section: Section) => {
+      host.style.translate = section.originalTranslate
+      host.style.opacity = section.originalOpacity
+      host.removeAttribute('data-scroll-section-mode')
+      section.shift = 0
+      section.opacity = undefined
+      section.mode = undefined
     }
 
     function draw() {
       frame = 0
       if (disposed) return
       const height = window.innerHeight
-      const width = window.innerWidth
       const scrollRange = Math.max(0, document.documentElement.scrollHeight - height)
       const nextProgress = String(scrollRange ? clamp(window.scrollY / scrollRange) : 0)
       if (nextProgress !== previousProgress) {
         progress?.style.setProperty('--page-scroll-progress', nextProgress)
         previousProgress = nextProgress
       }
-
-      // Read every frame's geometry before writing styles, avoiding layout thrashing.
-      const updates = Array.from(photos, ([host, photo]) => ({ host, photo, bounds: host.getBoundingClientRect() }))
-      for (const { host, photo, bounds } of updates) {
-        if (reducedMotion.matches || !photo.image.complete || !photo.image.naturalWidth || !bounds.height || !bounds.width) {
-          if (photo.mode) reset(host, photo)
+      // Geometry uses the unmoved position, so translation cannot feed back
+      // into the next frame. Batch all reads before any style writes.
+      const updates = Array.from(sections, ([host, section]) => ({ host, section, bounds: host.getBoundingClientRect() }))
+      for (const { host, section, bounds } of updates) {
+        if (reducedMotion.matches) {
+          if (section.mode) reset(host, section)
           continue
         }
-        if (bounds.right < 0 || bounds.left > width || bounds.bottom < -120 || bounds.top > height + 120) {
-          if (photo.active) {
-            host.removeAttribute('data-scroll-photo-active')
-            photo.active = false
-          }
-          continue
-        }
+        const top = bounds.top - section.shift
         const mode = mobile.matches ? 'reveal' : 'parallax'
-        // A consistent relative scroll speed is more legible than a small fixed
-        // offset spread over the entire viewport. Cap travel for smaller photos.
-        const maxShift = clamp(bounds.height * 0.18, MIN_PARALLAX_SHIFT, MAX_PARALLAX_SHIFT)
-        const value = mobile.matches
-          ? `${((1 - clamp((height - bounds.top) / ((height + Math.min(bounds.height, height)) / 2))) * 34).toFixed(3)}%`
-          : `${clamp((height / 2 - (bounds.top + bounds.height / 2)) * PARALLAX_RATE, -maxShift, maxShift).toFixed(3)}px`
-        if (photo.mode !== mode) {
-          reset(host, photo)
-          host.dataset.scrollPhotoMode = mode
-          photo.mode = mode
+        if (section.mode !== mode) {
+          reset(host, section)
+          host.dataset.scrollSectionMode = mode
+          section.mode = mode
         }
-        if (mode === 'parallax') {
-          if (!photo.active) {
-            host.setAttribute('data-scroll-photo-active', '')
-            photo.active = true
+        if (!bounds.height || top > height + 100 || top + bounds.height < -100) continue
+
+        // Keep a clicked control or focused input stationary while it is used.
+        // Do not snap its position on focus: that can move a pointer target.
+        const focused = document.activeElement
+        if (focused instanceof HTMLElement && host.contains(focused) && focused.matches('input, textarea, select, [contenteditable="true"], :focus-visible')) {
+          section.revealed = true
+          if (section.opacity !== section.originalOpacity) {
+            host.style.opacity = section.originalOpacity
+            section.opacity = section.originalOpacity
           }
-          // Overscan changes only when frame size changes, never with scroll.
-          const bleed = `${Math.ceil(maxShift + 2)}px`
-          if (photo.bleed !== bleed) {
-            photo.image.style.setProperty('--photo-bleed', bleed)
-            photo.bleed = bleed
-          }
+          continue
         }
-        if (photo.value !== value) {
-          if (mode === 'reveal') host.style.setProperty('--photo-inset', value)
-          else photo.image.style.setProperty('--photo-shift', value)
-          photo.value = value
+        let shift: number
+        let opacity = section.originalOpacity
+        if (mobile.matches) {
+          // Reveal once, before the section reaches the reading area. Returning
+          // from another route or scrolling back up never hides its content.
+          const entrance = clamp((height - top) / (height * 0.3))
+          if (entrance >= 1) section.revealed = true
+          const amount = section.revealed ? 1 : 1 - Math.pow(1 - entrance, 3)
+          shift = Math.round((1 - amount) * 24)
+          if (amount < 1) opacity = String(0.55 + amount * 0.45)
+        } else {
+          shift = Math.round(clamp((height * 0.4 - top) * 0.18, -section.maxShift, section.maxShift))
+        }
+        if (section.shift !== shift) {
+          host.style.translate = shift ? `0 ${shift}px` : section.originalTranslate
+          section.shift = shift
+        }
+        if (section.opacity !== opacity) {
+          host.style.opacity = opacity
+          section.opacity = opacity
         }
       }
     }
@@ -105,16 +111,32 @@ export function usePageScrollEffects(pathname: string, enabled: boolean, progres
         main = candidate
         if (main) resize?.observe(main)
       }
-      for (const [host, photo] of photos) {
-        if (!main?.contains(host) || !host.contains(photo.image)) {
-          reset(host, photo)
-          photos.delete(host)
+      for (const [host, section] of sections) {
+        if (!main?.contains(host)) {
+          reset(host, section)
+          sections.delete(host)
         }
       }
-      main?.querySelectorAll<HTMLElement>('[data-scroll-photo]').forEach((host) => {
-        if (photos.has(host)) return
-        const image = host.querySelector<HTMLImageElement>('[data-scroll-photo-image]')
-        if (image) photos.set(host, { image })
+      main?.querySelectorAll<HTMLElement>('section').forEach((host) => {
+        const existing = sections.get(host)
+        const padding = parseFloat(getComputedStyle(host).paddingTop)
+        const maxShift = padding >= 48 ? Math.min(64, padding * 0.7) : 6
+        if (existing) {
+          existing.maxShift = maxShift
+          return
+        }
+        if (host.hasAttribute('data-scroll-section-ignore') || host.id === 'section-hero' || host.closest('#section-hero')) return
+        // A semantic parent section owns its entire content. Do not double
+        // animate nested sections or operational registration/status forms.
+        if (host.parentElement?.closest('section') || (host.querySelector('form') && !host.classList.contains('community-reviews'))) return
+        sections.set(host, {
+          originalTranslate: host.style.translate,
+          originalOpacity: host.style.opacity,
+          shift: 0,
+          revealed: false,
+          // Closely packed accordion cards retain their spacing.
+          maxShift,
+        })
       })
       schedule()
     }
@@ -122,10 +144,11 @@ export function usePageScrollEffects(pathname: string, enabled: boolean, progres
     const content = new MutationObserver(reconcile)
     content.observe(document.getElementById('root') ?? document.body, { childList: true, subtree: true })
     window.addEventListener('scroll', schedule, { passive: true, capture: true })
-    window.addEventListener('resize', schedule)
+    window.addEventListener('resize', reconcile)
     window.addEventListener('pageshow', reconcile)
+    document.addEventListener('focusin', schedule)
+    document.addEventListener('focusout', schedule)
     document.addEventListener('load', schedule, true)
-    document.addEventListener('error', schedule, true)
     mobile.addEventListener('change', schedule)
     reducedMotion.addEventListener('change', schedule)
     window.visualViewport?.addEventListener('resize', schedule)
@@ -138,14 +161,15 @@ export function usePageScrollEffects(pathname: string, enabled: boolean, progres
       content.disconnect()
       resize?.disconnect()
       window.removeEventListener('scroll', schedule, true)
-      window.removeEventListener('resize', schedule)
+      window.removeEventListener('resize', reconcile)
       window.removeEventListener('pageshow', reconcile)
+      document.removeEventListener('focusin', schedule)
+      document.removeEventListener('focusout', schedule)
       document.removeEventListener('load', schedule, true)
-      document.removeEventListener('error', schedule, true)
       mobile.removeEventListener('change', schedule)
       reducedMotion.removeEventListener('change', schedule)
       window.visualViewport?.removeEventListener('resize', schedule)
-      photos.forEach((photo, host) => reset(host, photo))
+      sections.forEach((section, host) => reset(host, section))
       progress?.style.removeProperty('--page-scroll-progress')
     }
   }, [pathname, enabled, progressRef])
