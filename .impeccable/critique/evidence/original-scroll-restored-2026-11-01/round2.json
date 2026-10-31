@@ -1,0 +1,18 @@
+[
+  {
+    "w": 390,
+    "heroReturns": 3,
+    "lightboxViewport": true,
+    "ratingHitTest": true,
+    "navigation": true,
+    "forms": true
+  },
+  {
+    "w": 1440,
+    "heroReturns": 3,
+    "lightboxViewport": true,
+    "ratingHitTest": true,
+    "navigation": true,
+    "forms": true
+  }
+]

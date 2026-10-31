@@ -2,36 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Reading progress is independent of section motion and reduced-motion settings. */
-.mobile-scroll-progress {
-  display: none;
-  pointer-events: none;
-}
-
-@media (max-width: 1023px) {
-  .mobile-scroll-progress {
-    position: fixed;
-    z-index: 40;
-    inset: 0 0 auto;
-    display: block;
-    height: 3px;
-    background: rgb(var(--brand-200) / 30%);
-  }
-
-  .mobile-scroll-progress > span {
-    display: block;
-    width: 100%;
-    height: 100%;
-    transform: scaleX(var(--page-scroll-progress, 0));
-    transform-origin: left;
-    background: rgb(var(--brand-700));
-  }
-
-  .dark .mobile-scroll-progress > span {
-    background: rgb(var(--brand-300));
-  }
-}
-
 .footer-map-background {
   position: absolute;
   inset: 0 0 0 45%;
@@ -1593,12 +1563,31 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   }
 }
 
+[data-scroll-reveal='pending'] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--scroll-reveal-delay, 0ms);
+}
+
+[data-scroll-reveal='pending'].is-revealed {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
 .hero-facilities-track .hero-facility-card {
   transition: opacity 520ms cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--scroll-reveal-delay, 0ms);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  [data-scroll-reveal='pending'] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 
   *,
   *::before,

@@ -150,3 +150,10 @@ final result: passed
 Replaced section parallax with once-only fade-up/stagger, including incoming navbar routes. Kept section layout, image crop and hero carousel intact; interactive content settles on focus and retains stable hit targets. Three final Chrome verification rounds, pre-paint frame sampling, unsupported-API/reduced-motion checks and warm 4x CPU touch/wheel checks passed. Evidence and limits: `.impeccable/critique/staggered-entrances-2026-11-01.md`.
 
 final result: passed
+
+
+# Original scroll restored — 2026-11-01
+
+Restored the original section handoff from facb3d5, with original mobile readability guards and no separate image scroll effects. Removed the recent progress/route/section motion engine; retained hero visibility and gallery-overlay safeguards. Three Chrome verification rounds, build, scoped detector and diff check passed. Evidence and exact scope: `.impeccable/critique/original-scroll-restored-2026-11-01.md`.
+
+final result: passed

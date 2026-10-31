@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { AlertCircle, ArrowLeft, CheckCircle2, Clipboard, LoaderCircle, Mail, MapPin, MessageSquareText, Phone, Send } from 'lucide-react'
 import { schoolProfile } from '../data/schoolProfile'
@@ -127,9 +128,13 @@ export default function Kontak() {
       className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-950"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-14">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-14"
+        >
           <span
-            data-scroll-reveal-block
             className={[
               'inline-block bg-brand-50 dark:bg-brand-950',
               'text-brand-700 dark:text-brand-400 text-sm font-semibold',
@@ -145,7 +150,7 @@ export default function Kontak() {
           <p className="text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
             {t('Kirim pertanyaan langsung melalui formulir ini. Pesan akan masuk ke sistem sekolah untuk ditindaklanjuti.')}
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
           <div className="space-y-4">
@@ -176,7 +181,6 @@ export default function Kontak() {
               return item.href ? (
                 <a
                   key={item.title}
-                  data-scroll-reveal-block
                   href={item.href}
                   target={item.title === 'Alamat' ? '_blank' : undefined}
                   rel={item.title === 'Alamat' ? 'noopener noreferrer' : undefined}
@@ -195,7 +199,7 @@ export default function Kontak() {
                   {cardContent}
                 </a>
               ) : (
-                <div key={item.title} data-scroll-reveal-block className={cardClass}>
+                <div key={item.title} className={cardClass}>
                   {cardContent}
                 </div>
               )

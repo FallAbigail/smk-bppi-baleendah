@@ -191,7 +191,7 @@ export default function Ppdb() {
         </header>
 
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.75fr)]">
-          <section data-scroll-section-ignore className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-7" aria-labelledby="application-heading">
+          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-7" aria-labelledby="application-heading">
             <div className="mb-6 flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300"><GraduationCap className="h-5 w-5" aria-hidden="true" /></span>
               <div>
@@ -295,7 +295,7 @@ export default function Ppdb() {
           </section>
 
           <aside className="space-y-6">
-            <section data-scroll-section-ignore className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6" aria-labelledby="status-heading">
+            <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6" aria-labelledby="status-heading">
               <div className="mb-5 flex items-start gap-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200"><ClipboardCheck className="h-5 w-5" aria-hidden="true" /></span>
                 <div><h2 id="status-heading" className="text-lg font-bold text-gray-900 dark:text-white">{t('Cek status pendaftaran')}</h2><p className="mt-1 text-sm leading-5 text-gray-600 dark:text-gray-400">{t('Gunakan nomor pendaftaran dan kode pelacakan yang diterima setelah mengirim formulir.')}</p></div>

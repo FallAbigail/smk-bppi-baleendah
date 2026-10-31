@@ -350,7 +350,6 @@ function ProgramCarousel({
       <div className="min-w-0">
         <AnimatePresence mode="wait" initial={false}>
           <motion.article
-            data-scroll-reveal-ignore
             key={activeProgram.id}
             initial={reduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}

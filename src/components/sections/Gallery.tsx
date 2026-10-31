@@ -241,7 +241,6 @@ export default function Gallery({
               <motion.button
                 key={item.id}
                 type="button"
-                data-scroll-reveal-block
                 layout
                 initial={false}
                 animate={{ opacity: 1, scale: 1 }}
