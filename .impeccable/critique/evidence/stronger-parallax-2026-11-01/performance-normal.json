@@ -1,0 +1,17 @@
+{
+  "cpuThrottle": 1,
+  "idle": {
+    "shiftWrites": 0,
+    "bleedWrites": 0,
+    "progressWrites": 0
+  },
+  "scroll": {
+    "shiftWrites": 918,
+    "bleedWrites": 0,
+    "progressWrites": 192,
+    "longTasks": [],
+    "frames": 222,
+    "medianFrameMs": 6.900000000001455,
+    "p95FrameMs": 7.299999999999272
+  }
+}

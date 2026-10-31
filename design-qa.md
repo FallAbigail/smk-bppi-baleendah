@@ -129,3 +129,10 @@ final result: passed
 Mobile: image reveal and page progress. Desktop: bounded photo parallax, with photo-overlay blur removed. Legacy global/section fades and scale handoffs were removed. Three actual Chrome verification passes plus touch/wheel and final campus/overlay follow-ups passed. Complete scope, fixes, test results and evidence: `.impeccable/critique/scroll-effects-2026-11-01.md`.
 
 final result: passed
+
+
+# Stronger parallax — 2026-11-01
+
+Desktop photo displacement is about 3.7× larger in the measured range, with adaptive bounded overscan. Style writes are image-local and offscreen compositor hints are released. Before/after browser measurements, normal/4× CPU checks and mobile/desktop regression suites passed. Scope, metrics and limitations: `.impeccable/critique/stronger-parallax-2026-11-01.md`.
+
+final result: passed

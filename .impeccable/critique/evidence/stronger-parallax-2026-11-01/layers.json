@@ -1,0 +1,12 @@
+{
+  "before": {
+    "willChange": "translate",
+    "shift": "4.455px",
+    "bleed": "85px"
+  },
+  "after": {
+    "willChange": "auto"
+  },
+  "activePhotos": 6,
+  "totalPhotos": 11
+}

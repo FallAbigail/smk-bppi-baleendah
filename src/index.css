@@ -47,10 +47,14 @@
   }
 
   [data-scroll-photo-mode='parallax'] > [data-scroll-photo-image] {
-    top: -28px;
-    bottom: -28px;
-    height: calc(100% + 56px);
+    top: calc(0px - var(--photo-bleed, 28px));
+    bottom: calc(0px - var(--photo-bleed, 28px));
+    height: calc(100% + var(--photo-bleed, 28px) * 2);
     translate: 0 var(--photo-shift, 0px);
+  }
+
+  [data-scroll-photo-mode='parallax'][data-scroll-photo-active] > [data-scroll-photo-image] {
+    will-change: translate;
   }
 }
 

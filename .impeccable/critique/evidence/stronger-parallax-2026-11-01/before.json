@@ -1,0 +1,108 @@
+[
+  {
+    "width": 1024,
+    "samples": [
+      {
+        "mode": "parallax",
+        "inset": 0,
+        "shift": -18.063,
+        "clip": "none",
+        "translate": "0px -18.063px",
+        "filter": "none",
+        "backdrop": "none",
+        "width": 312,
+        "height": 234,
+        "top": 759.75,
+        "bottom": 993.75,
+        "imageTop": 713.68701171875,
+        "imageBottom": 1003.68701171875,
+        "loaded": true
+      },
+      {
+        "mode": "parallax",
+        "inset": 0,
+        "shift": -4.942,
+        "clip": "none",
+        "translate": "0px -4.942px",
+        "filter": "none",
+        "backdrop": "none",
+        "width": 312,
+        "height": 234,
+        "top": 449.75,
+        "bottom": 683.75,
+        "imageTop": 416.8079833984375,
+        "imageBottom": 706.8079833984375,
+        "loaded": true
+      },
+      {
+        "mode": "parallax",
+        "inset": 0,
+        "shift": 7.757,
+        "clip": "none",
+        "translate": "0px 7.757px",
+        "filter": "none",
+        "backdrop": "none",
+        "width": 312,
+        "height": 234,
+        "top": 149.75,
+        "bottom": 383.75,
+        "imageTop": 129.5070037841797,
+        "imageBottom": 419.5070037841797,
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "samples": [
+      {
+        "mode": "parallax",
+        "inset": 0,
+        "shift": -18.011,
+        "clip": "none",
+        "translate": "0px -18.011px",
+        "filter": "none",
+        "backdrop": "none",
+        "width": 602,
+        "height": 224,
+        "top": 759.75,
+        "bottom": 983.75,
+        "imageTop": 713.739013671875,
+        "imageBottom": 993.739013671875,
+        "loaded": true
+      },
+      {
+        "mode": "parallax",
+        "inset": 0,
+        "shift": -4.772,
+        "clip": "none",
+        "translate": "0px -4.772px",
+        "filter": "none",
+        "backdrop": "none",
+        "width": 602,
+        "height": 224,
+        "top": 449.75,
+        "bottom": 673.75,
+        "imageTop": 416.9779968261719,
+        "imageBottom": 696.97802734375,
+        "loaded": true
+      },
+      {
+        "mode": "parallax",
+        "inset": 0,
+        "shift": 8.039,
+        "clip": "none",
+        "translate": "0px 8.039px",
+        "filter": "none",
+        "backdrop": "none",
+        "width": 602,
+        "height": 224,
+        "top": 149.75,
+        "bottom": 373.75,
+        "imageTop": 129.78900146484375,
+        "imageBottom": 409.78900146484375,
+        "loaded": true
+      }
+    ]
+  }
+]

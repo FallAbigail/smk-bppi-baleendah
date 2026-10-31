@@ -1,7 +1,10 @@
 import { useLayoutEffect, type RefObject } from 'react'
 
-type Photo = { image: HTMLImageElement; mode?: string; value?: string }
+type Photo = { image: HTMLImageElement; mode?: string; value?: string; bleed?: string; active?: boolean }
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value))
+const PARALLAX_RATE = 0.22
+const MIN_PARALLAX_SHIFT = 56
+const MAX_PARALLAX_SHIFT = 112
 
 /** Opt-in photography only: no animation styles on text, controls or section wrappers. */
 export function usePageScrollEffects(pathname: string, enabled: boolean, progressRef: RefObject<HTMLDivElement>) {
@@ -14,13 +17,18 @@ export function usePageScrollEffects(pathname: string, enabled: boolean, progres
     let main: HTMLElement | null = null
     let frame = 0
     let disposed = false
+    let previousProgress = '0'
 
     const reset = (host: HTMLElement, photo: Photo) => {
       host.removeAttribute('data-scroll-photo-mode')
+      host.removeAttribute('data-scroll-photo-active')
       host.style.removeProperty('--photo-inset')
-      host.style.removeProperty('--photo-shift')
+      photo.image.style.removeProperty('--photo-shift')
+      photo.image.style.removeProperty('--photo-bleed')
       photo.mode = undefined
       photo.value = undefined
+      photo.bleed = undefined
+      photo.active = false
     }
 
     function draw() {
@@ -29,7 +37,11 @@ export function usePageScrollEffects(pathname: string, enabled: boolean, progres
       const height = window.innerHeight
       const width = window.innerWidth
       const scrollRange = Math.max(0, document.documentElement.scrollHeight - height)
-      progress?.style.setProperty('--page-scroll-progress', String(scrollRange ? clamp(window.scrollY / scrollRange) : 0))
+      const nextProgress = String(scrollRange ? clamp(window.scrollY / scrollRange) : 0)
+      if (nextProgress !== previousProgress) {
+        progress?.style.setProperty('--page-scroll-progress', nextProgress)
+        previousProgress = nextProgress
+      }
 
       // Read every frame's geometry before writing styles, avoiding layout thrashing.
       const updates = Array.from(photos, ([host, photo]) => ({ host, photo, bounds: host.getBoundingClientRect() }))
@@ -38,18 +50,40 @@ export function usePageScrollEffects(pathname: string, enabled: boolean, progres
           if (photo.mode) reset(host, photo)
           continue
         }
-        if (bounds.right < 0 || bounds.left > width) continue
+        if (bounds.right < 0 || bounds.left > width || bounds.bottom < -120 || bounds.top > height + 120) {
+          if (photo.active) {
+            host.removeAttribute('data-scroll-photo-active')
+            photo.active = false
+          }
+          continue
+        }
         const mode = mobile.matches ? 'reveal' : 'parallax'
+        // A consistent relative scroll speed is more legible than a small fixed
+        // offset spread over the entire viewport. Cap travel for smaller photos.
+        const maxShift = clamp(bounds.height * 0.18, MIN_PARALLAX_SHIFT, MAX_PARALLAX_SHIFT)
         const value = mobile.matches
           ? `${((1 - clamp((height - bounds.top) / ((height + Math.min(bounds.height, height)) / 2))) * 34).toFixed(3)}%`
-          : `${(clamp((height / 2 - (bounds.top + bounds.height / 2)) / ((height + bounds.height) / 2), -1, 1) * 24).toFixed(3)}px`
+          : `${clamp((height / 2 - (bounds.top + bounds.height / 2)) * PARALLAX_RATE, -maxShift, maxShift).toFixed(3)}px`
         if (photo.mode !== mode) {
           reset(host, photo)
           host.dataset.scrollPhotoMode = mode
           photo.mode = mode
         }
+        if (mode === 'parallax') {
+          if (!photo.active) {
+            host.setAttribute('data-scroll-photo-active', '')
+            photo.active = true
+          }
+          // Overscan changes only when frame size changes, never with scroll.
+          const bleed = `${Math.ceil(maxShift + 2)}px`
+          if (photo.bleed !== bleed) {
+            photo.image.style.setProperty('--photo-bleed', bleed)
+            photo.bleed = bleed
+          }
+        }
         if (photo.value !== value) {
-          host.style.setProperty(mode === 'reveal' ? '--photo-inset' : '--photo-shift', value)
+          if (mode === 'reveal') host.style.setProperty('--photo-inset', value)
+          else photo.image.style.setProperty('--photo-shift', value)
           photo.value = value
         }
       }
