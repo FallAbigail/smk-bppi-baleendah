@@ -1,0 +1,132 @@
+[
+  {
+    "width": 390,
+    "height": 299.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "light",
+    "oldHeight": 352
+  },
+  {
+    "width": 390,
+    "height": 299.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "dark",
+    "oldHeight": 352
+  },
+  {
+    "width": 640,
+    "height": 299.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "light",
+    "oldHeight": 352
+  },
+  {
+    "width": 640,
+    "height": 299.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "dark",
+    "oldHeight": 352
+  },
+  {
+    "width": 768,
+    "height": 367.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "light",
+    "oldHeight": 432
+  },
+  {
+    "width": 768,
+    "height": 367.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "dark",
+    "oldHeight": 432
+  },
+  {
+    "width": 1024,
+    "height": 435.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "light",
+    "oldHeight": 512
+  },
+  {
+    "width": 1024,
+    "height": 435.1875305175781,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "dark",
+    "oldHeight": 512
+  },
+  {
+    "width": 1440,
+    "height": 435.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "light",
+    "oldHeight": 512
+  },
+  {
+    "width": 1440,
+    "height": 435.1875,
+    "order": [
+      "section-location",
+      "section-cta"
+    ],
+    "ctaCount": 1,
+    "overflow": false,
+    "adjacent": true,
+    "theme": "dark",
+    "oldHeight": 512
+  }
+]

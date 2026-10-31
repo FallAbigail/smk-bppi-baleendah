@@ -45,7 +45,7 @@ export default function SchoolLocation() {
             src={schoolProfile.googleMapsEmbedUrl}
             loading="lazy"
             referrerPolicy="strict-origin-when-cross-origin"
-            className="block h-[22rem] w-full border-0 bg-gray-100 dark:bg-gray-800 sm:h-[27rem] lg:h-[32rem]"
+            className="block h-[18.7rem] w-full border-0 bg-gray-100 dark:bg-gray-800 sm:h-[22.95rem] lg:h-[27.2rem]"
             allowFullScreen
           />
         </div>

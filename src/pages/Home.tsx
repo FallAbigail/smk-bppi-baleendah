@@ -34,8 +34,6 @@ export default function Home() {
         <Programs carousel />
       </ScrollSection>
 
-      {mobile && <CTA />}
-
       <ScrollSection id="section-extracurriculars">
         <ExtracurricularPreview />
       </ScrollSection>
@@ -56,8 +54,8 @@ export default function Home() {
         <Sponsors />
       </ScrollSection>
 
-      {!mobile && <CTA />}
       <SchoolLocation />
+      <CTA />
     </main>
   )
 }

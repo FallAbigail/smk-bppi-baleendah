@@ -37,3 +37,24 @@ Passed in real headless Chrome via Playwright against the running local applicat
 No blocking mobile footer findings remain. Desktop styles and behavior are preserved. The information CTA links to the existing announcements section rather than introducing unsupported subscription behavior.
 
 final result: passed
+
+
+# Homepage map and admissions order — 2026-11-01
+
+User confirmed mobile and desktop scope. Homepage now renders SchoolLocation immediately before one CTA, followed by the shared footer. The CTA itself is unchanged. Map frame height is 85% of its previous computed height, including the pre-existing phone CSS override.
+
+Actual Chrome measurements, checked in light/dark themes with no page errors or horizontal overflow:
+
+| Width | Before | After |
+| --- | --- | --- |
+| 390 / 640 px | 352 px | 299.19 px |
+| 768 px | 432 px | 367.19 px |
+| 1024 / 1440 px | 512 px | 435.19 px |
+
+The small fractional rounding is browser subpixel rounding. Browser assertions verified exactly one admissions section, DOM order location → admissions, and direct adjacency at all five widths. Existing CTA, map URLs, heading, address, link behavior and footer styles remain unchanged.
+
+Evidence: `.impeccable/critique/evidence/location-order-2026-11-01/`. Opened actual mobile and desktop renders. The final mobile captures show the Google map loaded with the school pin; initial desktop layout capture shows the iframe's lazy-loading background. A separate mobile load check returned HTTP 200 and rendered Google Maps. Provider-specific text waits were unreliable on desktop and do not establish desktop map tile readiness; the layout/height checks passed independently.
+
+Validation: TypeScript/Vite build passed; diff whitespace check passed; scoped Impeccable layout detector returned no findings. No map loading logic was changed.
+
+final result: passed (requested order and height changes)
