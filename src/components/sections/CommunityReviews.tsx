@@ -296,7 +296,7 @@ export default function CommunityReviews() {
         <form
           id="review-form"
           onSubmit={handleSubmit}
-          className="public-form mb-6 rounded-2xl max-lg:mt-6 max-lg:scroll-mt-32 border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5"
+          className="public-form relative z-10 mb-6 rounded-2xl max-lg:mt-6 max-lg:scroll-mt-32 border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5"
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>

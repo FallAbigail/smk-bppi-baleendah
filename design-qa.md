@@ -91,3 +91,14 @@ The mobile dialog is portaled to the document body so the closed navbar's blur/p
 `npm run build` and `git diff --check` passed. Impeccable detector reported only seven existing advisories: six for the user-requested Inter font and one unrelated admin accent. No change was made to those established styles.
 
 final result: passed
+
+
+# Review rating dropdown stacking fix — 2026-11-01
+
+Reproduced the supplied defect in actual Chrome: after the entrance animation settled, `document.elementFromPoint` at the center of the 1-star option returned the following review article rather than its button. The form's retained reveal transform creates a stacking context, trapping the dropdown's z-30 below the later review cards. Giving the form a positioned z-10 raises that entire context above the cards. No spacing, typography, colors or page structure changed. The mobile toolbar retains its existing z-20.
+
+Opened before/after browser captures together: `.impeccable/critique/evidence/review-filter-2026-11-01/`. After the fix, all six filter rows are visually complete and hit-test to their own button at left, center and right points.
+
+Browser verification passed at widths 390, 768, 1024 and 1440, each in light and dark themes with normal motion enabled. Clicked 1 star and verified the real GET /api/reviews?rating=1 request returned HTTP 200, the panel closed and reopening showed the selected rating. Reset to all ratings, Escape with restored trigger focus, and outside-click dismissal passed. No review data was written; no page errors occurred. TypeScript/Vite build, diff whitespace check and scoped Impeccable detector passed.
+
+final result: passed
