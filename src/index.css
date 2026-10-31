@@ -715,7 +715,6 @@ html::-webkit-scrollbar-button {
   width: 2.75rem;
   height: 2.75rem;
   flex: 0 0 auto;
-  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 32%));
   object-fit: contain;
 }
 
@@ -725,26 +724,15 @@ html::-webkit-scrollbar-button {
 
 .navbar-brand-name {
   color: rgb(var(--gray-900));
-  text-shadow:
-    0 1px 2px rgb(255 255 255 / 95%),
-    0 2px 8px rgb(255 255 255 / 58%);
 }
 
 .navbar-brand-city {
   color: rgb(var(--gray-600));
-  text-shadow:
-    0 1px 2px rgb(255 255 255 / 95%),
-    0 2px 8px rgb(255 255 255 / 58%);
 }
 
 .navbar-link {
   position: relative;
   text-decoration: none;
-  text-shadow: 0 1px 2px rgb(255 255 255 / 72%);
-}
-
-.dark .navbar-link {
-  text-shadow: 0 1px 2px rgb(0 0 0 / 82%);
 }
 
 .navbar-link::after {
@@ -794,18 +782,10 @@ html::-webkit-scrollbar-button {
 
 .dark .navbar-brand-name {
   color: rgb(var(--gray-50));
-  text-shadow: 0 2px 8px rgb(0 0 0 / 78%);
 }
 
 .dark .navbar-brand-city {
   color: rgb(var(--brand-300));
-  text-shadow: 0 2px 8px rgb(0 0 0 / 78%);
-}
-
-.dark .navbar-brand-logo {
-  filter:
-    drop-shadow(0 1px 2px rgb(0 0 0 / 72%))
-    drop-shadow(0 0 1px rgb(255 255 255 / 56%));
 }
 
 @media (min-width: 640px) {
