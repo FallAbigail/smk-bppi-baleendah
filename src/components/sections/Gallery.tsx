@@ -240,6 +240,7 @@ export default function Gallery({
               <motion.button
                 key={item.id}
                 type="button"
+                data-scroll-photo
                 layout
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -260,6 +261,7 @@ export default function Gallery({
                 ].join(' ')}
               >
                 <img
+                  data-scroll-photo-image
                   src={item.image}
                   alt={t(item.title)}
                   loading="lazy"
@@ -269,7 +271,7 @@ export default function Gallery({
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                  <span className="mb-1.5 inline-flex rounded-full border border-white/30 bg-black/25 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-sm">
+                  <span data-scroll-photo-overlay className="mb-1.5 inline-flex rounded-full border border-white/30 bg-black/25 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-sm">
                     {t(item.category)}
                   </span>
                   <p className="text-sm font-semibold leading-snug text-white sm:text-base">

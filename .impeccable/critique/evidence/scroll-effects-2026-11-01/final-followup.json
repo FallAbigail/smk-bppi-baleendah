@@ -1,0 +1,14 @@
+[
+  {
+    "width": 390,
+    "ctaMode": "reveal",
+    "programLink": "/program/program-smk-akl",
+    "desktopOverlayBlurRemoved": false
+  },
+  {
+    "width": 1440,
+    "ctaMode": "parallax",
+    "programLink": "/program/program-smk-akl",
+    "desktopOverlayBlurRemoved": true
+  }
+]

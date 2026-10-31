@@ -5,7 +5,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import { RouteScrollManager, ScrollToTopButton } from './components/ScrollToTop'
 import { useLanguage } from './contexts/LanguageContext'
-import { usePageReveal } from './hooks/usePageReveal'
+import PageScrollEffects from './components/scroll/PageScrollEffects'
 
 const Home = lazy(() => import('./pages/Home'))
 const Tentang = lazy(() => import('./pages/Tentang'))
@@ -42,7 +42,6 @@ function App() {
   const location = useLocation()
   const { t } = useLanguage()
   const isAdmin = location.pathname.startsWith('/admin')
-  usePageReveal(location.pathname)
 
   return (
     <>
@@ -51,6 +50,7 @@ function App() {
       </a>
       {!isAdmin && <RouteScrollManager lenisRef={lenisRef} />}
       {!isAdmin && <Navbar lenisRef={lenisRef} />}
+      <PageScrollEffects />
       <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/admin/*" element={<Admin />} />

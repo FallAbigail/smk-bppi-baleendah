@@ -122,3 +122,10 @@ final result: passed
 Implemented visible school vision, seven missions and three teacher previews in the mobile homepage while retaining desktop appearance. Research, four scoped acceptance checks, measured contrast, screenshots and verification details: `.impeccable/critique/mobile-about-2026-11-01.md`. All four acceptance checks, browser flows, TypeScript/Vite build and diff check passed.
 
 final result: passed
+
+
+# Responsive scroll effects — 2026-11-01
+
+Mobile: image reveal and page progress. Desktop: bounded photo parallax, with photo-overlay blur removed. Legacy global/section fades and scale handoffs were removed. Three actual Chrome verification passes plus touch/wheel and final campus/overlay follow-ups passed. Complete scope, fixes, test results and evidence: `.impeccable/critique/scroll-effects-2026-11-01.md`.
+
+final result: passed

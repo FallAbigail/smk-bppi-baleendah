@@ -5,7 +5,6 @@ import { ArrowRight, MessageCircle } from 'lucide-react'
 import { schoolProfile } from '../../data/schoolProfile'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { cn } from '../../utils/cn'
-import { useSlideTransition } from '../scroll/useSlideTransition'
 import HeroFacilities from './HeroFacilities'
 import WaveFace from './WaveFace'
 import {
@@ -31,12 +30,6 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
     target: heroRef,
     offset: ['start start', 'end end'],
   })
-  const { scrollYProgress: visibilityProgress } = useScroll({
-    target: heroRef,
-    offset: ['start end', 'end start'],
-  })
-  const { opacity: sectionOpacity, scale: sectionScale, y: sectionY } =
-    useSlideTransition(visibilityProgress)
 
   useEffect(() => {
     const hero = heroRef.current
@@ -87,7 +80,6 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
     <motion.section
       ref={heroRef}
       id="section-hero"
-      style={shouldReduceMotion ? undefined : { opacity: sectionOpacity }}
       className={cn(
         'hero-intro-scroll',
         skippedHomeEntry && 'hero-intro-skip-opening',
@@ -97,7 +89,6 @@ export default function Hero({ blank = false }: { blank?: boolean }) {
       <motion.div
         id="hero"
         className={cn('hero-scene-sticky', blank && 'hero-scene-empty')}
-        style={shouldReduceMotion ? undefined : { scale: sectionScale, y: sectionY }}
       >
         <motion.div
           className="hero-background-layer"
