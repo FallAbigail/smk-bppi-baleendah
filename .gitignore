@@ -29,3 +29,8 @@ data/*.db-*
 *.njsproj
 *.sln
 *.sw?
+
+# Local project documentation and Impeccable work files
+/docs/dokumentasi-project/
+*.docx
+/.impeccable/
