@@ -3069,8 +3069,6 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   .home-page #section-about .home-compact-section {
     padding-top: 6rem;
     padding-bottom: 3rem;
-    background: rgb(var(--brand-950));
-    color: rgb(var(--gray-50));
   }
 
   .home-page #section-about .home-compact-section > div {
@@ -3090,7 +3088,7 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
 
   .home-page #section-about .home-compact-section > div > div:first-child > p:first-child {
     margin-bottom: 0.8rem;
-    color: rgb(var(--brand-200));
+    color: rgb(var(--brand-700));
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.025em;
@@ -3101,7 +3099,7 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   .home-page #section-about .home-compact-section h2 {
     width: 100%;
     max-width: 18ch;
-    color: rgb(var(--gray-50));
+    color: rgb(var(--gray-900));
     font-size: clamp(1.9rem, 8vw, 2.25rem);
     font-weight: 600;
     letter-spacing: -0.035em;
@@ -3112,7 +3110,7 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   .home-page #section-about .home-compact-section > div > div:first-child > p:nth-of-type(2) {
     max-width: 39ch;
     margin-top: 0.9rem;
-    color: rgb(var(--gray-300));
+    color: rgb(var(--gray-600));
     font-size: 0.94rem;
     font-weight: 400;
     line-height: 1.72;
@@ -3122,7 +3120,7 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   .home-page #section-about .home-compact-section > div > div:first-child > a {
     min-height: 2.75rem;
     margin-top: 0.7rem;
-    color: rgb(var(--brand-200));
+    color: rgb(var(--brand-700));
     font-size: 0.9rem;
     font-weight: 600;
     text-underline-offset: 0.24em;
@@ -3216,12 +3214,12 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
 
   .home-page #section-about .mobile-about-staff {
     margin-top: 1.8rem;
-    border-top: 1px solid rgb(255 255 255 / 16%);
+    border-top: 1px solid rgb(var(--gray-200));
     padding-top: 1.35rem;
   }
 
   .home-page #section-about .mobile-about-staff > h3 {
-    color: rgb(var(--gray-50));
+    color: rgb(var(--gray-900));
     font-size: 1.2rem;
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -3296,13 +3294,32 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
   }
 
   .home-page #section-about .mobile-about-staff-link {
-    color: rgb(var(--brand-200));
+    color: rgb(var(--brand-700));
     font-size: 0.88rem;
     font-weight: 600;
   }
 
   .dark .home-page #section-about .mobile-about-values {
     color: rgb(var(--gray-50));
+  }
+
+  .dark .home-page #section-about .home-compact-section h2,
+  .dark .home-page #section-about .mobile-about-staff > h3 {
+    color: rgb(var(--gray-50));
+  }
+
+  .dark .home-page #section-about .home-compact-section > div > div:first-child > p:first-child,
+  .dark .home-page #section-about .home-compact-section > div > div:first-child > a,
+  .dark .home-page #section-about .mobile-about-staff-link {
+    color: rgb(var(--brand-300));
+  }
+
+  .dark .home-page #section-about .home-compact-section > div > div:first-child > p:nth-of-type(2) {
+    color: rgb(var(--gray-400));
+  }
+
+  .dark .home-page #section-about .mobile-about-staff {
+    border-color: rgb(var(--gray-700));
   }
 
   .dark .home-page #section-about .mobile-about-vision h3,
