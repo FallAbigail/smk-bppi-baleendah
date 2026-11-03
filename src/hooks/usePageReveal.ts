@@ -1,7 +1,11 @@
 import { useLayoutEffect } from 'react'
 
-const STAGGER_STEP_MS = 72
-const STAGGER_LIMIT_MS = 864
+function getStaggerDelay(index: number) {
+  const isMobile = window.matchMedia('(max-width: 767px)').matches
+  const step = isMobile ? 84 : 96
+  const limit = isMobile ? 420 : 480
+  return Math.min(index * step, limit)
+}
 
 function visibleChildren(element: HTMLElement) {
   return Array.from(element.children).filter((child): child is HTMLElement =>
@@ -47,9 +51,21 @@ function getRevealCandidates(container: HTMLElement) {
 
 // Images keep their original frame and receive no separate entrance effect.
 function getRevealItems(container: HTMLElement) {
-  return getRevealCandidates(container).filter((item) =>
-    !item.matches('img, picture, video, figure') && !item.querySelector('img, picture, video'),
-  )
+  const items = new Set<HTMLElement>()
+
+  function collect(item: HTMLElement, depth = 0) {
+    const containsMedia = item.matches('img, picture, video') || item.querySelector('img, picture, video')
+    if (!containsMedia) {
+      items.add(item)
+      return
+    }
+
+    if (depth >= 4 || item.matches('img, picture, video')) return
+    getRevealCandidates(item).forEach((child) => collect(child, depth + 1))
+  }
+
+  getRevealCandidates(container).forEach((item) => collect(item))
+  return [...items]
 }
 
 export function usePageReveal(pathname: string) {
@@ -72,7 +88,7 @@ export function usePageReveal(pathname: string) {
     function revealItem(item: HTMLElement, index: number) {
       if (item.classList.contains('is-revealed') || scheduledItems.has(item)) return
       scheduledItems.add(item)
-      const delay = Math.min(index * STAGGER_STEP_MS, STAGGER_LIMIT_MS)
+      const delay = getStaggerDelay(index)
       const timer = window.setTimeout(() => {
         item.classList.add('is-revealed')
         scheduledItems.delete(item)
@@ -94,7 +110,7 @@ export function usePageReveal(pathname: string) {
           knownItems.add(item)
           preparedItems.add(item)
           item.dataset.scrollReveal = 'pending'
-          item.style.setProperty('--scroll-reveal-delay', `${Math.min(index * STAGGER_STEP_MS, STAGGER_LIMIT_MS)}ms`)
+          item.style.setProperty('--scroll-reveal-delay', `${getStaggerDelay(index)}ms`)
         }
         if (revealedSections.has(section)) revealItem(item, index)
       })
