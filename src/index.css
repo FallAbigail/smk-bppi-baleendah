@@ -3063,3 +3063,270 @@ html:not(.dark) .hero-scene-empty .hero-button-secondary {
     background: rgb(var(--gray-900));
   }
 }
+
+/* The mobile school profile gets one editorial surface; its content stays unchanged. */
+@media (max-width: 767px) {
+  .home-page #section-about .home-compact-section {
+    padding-top: 6rem;
+    padding-bottom: 3rem;
+    background: rgb(var(--brand-950));
+    color: rgb(var(--gray-50));
+  }
+
+  .home-page #section-about .home-compact-section > div {
+    gap: 0;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-inline: 1.1rem;
+  }
+
+  .home-page #section-about .home-compact-section > div > div:first-child,
+  .home-page #section-about .mobile-about-details {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .home-page #section-about .home-compact-section > div > div:first-child > p:first-child {
+    margin-bottom: 0.8rem;
+    color: rgb(var(--brand-200));
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    line-height: 1.4;
+    text-transform: none;
+  }
+
+  .home-page #section-about .home-compact-section h2 {
+    width: 100%;
+    max-width: 18ch;
+    color: rgb(var(--gray-50));
+    font-size: clamp(1.9rem, 8vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  .home-page #section-about .home-compact-section > div > div:first-child > p:nth-of-type(2) {
+    max-width: 39ch;
+    margin-top: 0.9rem;
+    color: rgb(var(--gray-300));
+    font-size: 0.94rem;
+    font-weight: 400;
+    line-height: 1.72;
+    text-wrap: pretty;
+  }
+
+  .home-page #section-about .home-compact-section > div > div:first-child > a {
+    min-height: 2.75rem;
+    margin-top: 0.7rem;
+    color: rgb(var(--brand-200));
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-underline-offset: 0.24em;
+  }
+
+  .home-page #section-about .mobile-about-details {
+    margin-top: 1.35rem;
+  }
+
+  .home-page #section-about .mobile-about-values {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid rgb(var(--brand-800) / 12%);
+    border-radius: 1.125rem;
+    background: rgb(var(--brand-50));
+    color: rgb(var(--gray-900));
+    padding: 1.2rem 1.1rem 1.05rem;
+  }
+
+  .home-page #section-about .mobile-about-vision {
+    border-radius: 0;
+    border-bottom: 1px solid rgb(var(--brand-700) / 18%);
+    background: transparent;
+    color: inherit;
+    padding: 0 0 1.15rem;
+  }
+
+  .home-page #section-about .mobile-about-vision h3 {
+    color: rgb(var(--brand-700));
+    font-size: 0.76rem;
+    font-weight: 650;
+    letter-spacing: 0.035em;
+    line-height: 1.4;
+    text-transform: none;
+  }
+
+  .home-page #section-about .mobile-about-vision p {
+    width: 100%;
+    margin-top: 0.6rem;
+    color: rgb(var(--gray-900));
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 1.24rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .home-page #section-about .mobile-about-mission {
+    margin-top: 1.05rem;
+  }
+
+  .home-page #section-about .mobile-about-mission h3 {
+    color: rgb(var(--gray-900));
+    font-size: 1.05rem;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.4;
+  }
+
+  .home-page #section-about .mobile-about-mission ul {
+    display: grid;
+    gap: 0;
+    margin-top: 0.35rem;
+  }
+
+  .home-page #section-about .mobile-about-mission li {
+    align-items: flex-start;
+    gap: 0.65rem;
+    border-bottom: 1px solid rgb(var(--brand-700) / 14%);
+    color: rgb(var(--gray-800));
+    font-size: 0.88rem;
+    line-height: 1.62;
+    padding: 0.72rem 0;
+    text-wrap: pretty;
+  }
+
+  .home-page #section-about .mobile-about-mission li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0.1rem;
+  }
+
+  .home-page #section-about .mobile-about-mission svg {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.18rem;
+    color: rgb(var(--brand-700));
+  }
+
+  .home-page #section-about .mobile-about-staff {
+    margin-top: 1.8rem;
+    border-top: 1px solid rgb(255 255 255 / 16%);
+    padding-top: 1.35rem;
+  }
+
+  .home-page #section-about .mobile-about-staff > h3 {
+    color: rgb(var(--gray-50));
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.35;
+  }
+
+  .home-page #section-about .mobile-about-staff ul {
+    display: flex;
+    gap: 0.75rem;
+    width: calc(100% + 2.2rem);
+    margin: 0.9rem -1.1rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0.15rem 1.1rem 0.65rem;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 1.1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .home-page #section-about .mobile-about-staff ul::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-page #section-about .mobile-about-staff li {
+    display: grid;
+    flex: 0 0 min(76vw, 18rem);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 8.75rem auto;
+    align-content: start;
+    gap: 0.7rem;
+    min-width: 0;
+    border: 1px solid rgb(var(--gray-400) / 28%);
+    border-radius: 1rem;
+    background: rgb(var(--surface-rgb));
+    padding: 0.65rem;
+    scroll-snap-align: start;
+  }
+
+  .home-page #section-about .mobile-about-staff li + li {
+    border-top: 1px solid rgb(var(--gray-400) / 28%);
+  }
+
+  .home-page #section-about .mobile-about-portrait {
+    height: 8.75rem;
+    border-radius: 0.72rem;
+    background: rgb(var(--brand-50));
+  }
+
+  .home-page #section-about .mobile-about-portrait img {
+    object-position: center bottom;
+  }
+
+  .home-page #section-about .mobile-about-teacher-copy h4 {
+    color: rgb(var(--ink-rgb));
+    font-size: 0.91rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+  }
+
+  .home-page #section-about .mobile-about-teacher-copy p {
+    margin-top: 0.22rem;
+    color: rgb(var(--brand-700));
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  .home-page #section-about .mobile-about-staff-link {
+    color: rgb(var(--brand-200));
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  .dark .home-page #section-about .mobile-about-values {
+    color: rgb(var(--gray-50));
+  }
+
+  .dark .home-page #section-about .mobile-about-vision h3,
+  .dark .home-page #section-about .mobile-about-mission svg {
+    color: rgb(var(--brand-300));
+  }
+
+  .dark .home-page #section-about .mobile-about-vision p,
+  .dark .home-page #section-about .mobile-about-mission h3 {
+    color: rgb(var(--gray-50));
+  }
+
+  .dark .home-page #section-about .mobile-about-mission li {
+    border-color: rgb(var(--brand-300) / 16%);
+    color: rgb(var(--gray-200));
+  }
+
+  .dark .home-page #section-about .mobile-about-teacher-copy p {
+    color: rgb(var(--brand-300));
+  }
+
+  .home-page #section-about .mobile-about-staff ul:focus-visible {
+    border-radius: 0.5rem;
+    outline: 2px solid rgb(var(--brand-300));
+    outline-offset: -2px;
+  }
+}
