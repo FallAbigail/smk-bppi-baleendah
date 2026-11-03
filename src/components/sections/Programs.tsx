@@ -330,6 +330,16 @@ function ProgramCarousel({
 }) {
   const { t } = useLanguage()
   const reduceMotion = useReducedMotion()
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches)
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 767px)')
+    const syncMobileLayout = () => setIsMobile(mobileQuery.matches)
+    syncMobileLayout()
+    mobileQuery.addEventListener('change', syncMobileLayout)
+    return () => mobileQuery.removeEventListener('change', syncMobileLayout)
+  }, [])
+
   if (activeIndex === null) {
     return (
       <div className="program-carousel-empty flex min-h-[17.5rem] items-center justify-center rounded-2xl border border-gray-200 bg-gray-100 p-6 dark:border-gray-700 dark:bg-gray-800">
@@ -345,67 +355,77 @@ function ProgramCarousel({
   const activeProfile = activeProgram.description
   const ActiveIcon = programPresentation[activeProgram.icon] ?? BookOpen
 
+  const cardContent = (
+    <Link
+      to={`/program/${encodeURIComponent(activeProgram.id)}`}
+      className="program-carousel-card group grid h-full min-h-[17.5rem] grid-cols-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 sm:grid-cols-[12rem_minmax(0,1fr)] lg:grid-cols-[13.5rem_minmax(0,1fr)]"
+    >
+      <div className="flex min-h-48 items-center justify-center border-b border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800 sm:min-h-0 sm:border-b-0 sm:border-r">
+        {activeLogo ? (
+          <img
+            src={activeLogo}
+            alt={`${t('Logo')} ${t(activeProgram.title)}`}
+            className="h-36 w-36 object-contain sm:h-40 sm:w-40"
+            decoding="async"
+          />
+        ) : (
+          <span className={`flex h-36 w-36 items-center justify-center rounded-md ${programIconStyle}`}>
+            <ActiveIcon className="h-12 w-12" aria-hidden="true" />
+          </span>
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-col justify-center p-5 sm:p-7 lg:p-9">
+        <h3 className="text-xl font-semibold leading-snug text-gray-900 dark:text-white sm:text-2xl">
+          {t(activeProgram.title)}
+        </h3>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
+          {t(activeProfile)}
+        </p>
+        <div className="mt-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            {t('Fokus pembelajaran')}
+          </p>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {activeProgram.highlights.map((item) => (
+              <li
+                key={item}
+                className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+              >
+                {t(item)}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 dark:text-brand-300">
+          {t('Pelajari program')}
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+        </span>
+      </div>
+    </Link>
+  )
+
   return (
     <div>
       <div className="min-w-0">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.article
-            key={activeProgram.id}
-            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
-            transition={{ duration: reduceMotion ? 0 : 0.2 }}
-            className="h-full overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
-          >
-            <Link
-              to={`/program/${encodeURIComponent(activeProgram.id)}`}
-              className="program-carousel-card group grid h-full min-h-[17.5rem] grid-cols-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-700 sm:grid-cols-[12rem_minmax(0,1fr)] lg:grid-cols-[13.5rem_minmax(0,1fr)]"
+        {isMobile ? (
+          <article className="h-full overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+            {cardContent}
+          </article>
+        ) : (
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.article
+              key={activeProgram.id}
+              initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
+              transition={{ duration: reduceMotion ? 0 : 0.2 }}
+              className="h-full overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
             >
-              <div className="flex min-h-48 items-center justify-center border-b border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-800 sm:min-h-0 sm:border-b-0 sm:border-r">
-                {activeLogo ? (
-                  <img
-                    src={activeLogo}
-                    alt={`${t('Logo')} ${t(activeProgram.title)}`}
-                    className="h-36 w-36 object-contain sm:h-40 sm:w-40"
-                    decoding="async"
-                  />
-                ) : (
-                  <span className={`flex h-36 w-36 items-center justify-center rounded-md ${programIconStyle}`}>
-                    <ActiveIcon className="h-12 w-12" aria-hidden="true" />
-                  </span>
-                )}
-              </div>
-
-              <div className="flex min-w-0 flex-col justify-center p-5 sm:p-7 lg:p-9">
-                <h3 className="text-xl font-semibold leading-snug text-gray-900 dark:text-white sm:text-2xl">
-                  {t(activeProgram.title)}
-                </h3>
-                <p className="mt-4 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
-                  {t(activeProfile)}
-                </p>
-                <div className="mt-5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    {t('Fokus pembelajaran')}
-                  </p>
-                  <ul className="mt-2 flex flex-wrap gap-2">
-                    {activeProgram.highlights.map((item) => (
-                      <li
-                        key={item}
-                        className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                      >
-                        {t(item)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-brand-700 dark:text-brand-300">
-                  {t('Pelajari program')}
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                </span>
-              </div>
-            </Link>
-          </motion.article>
-        </AnimatePresence>
+              {cardContent}
+            </motion.article>
+          </AnimatePresence>
+        )}
       </div>
     </div>
   )
