@@ -54,8 +54,8 @@ export default function Home() {
         <Sponsors />
       </ScrollSection>
 
-      <SchoolLocation />
       <CTA />
+      <SchoolLocation />
     </main>
   )
 }
