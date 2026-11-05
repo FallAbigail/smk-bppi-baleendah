@@ -1,10 +1,13 @@
-import { useLayoutEffect } from 'react'
+import { useLayoutEffect, useRef } from 'react'
+import { hasHomeWaveOpeningSkip } from '../components/sections/heroMotion'
 
-function getStaggerDelay(index: number) {
+function getStaggerDelay(index: number, count: number) {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
-  const step = isMobile ? 84 : 96
-  const limit = isMobile ? 420 : 480
-  return Math.min(index * step, limit)
+  const step = isMobile ? 72 : 84
+  const limit = isMobile ? 360 : 420
+  const naturalDelay = index * step
+  if (count <= 1 || naturalDelay <= limit) return naturalDelay
+  return Math.round((index / (count - 1)) * limit)
 }
 
 function visibleChildren(element: HTMLElement) {
@@ -69,32 +72,37 @@ function getRevealItems(container: HTMLElement) {
 }
 
 export function usePageReveal(pathname: string) {
+  const previousPathname = useRef(pathname)
+
   useLayoutEffect(() => {
+    const isRouteChange = previousPathname.current !== pathname
+    previousPathname.current = pathname
+    const revealHomeHero = isRouteChange && pathname === '/' && hasHomeWaveOpeningSkip()
+
     if (pathname.startsWith('/admin') || typeof IntersectionObserver === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     let disposed = false
-    let frame = 0
-    let waitingForRoot = false
     let pageRoot: HTMLElement | null = null
     let sectionObserver: IntersectionObserver | null = null
     let contentObserver: MutationObserver | null = null
-    const revealTimers = new Set<number>()
     const preparedItems = new Set<HTMLElement>()
     const observedSections = new WeakSet<HTMLElement>()
     const revealedSections = new WeakSet<HTMLElement>()
-    const scheduledItems = new WeakSet<HTMLElement>()
     const sectionItems = new WeakMap<HTMLElement, Set<HTMLElement>>()
 
-    function revealItem(item: HTMLElement, index: number) {
-      if (item.classList.contains('is-revealed') || scheduledItems.has(item)) return
-      scheduledItems.add(item)
-      const delay = getStaggerDelay(index)
-      const timer = window.setTimeout(() => {
-        item.classList.add('is-revealed')
-        scheduledItems.delete(item)
-        revealTimers.delete(timer)
-      }, delay)
-      revealTimers.add(timer)
+    function revealItem(item: HTMLElement) {
+      item.classList.add('is-revealed')
+    }
+
+    function clearRevealTransition(event: TransitionEvent) {
+      if (event.propertyName !== 'transform') return
+      const item = event.target instanceof HTMLElement ? event.target : null
+      if (!item?.hasAttribute('data-scroll-reveal') || !item.classList.contains('is-revealed')) return
+
+      item.removeAttribute('data-scroll-reveal')
+      item.classList.remove('is-revealed')
+      item.style.removeProperty('--scroll-reveal-delay')
+      preparedItems.delete(item)
     }
 
     function prepareSection(section: HTMLElement) {
@@ -108,11 +116,13 @@ export function usePageReveal(pathname: string) {
       items.forEach((item, index) => {
         if (!knownItems.has(item)) {
           knownItems.add(item)
-          preparedItems.add(item)
-          item.dataset.scrollReveal = 'pending'
-          item.style.setProperty('--scroll-reveal-delay', `${getStaggerDelay(index)}ms`)
+          if (!preparedItems.has(item)) {
+            preparedItems.add(item)
+            item.dataset.scrollReveal = 'pending'
+            item.style.setProperty('--scroll-reveal-delay', `${getStaggerDelay(index, items.length)}ms`)
+          }
         }
-        if (revealedSections.has(section)) revealItem(item, index)
+        if (revealedSections.has(section)) revealItem(item)
       })
       sectionItems.set(section, knownItems)
     }
@@ -120,7 +130,9 @@ export function usePageReveal(pathname: string) {
     function scanPage() {
       if (!pageRoot?.isConnected) return
       const sections = Array.from(pageRoot.querySelectorAll<HTMLElement>('section'))
-        .filter((section) => !section.closest('#section-hero'))
+        .filter((section) => section.id === 'section-hero'
+          ? revealHomeHero
+          : !section.closest('#section-hero'))
       const standaloneArticles = Array.from(pageRoot.querySelectorAll<HTMLElement>('article'))
         .filter((article) => !article.closest('section') && !article.parentElement?.closest('article'))
       const containers = [...sections, ...standaloneArticles]
@@ -133,20 +145,10 @@ export function usePageReveal(pathname: string) {
       containers.forEach(prepareSection)
     }
 
-    function scheduleRootCheck() {
-      if (disposed || waitingForRoot) return
-      waitingForRoot = true
-      frame = window.requestAnimationFrame(() => {
-        waitingForRoot = false
-        watchPageRoot()
-      })
-    }
-
     function watchPageRoot() {
       if (disposed || pageRoot?.isConnected) return
       const candidate = document.getElementById('main-content') ?? document.querySelector<HTMLElement>('main')
       if (!candidate || candidate.getAttribute('aria-busy') === 'true' || candidate.getAttribute('role') === 'status') {
-        scheduleRootCheck()
         return
       }
 
@@ -164,6 +166,7 @@ export function usePageReveal(pathname: string) {
       contentObserver = new MutationObserver(scanPage)
       contentObserver.observe(pageRoot, { childList: true, subtree: true })
       pageRoot.addEventListener('focusin', revealFocusedItems)
+      pageRoot.addEventListener('transitionend', clearRevealTransition)
       scanPage()
     }
 
@@ -173,32 +176,38 @@ export function usePageReveal(pathname: string) {
         if (element.hasAttribute('data-scroll-reveal')) {
           element.style.setProperty('--scroll-reveal-delay', '0ms')
           element.classList.add('is-revealed')
-          scheduledItems.delete(element)
         }
         element = element.parentElement
       }
     }
 
     const rootObserver = new MutationObserver(() => {
-      if (pageRoot?.isConnected) return
-      contentObserver?.disconnect()
-      sectionObserver?.disconnect()
-      pageRoot = null
-      sectionObserver = null
-      contentObserver = null
-      scheduleRootCheck()
+      if (pageRoot && !pageRoot.isConnected) {
+        contentObserver?.disconnect()
+        sectionObserver?.disconnect()
+        pageRoot.removeEventListener('focusin', revealFocusedItems)
+        pageRoot.removeEventListener('transitionend', clearRevealTransition)
+        pageRoot = null
+        sectionObserver = null
+        contentObserver = null
+      }
+      watchPageRoot()
     })
-    rootObserver.observe(document.getElementById('root') ?? document.body, { childList: true, subtree: true })
+    rootObserver.observe(document.getElementById('root') ?? document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['aria-busy', 'role'],
+    })
     watchPageRoot()
 
     return () => {
       disposed = true
-      window.cancelAnimationFrame(frame)
       rootObserver.disconnect()
       contentObserver?.disconnect()
       sectionObserver?.disconnect()
       pageRoot?.removeEventListener('focusin', revealFocusedItems)
-      revealTimers.forEach(window.clearTimeout)
+      pageRoot?.removeEventListener('transitionend', clearRevealTransition)
       preparedItems.forEach((item) => {
         item.removeAttribute('data-scroll-reveal')
         item.classList.remove('is-revealed')
