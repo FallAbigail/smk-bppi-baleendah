@@ -1,10 +1,10 @@
 import { useLayoutEffect } from 'react'
 
-function getStaggerDelay(index: number, count: number) {
+function getStaggerDelay(index: number, count: number, preserveHomeBehavior: boolean) {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const step = reduceMotion ? 180 : isMobile ? 220 : 260
-  const limit = reduceMotion ? 900 : isMobile ? 1100 : 1300
+  const reduceMotion = !preserveHomeBehavior && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const step = preserveHomeBehavior ? isMobile ? 72 : 84 : reduceMotion ? 180 : isMobile ? 220 : 260
+  const limit = preserveHomeBehavior ? isMobile ? 360 : 420 : reduceMotion ? 900 : isMobile ? 1100 : 1300
   const naturalDelay = index * step
   if (count <= 1 || naturalDelay <= limit) return naturalDelay
   return Math.round((index / (count - 1)) * limit)
@@ -53,12 +53,12 @@ function getRevealCandidates(container: HTMLElement) {
 }
 
 // Image-bearing cards reveal as one unit; images never receive their own animation.
-function getRevealItems(container: HTMLElement) {
+function getRevealItems(container: HTMLElement, revealMediaCardsAsUnit: boolean) {
   const items = new Set<HTMLElement>()
 
   function collect(item: HTMLElement, depth = 0) {
     const containsMedia = item.matches('img, picture, video') || item.querySelector('img, picture, video')
-    const isMediaCard = item.matches('article, [data-reveal-unit]')
+    const isMediaCard = revealMediaCardsAsUnit && item.matches('article, [data-reveal-unit]')
     if (!containsMedia || isMediaCard) {
       items.add(item)
       return
@@ -74,7 +74,13 @@ function getRevealItems(container: HTMLElement) {
 
 export function usePageReveal(pathname: string) {
   useLayoutEffect(() => {
-    if (pathname.startsWith('/admin') || typeof IntersectionObserver === 'undefined') return
+    const preserveHomeBehavior = pathname === '/'
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (
+      pathname.startsWith('/admin') ||
+      typeof IntersectionObserver === 'undefined' ||
+      (preserveHomeBehavior && reduceMotion)
+    ) return
 
     let disposed = false
     let pageRoot: HTMLElement | null = null
@@ -117,7 +123,7 @@ export function usePageReveal(pathname: string) {
     }
 
     function clearRevealTransition(event: TransitionEvent) {
-      const completedProperty = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const completedProperty = !preserveHomeBehavior && window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ? 'opacity'
         : 'transform'
       if (event.propertyName !== completedProperty) return
@@ -142,7 +148,7 @@ export function usePageReveal(pathname: string) {
       const routeEntryItems = new Set<HTMLElement>()
       if (!routeEntryRevealScheduled) {
         containers.forEach((container) => {
-          getRevealItems(container).forEach((item) => {
+          getRevealItems(container, !preserveHomeBehavior).forEach((item) => {
             if (preparedItems.has(item)) return
             const bounds = item.getBoundingClientRect()
             if (bounds.top < window.innerHeight && bounds.bottom > 0) routeEntryItems.add(item)
@@ -151,7 +157,7 @@ export function usePageReveal(pathname: string) {
       }
 
       const routeEntryDelays = new Map(
-        [...routeEntryItems].map((item, index) => [item, getStaggerDelay(index, routeEntryItems.size)]),
+        [...routeEntryItems].map((item, index) => [item, getStaggerDelay(index, routeEntryItems.size, preserveHomeBehavior)]),
       )
 
       containers.forEach((section) => {
@@ -161,25 +167,36 @@ export function usePageReveal(pathname: string) {
         }
 
         const knownItems = sectionItems.get(section) ?? new Set<HTMLElement>()
-        const items = getRevealItems(section)
+        const items = getRevealItems(section, !preserveHomeBehavior)
         items.forEach((item, index) => {
           if (!knownItems.has(item)) {
             knownItems.add(item)
             if (!preparedItems.has(item)) {
               preparedItems.add(item)
               item.dataset.scrollReveal = 'pending'
-              const delay = routeEntryDelays.get(item) ?? getStaggerDelay(index, items.length)
+              const delay = routeEntryDelays.get(item) ?? getStaggerDelay(index, items.length, preserveHomeBehavior)
               item.style.setProperty('--scroll-reveal-delay', `${delay}ms`)
             }
           }
         })
         sectionItems.set(section, knownItems)
-        if (revealedSections.has(section)) scheduleReveal(items)
+        if (revealedSections.has(section)) {
+          if (preserveHomeBehavior) items.forEach(revealItem)
+          else scheduleReveal(items)
+        }
       })
 
       if (routeEntryItems.size > 0) {
         routeEntryRevealScheduled = true
-        scheduleReveal(routeEntryItems)
+        if (preserveHomeBehavior) {
+          const frame = window.requestAnimationFrame(() => {
+            revealFrames.delete(frame)
+            routeEntryItems.forEach(revealItem)
+          })
+          revealFrames.add(frame)
+        } else {
+          scheduleReveal(routeEntryItems)
+        }
       }
 
     }
@@ -192,12 +209,15 @@ export function usePageReveal(pathname: string) {
       }
 
       pageRoot = candidate
+      if (!preserveHomeBehavior) pageRoot.dataset.pageRevealMode = 'stagger'
       sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return
           const section = entry.target as HTMLElement
           revealedSections.add(section)
-          scheduleReveal(sectionItems.get(section) ?? getRevealItems(section))
+          const items = sectionItems.get(section) ?? new Set(getRevealItems(section, !preserveHomeBehavior))
+          if (preserveHomeBehavior) items.forEach(revealItem)
+          else scheduleReveal(items)
           sectionObserver?.unobserve(section)
         })
       }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' })
@@ -248,6 +268,7 @@ export function usePageReveal(pathname: string) {
       revealFrames.forEach(window.cancelAnimationFrame)
       pageRoot?.removeEventListener('focusin', revealFocusedItems)
       pageRoot?.removeEventListener('transitionend', clearRevealTransition)
+      pageRoot?.removeAttribute('data-page-reveal-mode')
       preparedItems.forEach((item) => {
         item.removeAttribute('data-scroll-reveal')
         item.classList.remove('is-revealed')
