@@ -78,6 +78,8 @@ export function usePageReveal(pathname: string) {
     let pageRoot: HTMLElement | null = null
     let sectionObserver: IntersectionObserver | null = null
     let contentObserver: MutationObserver | null = null
+    let routeEntryRevealScheduled = false
+    const revealFrames = new Set<number>()
     const preparedItems = new Set<HTMLElement>()
     const observedSections = new WeakSet<HTMLElement>()
     const revealedSections = new WeakSet<HTMLElement>()
@@ -98,28 +100,6 @@ export function usePageReveal(pathname: string) {
       preparedItems.delete(item)
     }
 
-    function prepareSection(section: HTMLElement) {
-      if (!observedSections.has(section)) {
-        observedSections.add(section)
-        sectionObserver?.observe(section)
-      }
-
-      const knownItems = sectionItems.get(section) ?? new Set<HTMLElement>()
-      const items = getRevealItems(section)
-      items.forEach((item, index) => {
-        if (!knownItems.has(item)) {
-          knownItems.add(item)
-          if (!preparedItems.has(item)) {
-            preparedItems.add(item)
-            item.dataset.scrollReveal = 'pending'
-            item.style.setProperty('--scroll-reveal-delay', `${getStaggerDelay(index, items.length)}ms`)
-          }
-        }
-        if (revealedSections.has(section)) revealItem(item)
-      })
-      sectionItems.set(section, knownItems)
-    }
-
     function scanPage() {
       if (!pageRoot?.isConnected) return
       const sections = Array.from(pageRoot.querySelectorAll<HTMLElement>('section'))
@@ -127,13 +107,55 @@ export function usePageReveal(pathname: string) {
       const standaloneArticles = Array.from(pageRoot.querySelectorAll<HTMLElement>('article'))
         .filter((article) => !article.closest('section') && !article.parentElement?.closest('article'))
       const containers = [...sections, ...standaloneArticles]
+      if (containers.length === 0) containers.push(pageRoot)
 
-      if (containers.length === 0) {
-        prepareSection(pageRoot)
-        return
+      const routeEntryItems = new Set<HTMLElement>()
+      if (!routeEntryRevealScheduled) {
+        containers.forEach((container) => {
+          getRevealItems(container).forEach((item) => {
+            if (preparedItems.has(item)) return
+            const bounds = item.getBoundingClientRect()
+            if (bounds.top < window.innerHeight && bounds.bottom > 0) routeEntryItems.add(item)
+          })
+        })
       }
 
-      containers.forEach(prepareSection)
+      const routeEntryDelays = new Map(
+        [...routeEntryItems].map((item, index) => [item, getStaggerDelay(index, routeEntryItems.size)]),
+      )
+
+      containers.forEach((section) => {
+        if (!observedSections.has(section)) {
+          observedSections.add(section)
+          sectionObserver?.observe(section)
+        }
+
+        const knownItems = sectionItems.get(section) ?? new Set<HTMLElement>()
+        const items = getRevealItems(section)
+        items.forEach((item, index) => {
+          if (!knownItems.has(item)) {
+            knownItems.add(item)
+            if (!preparedItems.has(item)) {
+              preparedItems.add(item)
+              item.dataset.scrollReveal = 'pending'
+              const delay = routeEntryDelays.get(item) ?? getStaggerDelay(index, items.length)
+              item.style.setProperty('--scroll-reveal-delay', `${delay}ms`)
+            }
+          }
+          if (revealedSections.has(section)) revealItem(item)
+        })
+        sectionItems.set(section, knownItems)
+      })
+
+      if (routeEntryItems.size > 0) {
+        routeEntryRevealScheduled = true
+        const frame = window.requestAnimationFrame(() => {
+          revealFrames.delete(frame)
+          routeEntryItems.forEach(revealItem)
+        })
+        revealFrames.add(frame)
+      }
+
     }
 
     function watchPageRoot() {
@@ -197,6 +219,7 @@ export function usePageReveal(pathname: string) {
       rootObserver.disconnect()
       contentObserver?.disconnect()
       sectionObserver?.disconnect()
+      revealFrames.forEach(window.cancelAnimationFrame)
       pageRoot?.removeEventListener('focusin', revealFocusedItems)
       pageRoot?.removeEventListener('transitionend', clearRevealTransition)
       preparedItems.forEach((item) => {
