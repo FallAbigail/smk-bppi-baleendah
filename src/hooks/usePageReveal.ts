@@ -3,7 +3,7 @@ import { useLayoutEffect } from 'react'
 function getStaggerDelay(index: number, count: number, preserveHomeBehavior: boolean) {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
   const reduceMotion = !preserveHomeBehavior && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const step = preserveHomeBehavior ? isMobile ? 72 : 84 : reduceMotion ? 180 : isMobile ? 220 : 260
+  const step = preserveHomeBehavior ? isMobile ? 72 : 84 : reduceMotion ? 180 : isMobile ? 280 : 320
   const limit = preserveHomeBehavior ? isMobile ? 360 : 420 : reduceMotion ? 900 : isMobile ? 1100 : 1300
   const naturalDelay = index * step
   if (count <= 1 || naturalDelay <= limit) return naturalDelay
@@ -88,6 +88,7 @@ export function usePageReveal(pathname: string) {
     let contentObserver: MutationObserver | null = null
     let routeEntryRevealScheduled = false
     const revealFrames = new Set<number>()
+    const revealTimers = new Set<number>()
     const preparedItems = new Set<HTMLElement>()
     const scheduledItems = new WeakSet<HTMLElement>()
     const observedSections = new WeakSet<HTMLElement>()
@@ -95,7 +96,7 @@ export function usePageReveal(pathname: string) {
     const sectionItems = new WeakMap<HTMLElement, Set<HTMLElement>>()
 
     function revealItem(item: HTMLElement) {
-      if (item.isConnected) item.classList.add('is-revealed')
+      if (item.isConnected && item.hasAttribute('data-scroll-reveal')) item.classList.add('is-revealed')
     }
 
     function scheduleReveal(items: Iterable<HTMLElement>) {
@@ -115,7 +116,22 @@ export function usePageReveal(pathname: string) {
         const secondFrame = window.requestAnimationFrame(() => {
           revealFrames.delete(secondFrame)
           if (disposed) return
-          newItems.forEach(revealItem)
+          newItems.forEach((item) => {
+            const configuredDelay = Number.parseFloat(item.style.getPropertyValue('--scroll-reveal-delay'))
+            const delay = Number.isFinite(configuredDelay) ? Math.max(0, configuredDelay) : 0
+            item.style.setProperty('--scroll-reveal-delay', '0ms')
+
+            if (delay === 0) {
+              revealItem(item)
+              return
+            }
+
+            const timer = window.setTimeout(() => {
+              revealTimers.delete(timer)
+              if (!disposed) revealItem(item)
+            }, delay)
+            revealTimers.add(timer)
+          })
         })
         revealFrames.add(secondFrame)
       })
@@ -266,6 +282,7 @@ export function usePageReveal(pathname: string) {
       contentObserver?.disconnect()
       sectionObserver?.disconnect()
       revealFrames.forEach(window.cancelAnimationFrame)
+      revealTimers.forEach(window.clearTimeout)
       pageRoot?.removeEventListener('focusin', revealFocusedItems)
       pageRoot?.removeEventListener('transitionend', clearRevealTransition)
       pageRoot?.removeAttribute('data-page-reveal-mode')
