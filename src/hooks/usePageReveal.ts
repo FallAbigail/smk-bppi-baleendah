@@ -1,5 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
-import { hasHomeWaveOpeningSkip } from '../components/sections/heroMotion'
+import { useLayoutEffect } from 'react'
 
 function getStaggerDelay(index: number, count: number) {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
@@ -72,13 +71,7 @@ function getRevealItems(container: HTMLElement) {
 }
 
 export function usePageReveal(pathname: string) {
-  const previousPathname = useRef(pathname)
-
   useLayoutEffect(() => {
-    const isRouteChange = previousPathname.current !== pathname
-    previousPathname.current = pathname
-    const revealHomeHero = isRouteChange && pathname === '/' && hasHomeWaveOpeningSkip()
-
     if (pathname.startsWith('/admin') || typeof IntersectionObserver === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     let disposed = false
@@ -130,9 +123,7 @@ export function usePageReveal(pathname: string) {
     function scanPage() {
       if (!pageRoot?.isConnected) return
       const sections = Array.from(pageRoot.querySelectorAll<HTMLElement>('section'))
-        .filter((section) => section.id === 'section-hero'
-          ? revealHomeHero
-          : !section.closest('#section-hero'))
+        .filter((section) => !section.closest('#section-hero'))
       const standaloneArticles = Array.from(pageRoot.querySelectorAll<HTMLElement>('article'))
         .filter((article) => !article.closest('section') && !article.parentElement?.closest('article'))
       const containers = [...sections, ...standaloneArticles]
