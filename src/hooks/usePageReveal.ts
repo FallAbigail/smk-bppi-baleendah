@@ -2,8 +2,9 @@ import { useLayoutEffect } from 'react'
 
 function getStaggerDelay(index: number, count: number) {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
-  const step = isMobile ? 72 : 84
-  const limit = isMobile ? 360 : 420
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const step = reduceMotion ? 180 : isMobile ? 220 : 260
+  const limit = reduceMotion ? 900 : isMobile ? 1100 : 1300
   const naturalDelay = index * step
   if (count <= 1 || naturalDelay <= limit) return naturalDelay
   return Math.round((index / (count - 1)) * limit)
@@ -51,13 +52,14 @@ function getRevealCandidates(container: HTMLElement) {
   return visibleChildren(branch)
 }
 
-// Images keep their original frame and receive no separate entrance effect.
+// Image-bearing cards reveal as one unit; images never receive their own animation.
 function getRevealItems(container: HTMLElement) {
   const items = new Set<HTMLElement>()
 
   function collect(item: HTMLElement, depth = 0) {
     const containsMedia = item.matches('img, picture, video') || item.querySelector('img, picture, video')
-    if (!containsMedia) {
+    const isMediaCard = item.matches('article, [data-reveal-unit]')
+    if (!containsMedia || isMediaCard) {
       items.add(item)
       return
     }
@@ -72,7 +74,7 @@ function getRevealItems(container: HTMLElement) {
 
 export function usePageReveal(pathname: string) {
   useLayoutEffect(() => {
-    if (pathname.startsWith('/admin') || typeof IntersectionObserver === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (pathname.startsWith('/admin') || typeof IntersectionObserver === 'undefined') return
 
     let disposed = false
     let pageRoot: HTMLElement | null = null
@@ -81,16 +83,44 @@ export function usePageReveal(pathname: string) {
     let routeEntryRevealScheduled = false
     const revealFrames = new Set<number>()
     const preparedItems = new Set<HTMLElement>()
+    const scheduledItems = new WeakSet<HTMLElement>()
     const observedSections = new WeakSet<HTMLElement>()
     const revealedSections = new WeakSet<HTMLElement>()
     const sectionItems = new WeakMap<HTMLElement, Set<HTMLElement>>()
 
     function revealItem(item: HTMLElement) {
-      item.classList.add('is-revealed')
+      if (item.isConnected) item.classList.add('is-revealed')
+    }
+
+    function scheduleReveal(items: Iterable<HTMLElement>) {
+      const newItems = [...items].filter((item) =>
+        item.isConnected && item.hasAttribute('data-scroll-reveal') && !scheduledItems.has(item),
+      )
+      if (newItems.length === 0) return
+
+      newItems.forEach((item) => scheduledItems.add(item))
+
+      // Let the pending state reach a paint before toggling the revealed state.
+      // A single rAF can run before the browser paints the new route, skipping the transition.
+      const firstFrame = window.requestAnimationFrame(() => {
+        revealFrames.delete(firstFrame)
+        if (disposed) return
+
+        const secondFrame = window.requestAnimationFrame(() => {
+          revealFrames.delete(secondFrame)
+          if (disposed) return
+          newItems.forEach(revealItem)
+        })
+        revealFrames.add(secondFrame)
+      })
+      revealFrames.add(firstFrame)
     }
 
     function clearRevealTransition(event: TransitionEvent) {
-      if (event.propertyName !== 'transform') return
+      const completedProperty = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'opacity'
+        : 'transform'
+      if (event.propertyName !== completedProperty) return
       const item = event.target instanceof HTMLElement ? event.target : null
       if (!item?.hasAttribute('data-scroll-reveal') || !item.classList.contains('is-revealed')) return
 
@@ -142,18 +172,14 @@ export function usePageReveal(pathname: string) {
               item.style.setProperty('--scroll-reveal-delay', `${delay}ms`)
             }
           }
-          if (revealedSections.has(section)) revealItem(item)
         })
         sectionItems.set(section, knownItems)
+        if (revealedSections.has(section)) scheduleReveal(items)
       })
 
       if (routeEntryItems.size > 0) {
         routeEntryRevealScheduled = true
-        const frame = window.requestAnimationFrame(() => {
-          revealFrames.delete(frame)
-          routeEntryItems.forEach(revealItem)
-        })
-        revealFrames.add(frame)
+        scheduleReveal(routeEntryItems)
       }
 
     }
@@ -171,7 +197,7 @@ export function usePageReveal(pathname: string) {
           if (!entry.isIntersecting) return
           const section = entry.target as HTMLElement
           revealedSections.add(section)
-          getRevealItems(section).forEach(revealItem)
+          scheduleReveal(sectionItems.get(section) ?? getRevealItems(section))
           sectionObserver?.unobserve(section)
         })
       }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' })
