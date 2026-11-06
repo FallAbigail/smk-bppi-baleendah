@@ -1,10 +1,29 @@
 import { useLayoutEffect } from 'react'
 
-function getStaggerDelay(index: number, count: number, preserveHomeBehavior: boolean) {
+type RevealVariant = 'default' | 'eskul-list' | 'eskul-detail'
+
+function getStaggerDelay(
+  index: number,
+  count: number,
+  preserveHomeBehavior: boolean,
+  revealVariant: RevealVariant,
+) {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
   const reduceMotion = !preserveHomeBehavior && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const step = preserveHomeBehavior ? isMobile ? 72 : 84 : reduceMotion ? 160 : isMobile ? 240 : 280
-  const limit = preserveHomeBehavior ? isMobile ? 360 : 420 : reduceMotion ? 800 : isMobile ? 960 : 1140
+  const step = preserveHomeBehavior
+    ? isMobile ? 72 : 84
+    : revealVariant === 'eskul-detail'
+      ? reduceMotion ? 70 : isMobile ? 90 : 100
+      : revealVariant === 'eskul-list'
+        ? reduceMotion ? 110 : isMobile ? 180 : 200
+        : reduceMotion ? 160 : isMobile ? 240 : 280
+  const limit = preserveHomeBehavior
+    ? isMobile ? 360 : 420
+    : revealVariant === 'eskul-detail'
+      ? reduceMotion ? 210 : isMobile ? 300 : 360
+      : revealVariant === 'eskul-list'
+        ? reduceMotion ? 380 : isMobile ? 640 : 720
+        : reduceMotion ? 800 : isMobile ? 960 : 1140
   const naturalDelay = index * step
   if (count <= 1 || naturalDelay <= limit) return naturalDelay
   return Math.round((index / (count - 1)) * limit)
@@ -75,6 +94,11 @@ function getRevealItems(container: HTMLElement, revealMediaCardsAsUnit: boolean)
 export function usePageReveal(pathname: string) {
   useLayoutEffect(() => {
     const preserveHomeBehavior = pathname === '/'
+    const revealVariant: RevealVariant = pathname === '/ekskul'
+      ? 'eskul-list'
+      : pathname.startsWith('/ekskul/')
+        ? 'eskul-detail'
+        : 'default'
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (
       pathname.startsWith('/admin') ||
@@ -173,7 +197,10 @@ export function usePageReveal(pathname: string) {
       }
 
       const routeEntryDelays = new Map(
-        [...routeEntryItems].map((item, index) => [item, getStaggerDelay(index, routeEntryItems.size, preserveHomeBehavior)]),
+        [...routeEntryItems].map((item, index) => [
+          item,
+          getStaggerDelay(index, routeEntryItems.size, preserveHomeBehavior, revealVariant),
+        ]),
       )
 
       containers.forEach((section) => {
@@ -190,7 +217,7 @@ export function usePageReveal(pathname: string) {
             if (!preparedItems.has(item)) {
               preparedItems.add(item)
               item.dataset.scrollReveal = 'pending'
-              const delay = routeEntryDelays.get(item) ?? getStaggerDelay(index, items.length, preserveHomeBehavior)
+              const delay = routeEntryDelays.get(item) ?? getStaggerDelay(index, items.length, preserveHomeBehavior, revealVariant)
               item.style.setProperty('--scroll-reveal-delay', `${delay}ms`)
             }
           }
@@ -226,6 +253,7 @@ export function usePageReveal(pathname: string) {
 
       pageRoot = candidate
       if (!preserveHomeBehavior) pageRoot.dataset.pageRevealMode = 'stagger'
+      if (revealVariant !== 'default') pageRoot.dataset.pageRevealVariant = revealVariant
       sectionObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return
@@ -286,6 +314,7 @@ export function usePageReveal(pathname: string) {
       pageRoot?.removeEventListener('focusin', revealFocusedItems)
       pageRoot?.removeEventListener('transitionend', clearRevealTransition)
       pageRoot?.removeAttribute('data-page-reveal-mode')
+      pageRoot?.removeAttribute('data-page-reveal-variant')
       preparedItems.forEach((item) => {
         item.removeAttribute('data-scroll-reveal')
         item.classList.remove('is-revealed')
