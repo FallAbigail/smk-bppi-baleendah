@@ -48,7 +48,7 @@ export default function ExtracurricularArticle() {
           </Link>
         </nav>
 
-        <header className="relative isolate overflow-hidden rounded-3xl border border-gray-200 bg-white text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white">
+        <header data-reveal-ignore className="relative isolate overflow-hidden rounded-3xl border border-gray-200 bg-white text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-900 dark:text-white">
           <div className="grid gap-8 p-7 sm:p-10 md:grid-cols-[minmax(0,1fr)_16rem] md:items-center lg:p-12">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-700 dark:text-brand-400">
