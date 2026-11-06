@@ -3,8 +3,8 @@ import { useLayoutEffect } from 'react'
 function getStaggerDelay(index: number, count: number, preserveHomeBehavior: boolean) {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
   const reduceMotion = !preserveHomeBehavior && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const step = preserveHomeBehavior ? isMobile ? 72 : 84 : reduceMotion ? 180 : isMobile ? 280 : 320
-  const limit = preserveHomeBehavior ? isMobile ? 360 : 420 : reduceMotion ? 900 : isMobile ? 1100 : 1300
+  const step = preserveHomeBehavior ? isMobile ? 72 : 84 : reduceMotion ? 160 : isMobile ? 240 : 280
+  const limit = preserveHomeBehavior ? isMobile ? 360 : 420 : reduceMotion ? 800 : isMobile ? 960 : 1140
   const naturalDelay = index * step
   if (count <= 1 || naturalDelay <= limit) return naturalDelay
   return Math.round((index / (count - 1)) * limit)
