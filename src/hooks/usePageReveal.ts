@@ -119,7 +119,7 @@ export function usePageReveal(pathname: string) {
           newItems.forEach((item) => {
             const configuredDelay = Number.parseFloat(item.style.getPropertyValue('--scroll-reveal-delay'))
             const delay = Number.isFinite(configuredDelay) ? Math.max(0, configuredDelay) : 0
-            item.style.setProperty('--scroll-reveal-delay', '0ms')
+            item.style.removeProperty('--scroll-reveal-delay')
 
             if (delay === 0) {
               revealItem(item)
@@ -249,7 +249,7 @@ export function usePageReveal(pathname: string) {
       let element = event.target instanceof HTMLElement ? event.target : null
       while (element && pageRoot?.contains(element)) {
         if (element.hasAttribute('data-scroll-reveal')) {
-          element.style.setProperty('--scroll-reveal-delay', '0ms')
+          element.style.removeProperty('--scroll-reveal-delay')
           element.classList.add('is-revealed')
         }
         element = element.parentElement
