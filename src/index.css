@@ -1632,9 +1632,12 @@ main[data-page-reveal-mode='stagger'] [data-scroll-reveal='pending'].is-revealed
   }
 }
 
-main[data-page-reveal-variant='eskul-list'] [data-scroll-reveal='pending'],
-main[data-page-reveal-variant='eskul-detail'] [data-scroll-reveal='pending'] {
+main[data-page-reveal-variant='eskul-list'] [data-scroll-reveal='pending'] {
   transform: translate3d(-22px, 0, 0) scale(0.985);
+}
+
+main[data-page-reveal-variant='eskul-detail'] [data-scroll-reveal='pending'] {
+  transform: translate3d(0, 22px, 0) scale(0.985);
 }
 
 main[data-page-reveal-variant='eskul-list'] [data-scroll-reveal='pending'].is-revealed {
@@ -1672,9 +1675,12 @@ main[data-page-reveal-variant='eskul-detail'] [data-scroll-reveal='pending'].is-
 }
 
 @media (max-width: 767px) {
-  main[data-page-reveal-variant='eskul-list'] [data-scroll-reveal='pending'],
-  main[data-page-reveal-variant='eskul-detail'] [data-scroll-reveal='pending'] {
+  main[data-page-reveal-variant='eskul-list'] [data-scroll-reveal='pending'] {
     transform: translate3d(-18px, 0, 0) scale(0.985);
+  }
+
+  main[data-page-reveal-variant='eskul-detail'] [data-scroll-reveal='pending'] {
+    transform: translate3d(0, 18px, 0) scale(0.985);
   }
 }
 
