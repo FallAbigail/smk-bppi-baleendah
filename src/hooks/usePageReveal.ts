@@ -6,24 +6,15 @@ function getStaggerDelay(
   index: number,
   count: number,
   preserveHomeBehavior: boolean,
-  revealVariant: RevealVariant,
 ) {
   const isMobile = window.matchMedia('(max-width: 767px)').matches
   const reduceMotion = !preserveHomeBehavior && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const step = preserveHomeBehavior
     ? isMobile ? 72 : 84
-    : revealVariant === 'eskul-detail'
-      ? reduceMotion ? 70 : isMobile ? 90 : 100
-      : revealVariant === 'eskul-list'
-        ? reduceMotion ? 110 : isMobile ? 180 : 200
-        : reduceMotion ? 160 : isMobile ? 240 : 280
+    : reduceMotion ? 110 : isMobile ? 180 : 200
   const limit = preserveHomeBehavior
     ? isMobile ? 360 : 420
-    : revealVariant === 'eskul-detail'
-      ? reduceMotion ? 210 : isMobile ? 300 : 360
-      : revealVariant === 'eskul-list'
-        ? reduceMotion ? 380 : isMobile ? 640 : 720
-        : reduceMotion ? 800 : isMobile ? 960 : 1140
+    : reduceMotion ? 380 : isMobile ? 640 : 720
   const naturalDelay = index * step
   if (count <= 1 || naturalDelay <= limit) return naturalDelay
   return Math.round((index / (count - 1)) * limit)
@@ -199,7 +190,7 @@ export function usePageReveal(pathname: string) {
       const routeEntryDelays = new Map(
         [...routeEntryItems].map((item, index) => [
           item,
-          getStaggerDelay(index, routeEntryItems.size, preserveHomeBehavior, revealVariant),
+          getStaggerDelay(index, routeEntryItems.size, preserveHomeBehavior),
         ]),
       )
 
@@ -217,7 +208,7 @@ export function usePageReveal(pathname: string) {
             if (!preparedItems.has(item)) {
               preparedItems.add(item)
               item.dataset.scrollReveal = 'pending'
-              const delay = routeEntryDelays.get(item) ?? getStaggerDelay(index, items.length, preserveHomeBehavior, revealVariant)
+              const delay = routeEntryDelays.get(item) ?? getStaggerDelay(index, items.length, preserveHomeBehavior)
               item.style.setProperty('--scroll-reveal-delay', `${delay}ms`)
             }
           }
